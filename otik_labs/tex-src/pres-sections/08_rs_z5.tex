@@ -1,0 +1,374 @@
+
+
+
+\section{Код Рида-Соломона над $\GF(5)$}
+\begin{frame}{\insertsection}
+\begin{adjustwidth}{-1.em}{-1.em}
+\setlength{\parskip}{0.5\parskip}
+% \small
+% \setlength{\parskip}{0.\parskip}
+\footnotesize
+Символы: $\GF(5) = \Integerset_5$ \hfill 
+"--- вычеты по модулю $5$,
+% В~$\GF(5)$ 
+$(-1) = 4 \neq 1$, \\ поэтому формулы частично отличаются от $\GF(2^s)$, где всегда $(-1) = 1$.
+
+Максимальная длина кода $\mu = 4$ (количество ненулевых элементов поля),\\
+$\beta = 2$ "--- примитивный: $\beta^2 = 4, \beta^3 = 3, \beta^4 = 1$ (все ненулевые элементы).
+
+
+Возможны многочлены:
+$g(x) = (x-2)$ \hfill($\kappa=1$, исправляет~$\left\lfloor\frac{\kappa}{2}\right\rfloor =0$ ошибок),
+\\
+$g(x) = (x-2)(x-4)$ \hfill ($\kappa=2$, исправляет $\left\lfloor\frac{\kappa}{2}\right\rfloor =1$ ошибку),\\ 
+$g(x) = (x-2)(x-4)(x-3)$ \hfill ($\kappa=3$, исправляет $\left\lfloor\frac{\kappa}{2}\right\rfloor =1$ ошибку).
+
+$u\leqslant 1$: м-н локаторов одной ошибки $L(x) = 1 - x X_1 = 1 - x\gamma$ (производная $L'(x) = -\gamma$), м-н ошибок $W(x) = c$ нулевой степени (то есть $Y_i = \frac{c}{-\gamma}$).
+
+
+При $\mu = 4$ код циклический: $\beta^\mu = 1 \Rightarrow (\beta^\ell)^\mu = 1 \Rightarrow $ все корни $g(x)$ также являются корнями $x^\mu - 1$: \hfill 
+$x^\mu - 1 = x^4 - 1 = x^4 + 4 = g(x)(x^2 + x + 3)$.
+% \\(для $\mu = 4$, но для $\mu = 5$ и $\mu = 6$ это не так)
+
+Выбираем $g(x) = (x-2)(x-4) = x^2 + 4x + 3$, $\kappa=2$ контрольных символа, \hfill $\nu = \mu - \kappa = 2$ информационных символа.
+
+% \vspace{-1\baselineskip}
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Систематический код Рида-Соломона (3, 1)}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.em}{-1.em}
+\setlength{\parskip}{0.4\parskip}
+\footnotesize
+
+\termin{Сообщение: $ 
+% (1, 3) 
+% запишем всё наоборот
+(3, 1)
+\sim a(x) = 3x + 1$,}
+\hfill
+"--- коэффициенты записываем наоборот,
+% (со старшего), 
+чтобы в~систематическом коде информ-е символы располагались в~начале.
+\\
+$g(x) = (x-2)(x-4) = x^2 + 4x + 3$
+
+% \vfill
+
+
+Систематический код: \hfill  $C(x) = a(x)\cdot x^\kappa - r(x)$
+
+% Для систем-го кода: 
+% \hfill 
+% $a(x)\cdot x^\kappa = 2x^3 + x^2 = g(x)(2x + 3) + 2x+1$
+
+Вычисление остатка:
+\hfill 
+$r(x) = a(x)\cdot x^{\kappa}\!\!\mod g(x) = 3x^3 + x^2 \!\!\mod g(x) =$
+\\
+$= 3\cdot\Big(x^3\!\!\mod g(x)\Big) + 1\cdot\Big(x^2\!\!\mod g(x)\Big)$,
+\hfill
+где $x^{\kappa + i}\!\!\mod g(x)$ "--- табличные.
+
+Здесь:
+$x^{\kappa + 0} = x^2 = (x^2 + 4x + 3) + x+2 \equiv x+2$,\\
+$x^{\kappa + 1} = x^3 = x \cdot x^2 \equiv x(x+2) = x^2 + 2x \equiv 3x + 2.$
+
+То есть $r(x) 
+% = a(x)\cdot x^{\kappa}\!\!\mod g(x) 
+= 3(3x + 2) + (x+2) = (4 x+ 1) + (x+2) = 3$.
+
+% \vfill
+
+
+% Сис-й код: \hfill 
+$C(x) = 3x^3 + x^2 - 3 = 3x^3 + x^2 + 2 = g(x)\cdot(3x + 4)$
+
+
+\termin{Код: 
+$C(x) \sim (\underbrace{3, 1}_{\nu}, \underbrace{0, 2}_{\kappa} )$}
+\hfill
+"--- первые (старшие) $\nu$ символов информационные.
+
+$C(x)$ делится на $g(x) ~~\Leftrightarrow~~$ 
+$C(2) = C(4) = 0 ~~\Leftrightarrow~~ $ синдром $ S(x) = 0$.
+% \hfill 
+
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Коррекция ошибок}
+\begin{frame}{\insertsubsection}
+% \begin{frame}[plain]
+\begin{adjustwidth}{-0.5em}{-0.5em}
+\footnotesize
+\setlength{\parskip}{0.3\parskip}
+
+% \vspace*{2ex}
+% \strut
+
+
+% \vfill
+
+\termin{Ошибка: 
+$(3, 1, 0, \mathbf{2}) \to (3, 1, 0, \mathbf{0})$ 
+} \hfill
+$\widetilde{C}(x) = 3x^3 +  x^2 ~\textcolor{gray}{ = 2^3 \cdot x^3 +  x^2}
+% = g(x)(2x + 3) + 2x
+$
+
+Приняли  $\widetilde{C}(x) = C(x)+e(x)$.
+Ошибка $e(x)$ неизвестна \hfill\textcolor{gray}{$e(x) = -2 = 3$}
+
+Найдём коэффициенты синдрома (степень $\kappa-1 = 1$% "--- два коэффициента, старший не обязательно 1
+): \\
+$s_0 = \widetilde{C}(2) = 3\cdot 2^3 + 2^2 = 4 + 4 = 3$\\
+$s_1 = \widetilde{C}(4) = 3\cdot 4^3 + 4^2 = 2 + 1 = 3$
+% \hfill  $S(x) = 3x + 3$.
+\\
+Синдром $S(x) = 3x + 3 \neq 0$ "--- ошибка есть, то есть $\widetilde{C}(x) \neq C(x)$.
+
+
+Найдём параметры мн-в локаторов $L(x)= 1 - \gamma x$ и~ошибок $W(x) = c$:\\
+\hfill
+$(3x + 3)(1 - \gamma x)= c \mod x^2$
+\hfill\strut\\
+получаем систему уравнений:
+$\left\{
+\begin{array}{@{}c@{~}c@{~}cl@{}}
+3 - 3 \gamma &=& 0 & \textcolor{gray}{\text{коэффициенты при $x$}}\\
+3 &=& c & \textcolor{gray}{\text{свободные члены}}\\
+\end{array}
+\right.
+$
+откуда $\gamma = 1 = 2^0$ и~$c=3$.  \hfill \textcolor{gray!20}{Решение системы "--- самая сложная часть.}
+
+Место ошибки: $x^0$ (так как $\gamma=2^0$) \hfill "--- испорчен контрольный символ,
+коррекция $Y_1 = \frac{3}{-1} = -3 = 2$:
+\hfill
+$C(x) = \widetilde{C}(x) + 2\cdot x^0 = 3x^3 + x^2 + 2$.
+
+
+
+
+
+% \vfill
+% \vspace{-1\baselineskip}
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Несистематический код Рида-Соломона}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-0.em}{-0.em}
+\setlength{\parskip}{0.5\parskip}
+\footnotesize
+
+Тот же порождающий многочлен  \hfill $g(x) = (x-2)(x-4) = x^2 + 4x + 3$, \\
+то же сообщение  \hfill $(3, 1) \sim a(x) = 3x + 1$.
+
+Несистематический код: \hfill  $C(x) = a(x)g(x) = 3 x^3 + 3 x^2 + 3 x + 3 \sim (3, 3, 3, 3)$
+\\
+тоже $\mu = 4$ символа, но нельзя отделить инф-е от~контрольных.
+
+Восстановление сообщения: $C(x)h(x) = a(x)g(x)h(x) = a(x)(x^\mu - 1)$,
+где~$h(x)$ "--- проверочный многочлен $h(x) = \frac{x^\mu - 1}{g(x)} = x^2 + x + 3$.
+
+$a(x)(x^\mu - 1) = (ax + b)(x^4 - 1) = a x^5 + b x^4 - ax - b \sim (a, b, 0, 0, -a, -b)$ 
+$\nu + \mu - 1 = \nu + (\nu + \kappa) -1$ степени; $2\nu + \kappa$ символов, из них $\kappa$ нулей.
+
+$C(x)h(x) = (3 x^3 + 3 x^2 + 3 x + 3)(x^2 + x + 3) = 3 x^5 + x^4 + 2 x + 4$
+% = 2 x^5 + x^4 -2  x -1
+\\
+$\sim (3, 1, 0, 0, 2, 4) = (3, 1, 0, 0, -3, -1)$
+
+Синдром и~коррекция "--- аналогично систематическому коду.
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\subsection{ДПФ Рида-Соломона}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-0.5em}{-1.em}
+\setlength{\parskip}{0.5\parskip}
+\footnotesize
+
+То же сообщение  
+% \hfill 
+$(3, 1) \sim a(x) = 3x + 1$
+(коэффициенты записываем в~обратном порядке, как и~ранее, но здесь это неудобно).
+
+$\textcolor{gray}{\beta^{-4} = 1,  \beta^{-3} = 2,  \beta^{-2} = 4,  \beta^{-1} = 3,} ~ \beta^0 = 1,  \beta^1 = 2,  \beta^2 = 4,  \beta^3 = 3\textcolor{gray}{,  \beta^4 = 1}$
+
+
+\setlength{\arraycolsep}{2pt}
+
+Кодирование:
+% (несистематический код)
+$
+\begin{array}{cclclclclcl@{}}
+c_0 &=& a(\beta^0) &=& a(1) &=& 3\cdot 1 + 1 && &=& 4\\
+c_1 &=& a(\beta^1) &=& a(2) &=& 3\cdot 2 + 1 &=& 1+1  &=& 2\\
+c_2 &=& a(\beta^2) &=& a(4) &=& 3\cdot 4 + 1 &=& 2+1  &=& 3\\
+c_3 &=& a(\beta^3) &=& a(3) &=& 3\cdot 3 + 1 &=& 4+1  &=& 0\\
+\end{array}
+$
+
+
+$(0, 3, 2, 4)$ 
+% "--- в~обратном порядке, как и~ранее: 
+% \hfill  
+$ \sim C(x) = 3 x^2 + 2 x + 4$
+
+Восстановление:
+$
+\begin{array}{ccccccccccc@{}}
+a_0 &=& \frac{C(\beta^{0})}{\mu}  &=& \frac{3\cdot 2^0 + 2 \cdot 2^0 + 4}{4}       &=& \frac{3 + 2 + 4}{4} &=& \frac{4}{4}&=& 1\\
+a_1 &=& \frac{C(\beta^{-1})}{\mu} &=& \frac{3\cdot 2^{-2} + 2 \cdot 2^{-1} + 4}{4} &=& \frac{2 + 1 + 4}{4} &=& \frac{2}{4} &=& 3\\
+a_2 &=& \frac{C(\beta^{-2})}{\mu} &=& \frac{3\cdot 2^{-4} + 2 \cdot 2^{-2} + 4}{4} &=& \frac{3 + 3 + 4}{4} &=& \frac{0}{4} &=& 0\\
+a_3 &=& \frac{C(\beta^{-3})}{\mu} &=& \frac{3\cdot 2^{-6} + 2 \cdot 2^{-3} + 4}{4} &=& \frac{2 + 4 + 4}{4} &=& \frac{0}{4} &=& 0\\
+\end{array}
+$
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\subsection{Сообщение  (2, 1)}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.em}{-1.em}
+\setlength{\parskip}{0.\parskip}
+\footnotesize
+
+\termin{Сообщение: $ 
+% (1, 2) 
+% запишем всё наоборот
+(2, 1)
+\sim a(x) = 2x + 1$,}
+\hfill
+$g(x) = (x-2)(x-4) = x^2 + 4x + 3$
+
+$r(x) 
+= 2(3x + 2) + (x+2) = (x + 4) + (x+2) = 2x + 1$.
+
+$\textterminblue{C(x) = 2x^3 + x^2 - (2x + 1) = 2x^3 + x^2 + 3x + 4} = g(x)(2x + 3) \sim \textterminblue{(2, 1, 3, 4)}$
+
+\vfill
+
+\termin{Ошибка №1: 
+% $(4, 3, 1, 2) \to (4, 0, 1, 2)$
+$(2, 1, \mathbf{3}, 4) \to (2, 1, \mathbf{0}, 4)$ % запятая всё равно под \mathbf не жирная, а отступ после запятой портится
+}
+\hfill 
+% $e(x) = -3x = 2x$ 
+$\widetilde{C}(x) = 2x^3 +  x^2 + 4
+% = g(x)(2x + 3) + 2x
+$ \hfill 
+
+
+Синдром:
+$s_0 = \widetilde{C}(2) = 4$,
+$s_1 = \widetilde{C}(4) = 3$: \hfill  $S(x) = 3x + 4 \neq 0$
+
+Из $(3x + 4)(1 - \gamma x) = c \mod x^2$ находим: $\gamma = \frac{3}{4} = 2$ и~$4=c$.
+
+Место ошибки: $x^1$ (так как $\gamma=2^1$) \hfill "--- испорчен контрольный символ,
+коррекция $Y_1 = \frac{4}{-2} = -2 = 3$:
+\hfill
+$C(x) = \widetilde{C}(x) + 3 x = 2x^3 + x^2 + 3x + 4$.
+
+\vfill
+
+\termin{Ошибка №2: 
+% $(4, 3, 1, 2) \to (4, 3, 1, 4)$
+$(\mathbf{2}, 1, 3, 4) \to (\mathbf{4}, 1, 3, 4)$
+}\hfill 
+% \textcolor{gray}{Ошибка $e(x) = -2x^3 \equiv 2 x + 4 \!\!\mod g(x)$}
+$\widetilde{C}(x) = 4x^3 + x^2 + 3x + 4$ \hfill 
+\\
+Синдром:
+$s_0 = \widetilde{C}(2) = 1$,
+$s_1 = \widetilde{C}(4) = 3$: \hfill  $S(x) = 3x + 1
+% $
+% \\
+% $S(x) 
+\neq 0$ "--- 
+% ошибка есть.
+ошибка.
+
+Из $(3x + 1)(1 - \gamma x) = c \mod x^2$ находим: \hfill  $\gamma = 3 = 2^3$, \hfill  $c = 1$, \hfill \\ коррекция $Y_1 = \frac{1}{-3} = -2 = 3$:
+ \hfill $C(x) = \widetilde{C}(x) + 3 x^3 = 2x^3 + x^2 + 3x + 4$.
+
+% \vfill
+% \vspace{-1\baselineskip}
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\begin{frame}
+\begin{adjustwidth}{-0.5em}{-1.em}
+\setlength{\parskip}{0.3\parskip}
+\footnotesize
+
+
+Тот же порождающий многочлен  \hfill $g(x) = (x-2)(x-4) = x^2 + 4x + 3$, \\
+то же сообщение  \hfill $(2, 1) \sim a(x) = 2x + 1$.
+
+$\textcolor{gray}{\beta^{-4} = 1,  \beta^{-3} = 2,  \beta^{-2} = 4,  \beta^{-1} = 3,} ~ \beta^0 = 1,  \beta^1 = 2,  \beta^2 = 4,  \beta^3 = 3\textcolor{gray}{,  \beta^4 = 1}$
+
+\vfill
+
+Несистематический код: \hfill  $C(x) = a(x)g(x) = 2 x^3 + 4 x^2 + 3 \sim (2, 4, 0, 3)$
+
+$C(x)h(x) = (2 x^3 + 4 x^2 + 3)(x^2 + x + 3) = 2 x^5 + x^4 + 3 x +4 $
+% = 2 x^5 + x^4 -2  x -1
+\\
+$\sim (2, 1, 0, 0, 3, 4) = (2, 1, 0, 0, -2, -1)$
+
+
+\vfill
+
+\setlength{\arraycolsep}{1.5pt}
+
+ДПФ Рида"--~Соломона:
+$(2, 4, 0, 3)$ 
+% "--- в~обратном порядке, как и~ранее: 
+% \hfill  
+$ \sim C(x) = 2 x^3 + 4 x^2 + 3$
+\hfill
+\textcolor{gray}{совп.~случайно}
+
+$
+\begin{array}{cclclclclcl@{}}
+c_0 &=& a(1) &=& 2\cdot 1 + 1 && &=& 3\\
+c_1 &=& a(2) &=& 2\cdot 2 + 1 &=& 4+1  &=& 0\\
+c_2 &=& a(4) &=& 2\cdot 4 + 1 &=& 3+1  &=& 4\\
+c_3 &=& a(3) &=& 2\cdot 3 + 1 &=& 1+1  &=& 2\\
+\end{array}
+$
+\hfill
+$
+\begin{array}{ccccccccccc@{}}
+a_0 &=& \frac{2\cdot 2^0 + 4 \cdot 2^0 + 3}{4} &=& \frac{2 + 4 + 3}{4} &=& \frac{4}{4}&=& 1\\
+a_1 &=& \frac{2\cdot 2^{-3} + 4 \cdot 2^{-2} + 3}{4} &=& \frac{4 + 1 + 3}{4} &=& \frac{3}{4} &=& 2\\
+a_2 &=& \frac{2\cdot 2^{-6} + 4 \cdot 2^{-4} + 3}{4} &=& \frac{3 + 4 + 3}{4} &=& \frac{0}{4} &=& 0\\
+a_3 &=& \frac{2\cdot 2^{-9} + 4 \cdot 2^{-6} + 3}{4} &=& \frac{1 + 1 + 3}{4} &=& \frac{0}{4} &=& 0\\
+\end{array}
+$
+
+
+\end{adjustwidth}
+\end{frame}
+
+

@@ -1,0 +1,244 @@
+% \section{Двоичный симметричный канал}
+\subsection{Двоичный симметричный канал}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.4em}{-2.1em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+% \vspace*{-2\baselineskip}
+
+\begin{tabularx}{1\linewidth}{@{}>{\raggedright\arraybackslash}X@{}c@{}}
+
+От $X$ к~$Y$ передаются символы 0 и~1 ($k$~символов в~единицу времени).
+\medskip
+
+Каждый символ, независимо от других, с~вероятностью $\alpha$ 
+% может быть 
+% искажён (т.\,е. заменён противоположным). 
+инвертируется.
+% Требуется найти пропускную способность канала. 
+
+Есть как шум, так и~потери.
+
+&
+\scriptsize
+% \raisebox{4ex}[0mm][0mm]{
+  \begin{tikzpicture}%[baseline=(current bounding box.north)]
+  [baseline=(K-1-1.base)]
+    \matrix (K)
+    [matrix of math nodes,%
+    ampersand replacement=\&,
+    nodes={outer sep=0pt,circle,minimum size=4pt,draw},
+    column sep={32ex,between origins},
+    row sep={16ex,between origins}]
+    {
+      0 \& 0\\
+      1 \& 1\\
+    };
+  \draw[arrowline] (K-1-1) -- node[text=yx,auto,pos=0.8] {$\alpha$} (K-2-2);
+  \draw[arrowline] (K-2-1) -- node[text=yx,auto,pos=0.2] {$\alpha$}  node[text=xy,pos=0.8, inner sep=0pt, outer sep=0pt] {$\frac{\alpha(1-q)}{r}$} (K-1-2);
+  
+  \draw[arrowline] (K-1-1) -- node[text=yx,auto,pos=0.2] {$1-\alpha$}  node[text=xy,auto,pos=0.8] {$\frac{(1-\alpha)q}{r}$}(K-1-2);
+  \draw[arrowline] (K-2-1) -- node[text=yx,auto,swap] {$1-\alpha$} (K-2-2);
+  
+  \node[left=0em of K-1-1] {$q$};
+  \node[left=0em of K-2-1] {$1-q$};
+  
+  \node[right=0em of K-1-2] {$r$};
+  \node[right=0em of K-2-2] {$1-r$};  
+  \end{tikzpicture}
+% }
+\end{tabularx}
+Пусть $X$ производит %символы 
+$x_1=0$ и $x_2=1$ с~вероятностями $q$ и~$1-q$,\\
+на~выходе $Y$ "--- $y_1=0$ и $y_2=1$ с~вероятностями $r \, \textcolor{gray}{=(1-\alpha)q + \alpha(1-q)}$ и~$1-r$.
+\medskip
+
+\scriptsize
+
+{\color{yx}
+
+$\displaystyle
+H(Y|X) 
+= - \sum_{i} p(x_i) \sum_{j}p(y_j|x_i) \cdot \log_2{p(y_j|x_i)} 
+= q\cdot H(Y|x{=}0) + (1-q)\cdot H(Y|x{=}1)
+$
+% \begin{adjustwidth}{-1.em}{-2em}
+% \scriptsize
+% \begin{adjustwidth}{-2.5em}{-2em}
+}
+
+$H(Y|x{=}0) = - \sum\limits_{j=1}^2 p(y_j|x{=}0) \cdot  \log_2 p(y_j|x{=}0) 
+= - (1{-}\alpha)\log_2(1{-}\alpha) - \alpha \log_2\alpha 
+$
+\\
+$H(Y|x{=}1) = - \sum\limits_{j=1}^2 p(y_j|x{=}1) \cdot  \log_2 p(y_j|x{=}1) 
+=  - \alpha  \log_2\alpha - (1{-}\alpha)\log_2(1{-}\alpha) 
+= H(Y|x{=}0) 
+$
+
+{\color{yx}
+
+$
+H(Y|X)%  = q\cdot H(Y|x_1) + (1-q)\cdot H(Y|x_1)
+= \Big( q + (1-q) \Big) \cdot H(Y|x{=}0) = H(Y|x{=}0)
+% = \Big( q + (1-q) \Big) \cdot \Big( - \alpha \cdot \log_2\alpha - (1-\alpha)\cdot\log_2(1-\alpha) \Big)
+=  - \alpha \cdot \log_2\alpha - (1-\alpha)\cdot\log_2(1-\alpha) 
+$
+}
+
+\end{adjustwidth}
+\end{frame}
+
+% \begingroup
+% \setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+
+% \subsection{Макс. передаваемая информация на символ}
+% \subsection{Передаваемая информация}
+\frametitle{Передаваемая информация}
+
+\begin{frame}[plain]%[allowframebreaks]
+% {\insertsubsection}
+\begin{adjustwidth}{-1em}{-1.5em}
+% \small
+\footnotesize
+\setlength{\parskip}{0.\parskip}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+$I(Y) = -r\cdot \log_2 r -(1-r)\cdot \log_2 (1-r)$
+\medskip
+
+
+Передаваемая информация на символ
+% 
+% $$
+% I(X,Y)= I(Y) - H(Y|X) %= H(X) - H(Y|X)
+% % $$
+% % % $$
+% % % H(X) = -q\cdot \log_2 q -(1-q)\cdot \log_2 (1-q)
+% % % $$
+% % $$
+% , ~ \text{где} ~
+% H(Y) = -r\cdot \log_2 r -(1-r)\cdot \log_2 (1-r)
+% % \text{, где $r$ "--- вероятность 0 на выходе}
+% $$
+$
+I(X,Y)= I(Y) - H(Y|X) =
+$
+$
+=  \Big(-r\cdot \log_2 r -(1-r)\cdot \log_2 (1-r)\Big)  - \Big(  - \alpha \cdot \log_2\alpha - (1-\alpha)\cdot\log_2(1-\alpha)  \Big)
+$
+\medskip
+
+Обозначим $\eta(x) = -x\cdot \log_2 x$: $I(X,Y) = \big(  \eta(r) + \eta(1-r)  \big) - \big(  \eta(\alpha) + \eta(1-\alpha)  \big) $
+\medskip
+
+
+Макс. передаваемая информация на символ\hfill
+% $\max\limits_X \big(I(X,Y)\big)=$
+\hfill\strut\\
+% $
+% =
+% \max\limits_r
+%  \Big(-r\cdot \log_2 r -(1-r)\cdot \log_2 (1-r)\Big)  -
+% $
+% $
+%  - \Big(  - \alpha \cdot \log_2\alpha - (1-\alpha)\cdot\log_2(1-\alpha)  \Big)=
+% $
+% 
+% $
+% = 1 - \Big(  - \alpha \cdot \log_2\alpha - (1-\alpha)\cdot\log_2(1-\alpha)  \Big)=
+% $\\
+% 
+$\max\limits_X \big(I(X,Y)\big) = 
+\max\limits_X\Big(
+\big(  \eta(r) + \eta(1-r)  \big) - \big(  \eta(\alpha) + \eta(1-\alpha)  \big) 
+\Big)
+=$
+$ = \max\limits_r \Big(  \eta(r) + \eta(1-r)  \Big)
+ - \Big(  \eta(\alpha) + \eta(1-\alpha)  \Big)
+\hfill = \hfill
+1 - \Big(  \eta(\alpha) + \eta(1-\alpha)  \Big)$
+\medskip
+
+Пропускная способность: %дв.\,симметричного канала:
+$$
+C=k\cdot\max\limits_X \big(I(X,Y)\big) = k\cdot\Big(1 - \big(  \eta(\alpha) + \eta(1-\alpha)  \big) \Big)
+$$
+При $\alpha=0$ или единице $C=k$; при $\alpha=0,5$ 
+получим $C=0$.
+% пропускная способность равна нулю.
+
+\hrulefill
+
+Вероятность бессбойной передачи $m$ битов: \hfill  $p(m, 0) = (1-\alpha)^m$
+\\
+одиночной инверсии в~блоке из $m$ битов:  \hfill $p(m, 1) = m\cdot\alpha(1-\alpha)^{m-1}$
+\\
+двойной инверсии:  \hfill $p(m, 2) = C_m^2\cdot\alpha^2(1-\alpha)^{m-2} = \frac{m(m-1)}{2}\alpha^2(1-\alpha)^{m-2}$
+
+\medskip
+
+\color{gray}
+При $m=8\cdot16$ и~$\alpha=10^{-5}$: 
+
+$p(m, 0) \approx 0,9987;$ \hfill $p(m, 1) \approx 0,0013;$ \hfill $p(m, 2)\approx 8,1\cdot 10^{-7}$
+
+$p(8m, 0) \approx 0,99;$ \hfill $p(8m, 1) \approx 0,01;$ \hfill $p(8m, 2)\approx 5,2\cdot 10^{-5}$
+
+% \hfill\strut
+
+\vspace{-2\baselineskip}
+\end{adjustwidth}
+\end{frame}
+
+
+% % \subsection{Макс. передаваемая информация на символ}
+% \subsection{Пропускная способность}
+% \begin{frame}{\insertsubsection}
+% % \pagebreak
+% % Максимальная передаваемая информация на~символ \hfill
+% Макс. передаваемая информация на символ
+% $\max\limits_X \big(I(X,Y)\big)=$
+% \hfill\strut\\
+% % $
+% % =
+% % \max\limits_r
+% %  \Big(-r\cdot \log_2 r -(1-r)\cdot \log_2 (1-r)\Big)  -
+% % $
+% % $
+% %  - \Big(  - \alpha \cdot \log_2\alpha - (1-\alpha)\cdot\log_2(1-\alpha)  \Big)=
+% % $
+% % 
+% % $
+% % = 1 - \Big(  - \alpha \cdot \log_2\alpha - (1-\alpha)\cdot\log_2(1-\alpha)  \Big)=
+% % $\\
+% % 
+% $ = 
+% \max\limits_X\Big(
+% \big(  \eta(r) + \eta(1-r)  \big) - \big(  \eta(\alpha) + \eta(1-\alpha)  \big) 
+% \Big)
+% =$
+% $ = \max\limits_r \Big(  \eta(r) + \eta(1-r)  \Big)
+%  - \Big(  \eta(\alpha) + \eta(1-\alpha)  \Big)
+% =$
+% $
+% = 1 - \Big(  \eta(\alpha) + \eta(1-\alpha)  \Big)
+% $
+% 
+% Пропускная способность: %дв.\,симметричного канала:
+% $$
+% C=k\cdot\Big(1 - \big(  \eta(\alpha) + \eta(1-\alpha)  \big) \Big)
+% $$
+% 
+% 
+% % \end{adjustwidth}
+% \end{frame}

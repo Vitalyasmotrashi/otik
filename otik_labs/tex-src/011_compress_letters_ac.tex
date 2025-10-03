@@ -1,0 +1,3025 @@
+\input{commonpath}
+\input{\SRCROOTPATH/commonpres}
+
+
+%\title{Сжатие без учёта контекста. Арифметическое (интервальное) кодирование}
+\title[Сжатие без учёта контекста. Арифметическое (интервальное) кодирование]
+{%\textcolor{red}{Последняя лекция!}
+% Сжатие без учёта контекста. Арифметическое (интервальное) кодирование
+\mbox{Неразделимые энтропийные коды.} \mbox{Арифметическое (интервальное) кодирование}
+}
+
+\def\insertdate{\originsertdate{} --- актуальную версию можно найти на \url{https://gitlab.com/illinc/otik}
+% \textcolor{red}{%
+% \mbox{Л/р по АК (необязательная) перенесена на конец семестра;}
+% \mbox{соответствующие семинар и~лекция --- тоже}
+% }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lstset{xleftmargin=0mm}
+\lstset{language=C++}
+
+\def\logD{\kappa}
+\def\ByteMax{2^k-1}
+\usepackage{cancel}
+
+\begin{document}
+
+
+
+
+\tikzset{x=\linewidth, y=22mm}
+
+
+\tikzstyle{tickline}=[]
+
+
+\newcommand{\yticklevel}{0}
+\newcommand{\yleveldelta}{-1}
+\tikzset{
+  every picture/.append style={
+    execute at begin picture={\renewcommand{\yticklevel}{0}}
+  }
+}
+\newcommand{\moveyticklevel}[1][\yleveldelta]{
+    \tikzmath{
+      \oldyticklevel=\yticklevel;
+      \newyticklevel=\oldyticklevel + #1;
+%       \yticklevel=\newyticklevel;
+    }
+    \renewcommand{\yticklevel}{\newyticklevel}
+}
+
+
+
+\newcommand{\xtick}[1]{
+  \draw[tickline] ($(0,0.1)+(#1,\yticklevel)$) -- ($(0,-0.1)+(#1,\yticklevel)$);
+}
+
+\newcommand{\coordxtick}[1]{
+  \draw[tickline] ($(0,0.1)+#1$) -- ($(0,-0.1)+#1$);
+}
+
+
+\tikzstyle{thinline}=[gray]
+\tikzstyle{redline}=[red]
+\tikzstyle{thickredline}=[draw, red!50!yellow,line width=5pt,line cap=butt, blend mode=multiply]
+\tikzstyle{workdecode}=[thickredline, green!50!yellow,line width=9pt]
+
+
+\tikzstyle{binline}=[blue]
+\tikzstyle{symline}=[red]
+\tikzstyle{codenode}=[red, anchor=west]
+  \tikzstyle{scaleline}=[yellow!50!red,-latex', blend mode=multiply]
+
+  
+\colorlet{decodegreen}{green!50!black}
+  
+  
+% \def\pointminimumwidth{2mm}
+\tikzstyle{pointnodestyle}=[circle %, minimum width=\pointminimumwidth
+]
+\tikzstyle{workpointstyle}=[pointnodestyle, draw=black]
+\tikzstyle{emptypointstyle}=[workpointstyle, fill=none]
+\tikzstyle{bluepointstyle}=[workpointstyle, fill=blue]
+\tikzstyle{greenpointstyle}=[workpointstyle, fill=decodegreen]
+\tikzstyle{redpointstyle}=[workpointstyle, fill=red]
+
+% \tikzstyle{workcirclestyle}=[draw=black]
+% \tikzstyle{emptyfillstyle}=[workcirclestyle, fill=none]
+% \tikzstyle{bluefillstyle}=[workcirclestyle, fill=blue]
+% \tikzstyle{greenfillstyle}=[workcirclestyle, fill=decodegreen]
+% \tikzstyle{redfillstyle}=[workcirclestyle, fill=red]
+
+\tikzstyle{workcirclestyle}=[draw=black]
+\tikzstyle{emptyfillstyle}=[draw=gray!50!white]
+\tikzstyle{bluefillstyle}=[draw=blue]
+\tikzstyle{greenfillstyle}=[draw=decodegreen]
+\tikzstyle{redfillstyle}=[draw=red]
+
+
+\def\binlinesinangle{-20}
+\def\binlinesfontscale{1}
+\def\fontscale{1}
+\def\ticksymbolcontrol{0.3}
+\def\xtickfinal{1}
+
+\newcommand{\binlines}[2][0.5]{
+  \begin{pgfonlayer}{background}
+   \coordinate (oldtick) at (0,\yticklevel);    
+  
+%   \foreach \inangle/\fontscale in {-20/1} 
+  {
+    \foreach \lbl in {#2} {
+%       \coordinate (newtick) at ($(oldtick) + #1*(1,0)$);
+      \coordinate (newtick) at ($(oldtick) + #1*(\xtickfinal,0)$);
+    
+      \path[draw,binline] (oldtick)  to[out=\binlinesinangle,in=180-\binlinesinangle] node[binline] [sloped,below,scale=\binlinesfontscale] {$\lbl$} (newtick);
+      \coordinate (oldtick) at (newtick);   
+    }
+  }
+  \end{pgfonlayer}
+}
+
+\newcommand{\hmainline}{
+  \draw (0,\yticklevel) -- (1,\yticklevel);
+  \coordxtick{(0,\yticklevel)}
+  \coordxtick{(1,\yticklevel)}
+}
+\newcommand{\mainlines}{
+  \hmainline
+  \binlines{0,1}
+}
+
+
+\def\msgxmargin{0.01}
+\def\codepos{0.5}
+
+\newcommand{\codelabelbetween}[4][\codepos]{
+%   \node[codenode] at (${1- \codepos}*(0,#3) + \codepos*(0,#4) + (\msgxmargin,0)$) {#2};
+  \node[codenode] at (${1- #1}*(0,#3) + #1*(0,#4) + (\msgxmargin,0)$) {#2};
+}
+\newcommand{\codelabel}[3][\codepos]{\codelabelbetween[#1]{#2}{\yticklevel}{#3}}
+\newcommand{\autocodelabel}[2][\codepos]{\codelabelbetween[#1]{#2}{\oldyticklevel}{\newyticklevel}}
+\newcommand{\codelabelat}[3][]{\codelabelbetween[1]{#2}{\yticklevel}{#3}}
+
+\newcommand{\halfscalevalues}[2][]{
+%   \tikzmath{
+%     int \newl, \newh, \n;
+%     real \hscale;
+%     \hscale = #2;
+%     \n = \xtickfinal;
+%     \newl = (\l - #2 * \xtickfinal) * 2;
+%     \newh = (\h - #2 * \xtickfinal) * 2 + 1;
+%     %
+%     \l = \newl;
+%     \h = \newh;
+%   } 
+}
+\newcommand{\halfscale}[3][]{
+  \moveyticklevel
+  
+  \tikzmath{
+    \oldxlow=#2 * \xtickfinal;
+    \oldxhigh=\oldxlow + 0.5 * \xtickfinal;
+  }  
+  \draw[scaleline] (\oldxlow, \oldyticklevel) -- (0, \newyticklevel);
+%   \draw[scaleline] (\oldxhigh, \oldyticklevel) -- (1, \newyticklevel);
+  \draw[scaleline] (\oldxhigh, \oldyticklevel) -- (\xtickfinal, \newyticklevel);
+  \ifthenelse{\isempty{#1}}{}{
+    \foreach \x in {#1} {
+      \draw[scaleline] (\x, \oldyticklevel) -- ($2*(\x,0) - 2*(\oldxlow,0) + (0, \newyticklevel)$);
+    }
+  }
+  
+  \begin{pgfonlayer}{background}
+    \fill[yellow,%opacity=0.1,
+    path fading = south, blend mode=multiply] (\oldxlow, \oldyticklevel) -- (0, \newyticklevel) -- (\xtickfinal, \newyticklevel) -- (\oldxhigh, \oldyticklevel);
+  \end{pgfonlayer}
+  
+  \halfscalevalues{#2}
+  \autocodelabel{#3}
+}
+
+
+\newcommand{\decodenoscale}[2][]{
+  \moveyticklevel
+
+%   \node[codenode] at (${1- \codepos}*(0,\yticklevel) + \codepos*(0,#3) + (\msgxmargin,0)$) {#2};
+  \autocodelabel{#2}
+%   \node[msgnode] at (${1- \codepos}*(1,\yticklevel) + \codepos*(1,#4) - (\msgxmargin,0)$) {#3};
+
+}
+
+\newcommand{\finalpoint}[2][]{
+  \node[workpointstyle, #1] (finalpoint) at (#2,\yticklevel) {};
+}
+
+
+\maketitle
+\input{\SRCROOTPATH/pres-sections/symbyte.tex}
+
+
+\subsection{Идея арифметического кодирования (AC)}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7.5em}{-7.5em}
+\setlength{\leftmargini}{0ex}
+\setlength{\parskip}{0\parskip}
+\small
+\begin{enumerate}
+\item каждому сообщению $c_1c_2\ldots$ бесконечной длины соответствует вещественное число (точка)  $z \in [0; 1)$;
+
+\vfill
+
+\item каждому $C  = c_1c_2\ldots c_n$ конечной длины $n$ соответствует полуинтервал (ПИ)  $[l; r) \subseteq [0; 1)$;
+
+\vfill
+
+\item для кодирования $C$: 1) из ПИ $C$ выбирается точка: $z \in [l; r)$; 2) сохраняется длина $n$;
+
+\vfill
+
+\item 
+точка представляется в~двоичной системе счисления $z = 0,b_1b_2b_3\ldots_2$ \mbox{(сохраняется дробная часть $b_1b_2b_3\ldots$).}
+
+\end{enumerate}
+
+\hrulefill
+
+\setbeamercolor{postit}{fg=black,bg=yellow}
+\begin{beamercolorbox}[wd=\textwidth,ht=3ex,dp=2ex,center]{postit}
+Сколько бит требуется для полной записи $z \in [0; 1)$?\end{beamercolorbox}
+
+\hrulefill
+
+Сжатие:
+\begin{enumerate}
+\item $z$ сохраняется \termin{ровно} с той точностью, чтобы восстановить $n$ символов $C$ (цикл масштабирования);
+
+\vfill
+% \item при задании $z$ учитываются частоты символов $C$.
+
+\item частым сообщениям соответствуют длинные ПИ (можно выбрать точку $z$ с~короткой дробной частью):
+$\Big|[l_C; r_C)\Big| \sim p(C)$; \hfill 
+так как $\displaystyle\sum_C \Big|[l_C; r_C)\Big| = \Big|[0; 1)\Big| = 1$, то $\Big|[l_C; r_C)\Big| = p(C)$.
+\hfill\strut
+
+\vfill
+
+\textterminblue{В~данной главе моделью является источник без памяти: $p(C) = p_{\text{БП}}(C)$, $p(\xi_j) = const$.}
+
+\textterminblue{Аналогично Хаффману, AC обобщается также на марковские источники и~поточные реализации.}
+
+\end{enumerate}
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+% \begingroup
+\subsection{Арифметическое кодирование без сжатия "--- все ПИ одной длины}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5.5em}{-5.5em}
+% \footnotesize
+
+Строка $D$-ичного алфавита $C = c_1 c_2 c_3 ...$ "--- точка  $z = \overline{{0, c_1 c_2 c_3 ...}_D}$.
+
+Двоичные цифры (биты) $b_1 b_2 b_3 ...$ дробной части двоичной записи того же числа $z = \overline{{0, b_1 b_2 b_3 ...}_2} = \overline{{0, c_1 c_2 c_3 ...}_D}$ "--- код строки $C$.
+
+\begin{itemize}
+
+\item Любое значение $z \in [0, 1)$ имеет \termin{бесконечное} число цифр (часть их может быть $0$)  в~любой СС;
+
+ даже для конечного числа $D$-ичных цифр $\overline{{0, c_1 c_2 c_3 ... c_n}_D}$ двоичное представление может быть бесконечно длинным
+\termin{$\to$ округление;}
+
+\vfill
+
+\item округление к~ближайшему требует для корректного округления вычислить на одну цифру больше, чем надо
+\termin{$\to$ округление к~0.% нулю;
+}
+
+\end{itemize}
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \begingroup
+\subsection{Геометрическая интерпретация кодирования без сжатия
+%: $0,135_{10} = 0,001(00010100011110101110)_2$
+}
+\begin{frame}{\insertsubsection}
+\footnotesize
+\setlength{\parskip}{0\parskip}
+
+
+\rlap{$0,135_{10} = 0,001(00010100011110101110)_2$ "--- конечное число цифр окр-ся к~0 до $0,13\textcolor{red}{4}_{10}$}
+
+\rlap{%
+$0,135_{10} \sim 
+\left\{\begin{array}{@{}l@{}}
+\text{исходная длина (3 цифры)}\\
+\text{любое значение $z$ из полуинтервала $\Big[0,135;0,136\Big) = \Big[0,135(0);0,135(9)\Big)$}\\
+\end{array}\right.
+$
+}
+
+\vfill
+% \medskip
+
+Цифра $D$-ичного алфавита $c_1 c_2 c_3 ...$ "--- полуинтервал $\subseteq [0, 1)$
+
+\begin{tikzpicture}[y=14mm]
+
+\draw (0,0) -- (1,0);
+
+\tikzstyle{tickline}=[very thick]
+	\xtick{1}
+\foreach \x in {0,1,...,9} {
+  \tikzstyle{tickline}=[very thick]
+	\xtick{0.\x}
+  \tikzstyle{tickline}=[]
+	\node at (0.\x5, 0.5) {$\x$};
+	\node at (0.\x, -0.5) {$\frac{\x}{10}$};
+	
+	\xtick{0.1\x}	
+	\node[scale=0.4] at (0.1\x5, -0.2) {$\x$};
+	
+	\xtick{0.13\x}
+	
+}
+	\node at (1, -0.5) {$\frac{10}{10}$};
+
+\coordinate  (msg) at (0.135,0);
+  \tikzstyle{tickline}=[]
+
+
+\node[red] (msglabel) at ([yshift=-12mm]msg) {$0,135$};
+\draw[red] ([yshift=+8mm]msg)--(msglabel);
+
+% 0,00100010101
+% \moveyticklevel[-2]
+\renewcommand{\yticklevel}{-2}
+\draw (0,\yticklevel) -- (1,\yticklevel);
+
+\coordxtick{(1,\yticklevel)}
+
+
+\foreach \begn/\len/\inangle/\fontscale/\nodepos in {
+0/0.5/60/1/above, 0/0.25/-60/0.8/below, 
+0/0.125/30/0.6/above, 0.125/0.0625/-30/0.4/below, 
+0.125/.03125/0/0.2/above} {
+\foreach \x/\xe in {0/1,1/2} {
+  \coordxtick{(\begn,\yticklevel) + \x*(\len,0)}
+  \draw ($(\begn,\yticklevel) + \x*(\len,0)$)  to[out=\inangle,in=180-\inangle] node [sloped,\nodepos,scale=\fontscale] {$\x$} ($(\begn,\yticklevel) + \xe*(\len,0)$);
+	
+}}
+\node[red] (msgbin) at (0.135,-3.2) {$0,00100...$};
+\draw[red] (msglabel)--(msgbin);
+
+\node[right = of msgbin]  {$0,0010001011_2 = 0,1357421875_{10} \approx 0,135_{10}$ };
+
+% \draw[gray] (0,0)--(0,\yticklevel);
+% \draw[gray] (1,0)--(1,\yticklevel);
+% \node[red] at (0,-1) {$0$};
+% \node[red] at (1,-1) {$1$};
+
+\end{tikzpicture}
+\vspace{-2\baselineskip}
+
+
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section[AC (концепт)]{Арифметическое сжатие (концепт) "--- длина ПИ равна вероятности строки}
+
+
+
+
+
+
+\begingroup
+\tikzset{x=\linewidth, y=22mm}
+
+
+\newcommand{\ticksymbol}[1][]{
+    \draw[symline] (oldtick)     .. controls ($0.5*(oldtick) + 0.5*(newtick) + (0,\ticksymbolcontrol)$)  .. node [symline, sloped, #1] {\sym} (newtick);
+}
+
+
+\newcommand{\xaddtickandsymbol}[1][]{
+    \coordinate (newtick) at ($(oldtick) + \dlen*(\endd,0) - \dlen*(\begn,0)$);
+    \coordxtick{(newtick)}
+%     \path (oldtick)  -- node [sloped, #1] {\sym} (newtick);
+%     \draw[symline] (oldtick)  to[out=\inangle,in=180-\inangle] node [symline, sloped, #1] {\sym} (newtick);
+%     \draw[symline] (oldtick)     .. controls ($0.5*(oldtick) + 0.5*(newtick) + (0,\ticksymbolcontrol)$)  .. node [symline, sloped, #1] {\sym} (newtick);
+    
+%     \draw[symline] (oldtick)     to[out=\inangle,in=180]  node [at end, symline, sloped, #1] {\sym} ($0.5*(oldtick) + 0.5*(newtick) + (0,0.2)$)  to[out=0,in=180-\inangle] (newtick);
+    \ticksymbol[#1]
+    
+    \path[\hlinestyle] (oldtick)  -- (newtick);
+%     \ifthenelse{\equal{\hlinestyle}{thickredline}}{
+%       \coordinate (scalehi) at (newtick);
+%       \coordinate (scalelo) at (oldtick);    
+%     }{}
+  
+    \coordinate (oldtick) at (newtick);
+}
+
+
+\tikzstyle{codenode}=[black, anchor=west]
+\tikzstyle{ticksymbolstyle}=[above]
+
+\newcommand{\ABsubdiv}[3][]{
+  \foreach \begn/\endd in {#2/#3} { 
+    \coordinate (oldtick) at (#2,\yticklevel);
+    \coordxtick{(oldtick)}
+    
+    \tikzstyle{Astyle}=[]
+    \tikzstyle{Bstyle}=[]
+   
+    \ifthenelse{\equal{#1}{A}}{
+      \tikzstyle{Astyle}=[thickredline]
+      \tikzstyle{Bstyle}=[]
+    }{
+      \ifthenelse{\equal{#1}{B}}{
+        \tikzstyle{Astyle}=[]
+        \tikzstyle{Bstyle}=[thickredline]
+      }{}    
+    }
+
+  
+    \foreach \dlen/\sym/\hlinestyle in {0.666667/$A$/Astyle, 0.333333/$B$/Bstyle} { 
+      \xaddtickandsymbol[ticksymbolstyle]      
+    }
+
+
+  }
+}
+
+\newcommand{\scaledworkline}[3][thickredline]{
+    \coordxtick{(#2,\yticklevel)}
+    \coordxtick{(#3,\yticklevel)}
+    \path[#1] (#2,\yticklevel)  -- (#3,\yticklevel);
+}
+
+\def\codepos{0.7}
+
+
+\begin{frame}{\insertsection}
+% \subsection{Идея арифметического сжатия}
+% \begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-4.em}{-4.em}
+
+
+\footnotesize
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+
+\begin{enumerate}
+\item 
+Бесконечная строка $c_1c_2...c_n c_{n+1}...$ символов $T$-ичного алфавита $A$ соответствует 
+% Цепочка $c_1c_2...c_n$ символов $T$-ичного алфавита $A$ соответствует 
+вещественному числу (точке) бесконечной точности в~диапазоне $[0, 1)$.
+% полуинтервалу (ПИ) $\left[l_n, t_n\right)$: $\left[l_n, t_n\right) \subset ... \subset \left[l_1, t_1\right) \subset[0, 1)$
+
+% Определение точки 
+Соответствие
+аналогично позиционной системе счисления по~основанию $T$,
+но диапазон разбивается на $T$ \termin{неравных частей пропорционально частотам символов.}
+
+\vfill 
+\item 
+Конечная строка из $n$ символов  %$T$-ичного алфавита 
+$c_1c_2...c_n$ "--- полуинтервал  (ПИ)
+$\left[l_n, t_n\right) \subset ... \subset \left[l_1, t_1\right) \subset[0, 1)$;
+каждая его точка соответствует бесконечной строке, начинающейся с~$c_1c_2...c_n$ $\implies$ выбирается $z \in \left[l_n, t_n\right)$ с~самым коротким двоичным представлением.
+
+\vfill 
+
+\item 
+Полученная точка $z$ представляется в~двоичной системе счисления: $z = 0,b_1 b_2 ... b_m$.
+
+Исходное количество символов $n$ + битовая строка $b_1 b_2 ... b_m$ "--- код $c_1c_2...c_n$.
+
+\end{enumerate}
+% \end{frame}
+% 
+% \subsection{Пример: $AABABA$}
+% \begin{frame}{\insertsubsection}
+
+\hrulefill
+
+Сжимаем текст $AABABA$.
+% (алфавит \rlap{$\{A, B\}$).}
+Вероятность символа $A$ "--- $\frac{2}{3}$,  $B$ "--- $\frac{1}{3}$ $\Longrightarrow$ диапазон $[0; 1)$ делится $2:1$.
+
+\begin{tikzpicture}
+  \mainlines
+  \ABsubdiv{0}{1}
+%     \node at (0, 0.2) {$\omega_0$};
+%     \node at (0.666667, 0.2) {$\omega_1$};
+%     \node at (1, 0.2) {$\omega_T$};
+\end{tikzpicture}
+
+\begin{enumerate}
+\item Все строки "--- ПИ $[0, 1)$: начинающиеся с~$A$ "--- ПИ  $\left[0, \frac{2}{3}\right)$, начинающиеся с~$B$ "--- ПИ  $\left[\frac{2}{3}, 1\right)$.
+\item \mbox{Строки $A...$ "--- ПИ $\left[l_1, t_1\right) = \left[0, \frac{2}{3}\right) \subseteq [0, 1)$:} 
+вторая $A$ $\left[0, \frac{4}{9}\right)$, 
+вторая $B$ $\left[\frac{4}{9}, \frac{2}{3}\right)$
+и~т.\,д.
+
+% % $\leftrightarrow$ все точки $\left[l_1, t_1\right)$ при декодировании одного символа дают $A$;\\
+% \item \mbox{Строки $AA...$ "--- ПИ $\left[l_2, t_2\right) = \left[0, \frac{4}{9}\right) \subseteq \left[l_1, t_1\right)$ и~т.\,д.}
+\end{enumerate}
+
+% Точка $0$ "--- бесконечная строка $AAAAAAAA...$.
+
+% Строки $AABABA...$ "--- итоговый ПИ $\left[l_n, t_n\right)$: все точки $\left[l_n, t_n\right)$ при декодировании  округлении 
+% Из итогового ПИ выбирается точка $z$ с~наиболее коротким двоичным представлением; битовая строка $z$ + исходное количество символов $n = 6$ "--- код $AABABA$.
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\subsection{Геометрическая интерпретация арифметического сжатия
+}
+\begin{frame}[fragile]{\insertsubsection}
+% \vspace{-1\baselineskip}
+\begin{tikzpicture}
+%   \codelabel{$AABABA$}{2}
+  \hmainline
+  \tikzstyle{belowmini}=[below, scale=0.4]
+  \tikzstyle{abovemini}=[above, scale=0.4]
+% \tikzstyle{redline}=[red, blend mode=multiply]
+\begingroup
+  
+\renewcommand{\ticksymbol}[1][]{
+    \draw[symline] (oldtick)     to[out=\inangle,in=180]  node [at end, symline, sloped, #1] {\sym} ($0.5*(oldtick) + 0.5*(newtick) + (0,\ticksymbolcontrol)$)  to[out=0,in=180-\inangle] (newtick);
+}
+  
+  \foreach \inangle/\ticksymbolcontrol/\symbolstyle/\l/\h in {
+    90/1./above/0/1,
+    -90/-0.6/above/0/.666667,
+    90/0.6/above/0/.4444444444,
+    -90/-0.2/belowmini/0.296296/.4444444444,
+    90/0.2/abovemini/0.296296/.3950617,
+    -90/-0.05/abovemini/0.3621399/.3950617
+  }{ 
+    \tikzstyle{ticksymbolstyle}=[\symbolstyle]
+    \ABsubdiv{\l}{\h}
+  }
+\endgroup
+
+  \moveyticklevel[-1.35]
+  \hmainline
+  \foreach \begn/\len/\inangle/\fontscale/\nodepos in {
+  0/0.5/60/1/below, 0/0.25/-60/0.8/above, 
+  0.25/0.125/30/0.6/above%, 0.375/0.0625/-30/0.4/below,   0.125/.03125/0/0.2/above
+  } {
+  \foreach \x in {0,1} {
+    \coordxtick{(\begn,\yticklevel) + \x*(\len,0)}
+    \draw[binline] ($(\begn,\yticklevel) + \x*(\len,0)$)  to[out=\inangle,in=180-\inangle] node [binline, sloped,\nodepos,scale=\fontscale] {$\x$} ($(\begn,\yticklevel) + {1+\x}*(\len,0)$);
+	  
+  }}
+  
+%   \draw[redline] (0.375, 1.2) -- (0.375, -1.8);
+%   \draw[] (0.3621399, 1.2) -- (0.3621399, -1.8);
+%   \draw[] (0.38408779, 1.2) -- (0.38408779, -1.8);
+  \draw[] (0.362, 0) -- (0.362, \yticklevel);
+  \draw[] (0.384, 0) -- (0.384, \yticklevel);
+  
+  \node[red] at (0.7, -1.7) {$AABABA \to (6; 011)$};
+\end{tikzpicture}
+% \scriptsize
+% 
+% Произвольно выбранная точка из итогового полуинтервала "--- код сообщения.
+% Кроме самой точки необходимо сохранить длину сообщения.
+% 
+% $AABABA \to 6; 011$
+
+% \vspace{-1\baselineskip}
+\vfill
+
+\rlap{БАНАН $\to (5; 1101\,0111)$  $\hookrightarrow$ 
+011\_ac\_samples/banan\_realset\_integerset.pdf
+}
+
+
+\end{frame}
+
+
+\subsection{Длина арифметического кода (концепт; целочисленный длиннее)}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-6em}{-6em}
+\setlength{\parskip}{0.5\parskip}
+
+\textterminblue{%$I$ и~$p$
+Вероятности: в~данной главе везде моделью является источник без памяти, $p(\xi_j) = const$}
+
+
+\vfill
+
+% Чем вероятнее строка $C = c_1c_2...c_n$ в~источнике-модели "--- тем~больше длина $\Delta_n = t_n - l_n$ итогового ПИ $\left[l_n, t_n\right)$.
+Для строки $C = c_1c_2...c_n$
+длина итогового ПИ 
+$t_n - l_n
+= \Delta_n 
+=  p(c_1) \cdot p(c_2) \cdot...\cdot p(c_n) = p(C)
+$
+
+\vfill
+
+Если $\Delta_n \geqslant \dfrac{1}{2^k}$, 
+то $\exists z \in \left[l_n, t_n\right)$ %с~длиной 
+не более $k$ двоичных разрядов после запятой
+% (возможно, короче):
+(м.\,б. короче):
+\\
+$\Big|code(C)\Big| \leqslant k = \left\lceil \log_2\left(\dfrac{1}{\Delta_n}\right) \right\rceil
+% = \left\lceil -\log_2\left(\Delta_n\right) \right\rceil
+% = \left\lceil -\log_2\Big(p(C)\Big) \right\rceil
+= \left\lceil \log_2\left(\dfrac{1}{p(C)}\right) \right\rceil
+= \Big\lceil I(C) \Big\rceil
+$
+бит
+
+\hrulefill
+
+\vfill
+
+Для $AABABA:$ 
+$\Delta_6 = \dfrac{2}{3} \cdot \dfrac{2}{3} \cdot \dfrac{1}{3} \cdot \dfrac{2}{3} \cdot \dfrac{1}{3} \cdot \dfrac{2}{3} 
+= \dfrac{2^4}{3^6}
+\approx 0,02 \gtrsim 2^{-6}$
+$\implies$ длина кода $\leqslant 6$ бит
+
+% Сообщение из 
+20 $A$ и~10 $B$ (30 символов): $\Delta_{30} 
+= \dfrac{2^{30}}{3^{30}} 
+% \gtrsim
+\approx
+2^{-27,5}
+$
+$\implies$ $\leqslant 28$ бит
+
+\def\bitletter{m}
+Начиная с~какого $\bitletter$ сообщение из 
+$2\bitletter$ %символов 
+$A$ и~$\bitletter$~%символов 
+$B$ 
+% $2k\times A$ и~$k\times B$
+кодируется гарантированно короче $3\bitletter$ бит?
+
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Сравнение с~кодами Хаффмана (один символ)}
+
+%     \setbeamercolor{background canvas}{bg=}
+%     \includepdf{compr_lossless_ac_huff.pdf}
+    
+\tikzstyle{basicline}=[-]
+\tikzstyle{axisline}=[basicline, -latex']	% оси
+\tikzstyle{arline}=[basicline,ultra thick, red]	% график
+\tikzstyle{huffline}=[basicline,very thick, blue]	% график
+\tikzstyle{graphparams}=[samples=256,domain=.01:1]	% график
+
+\begin{frame}[fragile]{\insertsubsection{}}
+\setlength{\parskip}{0\parskip}
+
+\def\fontscale{0.6}
+\begin{tikzpicture}    [line cap=round,line join=round, y=6mm, trim left]
+%%creating the ticks and xy-axis nodes
+  \draw[axisline] (-0.04,0) -- %node[pos=0.9, below] {$z$} 
+    (1.08,0);
+  \draw[axisline] (0,-1) -- %node[pos=0.9,auto] {$y$} 
+%     node[pos=0.9,sloped, above] {$L$, бит} 
+    (0,8);
+
+  \draw[graphparams, arline, smooth]   plot(\x,{  - ln(\x) / ln(2)  });
+  \draw[graphparams, huffline, const plot]   plot(\x,{  ceil(- ln(\x) / ln(2))  });
+     
+  \node[scale=\fontscale] at (-0.02,-0.5) {$0$};
+  
+  \foreach \x in {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1} {
+    \draw[tickline] ($(0,0.1)+(\x,0)$) -- ($(0,-0.1)+(\x,0)$);
+    \node[scale=\fontscale] at ($(0,-0.5)+(\x,0)$) {$\x$};
+  }
+  
+  \foreach \y in {1, 2, 3, 4, 5, 6, 7} {
+    \draw[tickline] ($(0.01,0)+(0,\y)$) -- ($(-0.01,0)+(0,\y)$);
+    \node[scale=\fontscale] at ($(-0.02,0)+(0,\y)$) {$\y$};
+  }
+  
+  \node[scale=\fontscale, text width=5ex, anchor=north west] at (0.02,8) {Длина кода, бит};
+  \node[scale=\fontscale, anchor=east,align=right,text width=11ex] at (1.06,1.1) {Вероятность символа};
+
+  \foreach \y/\lstyle/\lbl in {6/arline/Арифметический код, 5/huffline/Код Хаффмана} {
+    \draw[\lstyle] (0.4,\y) -- (0.62,\y);
+    \node[scale=\fontscale, anchor=west] at (0.65,\y) {\lbl};
+  }
+ 
+\end{tikzpicture}
+
+\footnotesize
+Степень сжатия на типичных данных на 1-10\% лучше %, чем при кодировании 
+кода Хаффмана.
+
+Не увеличивает размера исходных данных в худшем случае.
+\end{frame}
+
+
+
+\subsection{Точность, необходимая для реализации концепта арифметического сжатия}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\setlength{\parskip}{0.3\parskip}
+
+Для 
+%реализации 
+концепта арифметического сжатия необходимо представлять все границы ПИ
+% вещественные числа 
+$[0, 1) \supseteq [l_1, t_1 ) \supseteq %[l_2, t_2) \supseteq
+\ldots \supseteq
+[l_n, t_n) \ni z$
+(дроби со знаменателем $D^n$)
+\termin{абсолютно точно.}
+% что невозможно реализовать в~программе для ЭВМ.
+
+\begin{enumerate}
+\item При использовании $float/double$ выполняется непредсказуемое округление + на~ПИ $[0, 1)$ используется 30/62 бит в~целом
+и~23/52 бита мантиссы.
+% \item а~записать больше 64 бит информации в~$double$ невозможно.
+\item 
+% Ни в~десятичной, ни в~двоичной СС %невозможно представить
+% непредставимы $\frac{1}{3}$, $\frac{1}{7}$ и~т.\,д.; в~двоичной СС непредставима   $\frac{1}{5}$.
+В~двоичной СС конечно представимы только дроби со знаменателем $2^n$, 
+% в~десятичной "---  со знаменателем $2^n 5^k$ 
+% % (так, %ни в~десятичной, ни в~двоичной СС 
+% % непредставима $\frac{1}{3}$).
+в~десятичной "---  с~$2^n 5^k$ 
+$\implies$ «неограниченные» десятичные числа не годятся.
+
+\item При округлении при кодировании и~декодировании погрешность накапливается.
+% ; исходную строку восстановить невозможно.
+
+% При использовании чисел с~плавающей запятой погрешность накапливается; 
+
+
+\end{enumerate}
+
+Целочисленная реализация арифметического сжатия "--- \termin{интервальное кодирование:}
+% \termin{Интервальное кодирование} "--- целочисленное, 
+\begin{enumerate}
+\item погрешность при декодировании должна накапливаться точно таким же образом, как при кодировании $\implies$ исходную строку можно восстановить;
+\item чем она больше, тем длиннее код $\Longleftrightarrow$ \mbox{\termin{код не совпадает с~концептом,}} хотя начало будет похожим;
+\end{enumerate}
+% $[0, 1) \supseteq [a, b) \to [0, N)$, .
+в~интервальном кодировании
+некоторый \termin{фрагмент $[a, b)$}
+% $\subseteq [0, 1)$
+вещественного ПИ $[0, 1)$ изображается в~виде целочисленного ПИ $[0, N)$; операции "--- целочисленные.
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+\section{Интервальное кодирование (базовые положения)}
+
+
+
+
+
+\begingroup
+
+
+
+\tikzstyle{pstyle0}=[emptypointstyle]
+\tikzstyle{pstyle1}=[bluepointstyle]
+\tikzstyle{pstyle2}=[greenpointstyle]
+\tikzstyle{pstyle6}=[redpointstyle]
+
+\newcommand{\hpoints}[4][]{
+  \foreach \begn/\len/\count/\startscale in {#2} {
+    \tikzmath{
+      \dlen=\len/\count;
+      coordinate \dx,\startx;
+      \dx = \dlen*(1,0);
+      \startx = (\begn,\yticklevel) + \startscale*(\dx); %+ 0.5*(\dx)
+      % тут недопустимы пустые строки
+    }
+    \foreach \x in {#3} {
+      \tikzmath{
+	let \style = emptypointstyle;
+	int \i;
+	\i = 1;
+	for \pmax in {#4}{
+	  if \x<=\pmax then { let \style = pstyle\i; };
+	  \i = \i+1;
+	};
+      }
+   
+    
+     \node[\style, #1] at ($(\startx) + \x*(\dx)$) (x\x) {};
+    
+    }
+  }
+}
+
+
+\newcommand{\xlabels}[2][]{
+  \foreach \x/\lb in {#2} {
+     \node[below = 0mm of x\x, scale=\fontscale, outer sep = 0mm, inner sep = 1pt] (lastlabelnode) {$\lb$};
+  }
+}
+
+\tikzstyle{pointnodestyle}=[circle, inner sep = 2pt, outer sep=1pt]
+\tikzset{x=\linewidth, y=8mm}
+\def\fontscale{0.6}
+
+
+
+
+
+
+
+
+\subsection{Цифровой микроскоп Ньютона}
+
+\renewcommand{\xlabels}[2][]{
+  \foreach \x/\lb in {#2} {
+     \node[below = 0.5ex of x\x, scale=\fontscale, outer sep = 0mm, inner sep = 1pt] (lastlabelnode) {$\lb$};
+  }
+}
+
+\begin{frame}{\insertsubsection}
+\footnotesize
+% \setlength{\parskip}{0.5\parskip}
+\setlength{\parskip}{0.3\parskip}
+
+\begin{adjustwidth}{-2.em}{-1.em}
+Некоторый \termin{фрагмент $[a, b)$} вещественного полуинтервала (ПИ) $[0, 1)$ изображается в~виде целочисленного ПИ $[0, N)$ 
+\end{adjustwidth}
+
+% Целочисленная реализация: 
+$[a, b) \to [0, N)% = [0, N-1]
+$
+$\Big([l_i, t_i) \subseteq [a, b) \subseteq [0, 1)
+% , ~ \text{$a$ и~$b$ дв.-круглые}
+% , ~ \text{$a$ и~$b$ дольные $N$}
+\Big)$
+\hfill
+$N >> 4 D^2, ~ \frac{N}{4} \in \Naturalset$
+
+\begin{tikzpicture}[trim left, y=10mm]
+    \tikzstyle{pointnodestyle}=[circle, inner sep = 2pt, outer sep=0pt]
+    \hmainline
+    \coordinate (R0) at (0,0);
+    \coordinate (R1) at (1,0);
+
+    \node[bluepointstyle] at (0.1875,0) (a) {};
+    \node[emptypointstyle] at (0.375,0) (b) {};
+    
+    \node[bluepointstyle]  at (0.23542,0) (l) {};
+    \node[emptypointstyle] at (0.3,0) (t) {};
+
+    \node[below = 1ex of R0, scale=\fontscale, outer sep = 0mm, inner sep = 1pt] (lastlabelnode) {$0$};
+    \node[below = 1ex of R1, scale=\fontscale, outer sep = 0mm, inner sep = 1pt] (lastlabelnode) {$1$};
+    \node[above = 1mm of a,  outer sep = 0mm, inner sep = 1pt] (lastlabelnode) {$a$};
+    \node[above = 1mm of b,  outer sep = 0mm, inner sep = 1pt] (lastlabelnode) {$b$};
+    
+    \node[right = 1em of lastlabelnode,  outer sep = 0mm, inner sep = 1pt] {$\in [0, 1) \subset \Realset$};
+    \node[above = 1mm of l,  outer sep = 0mm, inner sep = 1pt] (lastlabelnode) {$l_i$};
+    \node[above = 1mm of t,  outer sep = 0mm, inner sep = 1pt] (lastlabelnode) {$t_i$};
+    
+    
+    \moveyticklevel
+
+    \begin{pgfonlayer}{background}
+        \fill[yellow,%opacity=0.1,
+        path fading = south, blend mode=multiply] (a.center) -- (0, \newyticklevel) -- (1, \newyticklevel) -- (b.center);
+
+        \draw[ultra thick, blue] (a.center) -- (b);
+    \end{pgfonlayer}  
+
+
+    \hmainline
+    \hpoints{0/1/8/0}{0,...,8}{7}
+    \xlabels{0/0,1/1,4/\ldots\mathstrut~~~~~~\mathstrut,7/N-1,8/N}
+    %\xlabels{0/0,4/\ldots,7/N-1,8/N}
+
+    \draw[scaleline] (a) -- (x0);
+    \draw[scaleline] (b) -- (x8);
+
+    \draw[scaleline] (l) -- (0.27, \newyticklevel);
+    \draw[scaleline] (t) -- (0.6, \newyticklevel);
+
+    \node[above = 1mm of x2,  outer sep = 0mm, inner sep = 1pt] (lbil) {$l$};
+    \node[above = 1mm of x4,  outer sep = 0mm, inner sep = 1pt] (lbit) {$t$};
+    \draw (lbil) -- (x2.center);
+    \draw (lbit) -- (x4.center);
+    
+    \node[circle, fill=red,  inner sep = 1pt] at (x2.center) {};
+    \node[circle, fill=white,  inner sep = 1pt] at (x4.center) {};
+    
+    \node[right = 1em of lbit,  outer sep = 0mm, inner sep = 1pt] {$\in [0, N) \subset \Naturalset \cup \{0\}$};
+\end{tikzpicture}
+
+\begin{adjustwidth}{-2.em}{-1.em}
+
+%Далее $l$ и~$t$ "--- не настоящие $l_i$ и~$t_i$ из $[0, 1)$, а~их изображения на $[0, N)$ (целые).
+Рассматриваем вместо настоящих $l_i$ и~$t_i$ из $[0, 1)$
+их изображения на $[0, N)$ (целые) "--- одной паре $l_i$ и~$t_i$ могут соответствовать \termin{разные} изображения $l$ и~$t$ при рассмотрении разных $[a, b)$.
+
+Вначале $[a, b) = [0, 1)$, потом 
+%уменьшается вдвое (масштабирование), 
+каждый раз при возможности уменьшается вдвое,
+чтобы 
+%$l\neq t$
+изображающий 
+$[l_i, t_i)$
+целочисленный ПИ $[l, t)$
+не стал 
+% слишком маленьким (меньше $\frac{N}{4}$).
+короче $\frac{N}{4}$.
+
+Приближаем («микроскоп Ньютона») одну из половин $[a, b)$ $\Longrightarrow$ новые изображения $l$ и~$t$ масштабируются из старых изображений ($l_i, t_i \in \Realset$ недоступны).
+
+%
+% $D \neq 2^\alpha$ $\Longrightarrow$  границы цифр $\frac{\Delta\cdot \xi}{D}$ / символов $\frac{\Delta\cdot \omega_j}{D}$ {пересчитываются по новым $l, t$}, а~не масштабируются
+
+
+% % % \hspace*{-1em}Возможно $l=t$  $\Longrightarrow$  масштабирование\hfill
+% % %\hspace*{-1em}
+% % Чтобы $l\neq t$  $\Longrightarrow$  масштабирование\hfill
+% % $\big[l, t\big) \subseteq \big[L, L+\frac{N}{2}\big)
+% % % , L \in \left\{0, \frac{N}{4}, \frac{N}{2}\right\}
+% % :$
+% % $\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+% % l &\to& 2(l - L)\\
+% % t &\to& 2 (t - L)\\
+% % \end{array}\right.$\hspace*{-1em}
+% % \setlength{\parskip}{0\parskip}
+% \hspace*{-2.5em}
+
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Масштабирование (нормализация) и~биты двоичного представления}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-2.em}{-2.em}
+\footnotesize
+\setlength{\parskip}{0.\parskip}
+
+\tikzstyle{Lstyle}=[yshift=2.5ex]
+
+% Вначале $[a, b) = [0, 1)$ $\Longrightarrow$ $z \in [l_i, t_i) \subseteq [a, b)$ 
+% %может иметь любое двоичное представление
+% м.\,б. любым;
+
+приближаем часть ПИ $\left[L, L+\frac{N}{2} \right)$ "--- 
+изображаемый ПИ $[a, b)$ уменьшается вдвое,
+длины на изображении увеличиваются вдвое (масштабирование $x \to 2(x - L)$).
+
+\hrulefill
+\medskip
+
+% $x \to %2x = 
+% 2(x - L)$: приближаем 
+$
+% \left[0, \frac{N}{2} \right)~ \sim ~
+[a, b) = \left[0, \frac{1}{2} \right) 
+= \left[0,0; 0,1 \right)_2
+= \Big[0,0; 0,0(1) \Big)_2
+$:
+% \\
+первый бит $z \in [l_i, t_i) \subseteq [a, b)$ всегда 0
+
+\begin{tikzpicture}%[trim left]
+  \hmainline
+  \hpoints{0/1/8/0.5}{0,...,7}{3,2}
+  \xlabels{0/0, 2/\frac{N}{2}-2,3/\frac{N}{2}-1,4/\frac{N}{2},7/N-1}
+  \halfscale[0.375]{0}{}
+  \hmainline
+  \hpoints{0/1/8/0.5}{0,...,7}{7,5}
+  \xlabels{0/0,1/1,2/2,5/N-3,6/N-2,7/N-1}
+  \node[Lstyle] at (0,\yticklevel) {$L=0$};
+\end{tikzpicture}
+\medskip
+
+
+% 
+
+% \bigskip
+% $x \to %2\left(x - \frac{N}{2} \right) = 
+% 2(x - L)$: приближаем 
+$
+% \left[\frac{N}{2}, 1 \right)~ \sim ~
+[a, b) = 
+\left[\frac{1}{2}, 1 \right) 
+= \left[0,1; 1,0 \right)_2
+= \Big[0,1; 0,1(1) \Big)_2
+$: 
+% \\
+первый бит $z \in %[l_i, t_i) \subseteq 
+[a, b)$ всегда 1
+
+\begin{tikzpicture}%[trim left]
+  \hmainline
+  \hpoints{0/0.5/4/0.5}{0,...,3}{}
+  \hpoints{0.5/0.5/4/0.5}{0,...,3}{3,2}
+  \xlabels{0/\frac{N}{2}, 2/N-2,3/N-1}
+  
+  \halfscale[0.875]{0.5}{}
+  \hmainline
+  \hpoints{0/1/8/0.5}{0,...,7}{7,5}
+  \xlabels{0/0,1/1,2/2,5/N-3,6/N-2,7/N-1}
+ 
+  \node[Lstyle] at (0,\yticklevel) {$L=\frac{N}{2}$};
+\end{tikzpicture}
+\medskip
+% \bigskip
+
+% \textterminblue{%
+{\terminblue
+% \tikzstyle{workpointstyle}=[pointnodestyle, draw=blue]%
+$
+[a, b) = 
+\left[\frac{1}{4}, \frac{3}{4} \right) 
+= \left[0,01; 0,11 \right)_2
+= \Big[0,01; 0,10(1) \Big)_2
+$: 
+%первый бит $z$ неизвестен, но узнаем его "--- узнаем и~второй
+второй бит $z \in [a, b)$ инверсен первому
+
+
+\begin{tikzpicture}%[trim left]
+  \hmainline
+  \hpoints{0/1/8/0.5}{0,...,7}{}
+  \hpoints{0.25/0.5/4/0.5}{0,...,3}{3,2}
+  \xlabels{0/\frac{N}{4}, 2/\frac{3N}{4}-2,3/\frac{3N}{4}-1}
+  
+  \halfscale[0.625]{0.25}{}
+  \hmainline
+  \hpoints{0/1/8/0.5}{0,...,7}{7,5}
+  \xlabels{0/0,1/1,2/2,5/N-3,6/N-2,7/N-1}
+ 
+  \node[Lstyle] at (0,\yticklevel) {$L=\frac{N}{4}$};
+\end{tikzpicture}
+\vspace*{-\baselineskip}
+}
+
+\end{adjustwidth}
+\end{frame}
+\endgroup
+
+
+
+\subsection{Частота масштабирования}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-4.em}{-4.em}
+\setbeamertemplate{itemize/enumerate body begin}{\normalsize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\normalsize}
+\begin{itemize}
+
+\item Шаг масштабирования = бит выходного потока:
+ 
+\begin{enumerate}
+\item простейший случай (размер выходного файла наименьший; медленно; рассматривается ниже) "--- масштабирование выполняется при любой возможности, \termin{выходной поток битовый;}
+% рассмотрен ниже;
+
+\item байтовый выходной поток "--- масштабирование откладывается (увеличивается выходной файл; быстрее; необходимо $N \gg 256D^2$).
+\end{enumerate}
+
+\vfill
+
+\item Реализовать кодирование более-менее длинного сообщения без~масштабирования невозможно.
+
+\vfill
+
+\item Схема масштабирований при декодировании должна быть \termin{точно такой же,} как и~при кодировании "--- иначе декодированное не совпадёт с~исходным.
+
+\textterminblue{Также должны совпадать и~$\nu_j$ ($\implies$ $D$ и~$\omega_j$), и~$N$, и~разрядность вычислений.}
+
+\end{itemize}
+\end{adjustwidth}
+\end{frame}
+
+
+
+% \section{Интервальное кодирование (реализация)}
+
+\def\logD{\kappa}
+
+
+\subsection{Величины и~требования}
+
+\begin{frame}{\insertsubsection}
+\footnotesize
+% \setlength{\parskip}{0.5\parskip}
+\setlength{\parskip}{0.3\parskip}
+
+\begin{adjustwidth}{-2.em}{-2.em}
+% Соотношения для деления $[0, 1)$ хранятся в~виде целочисленных частот $\nu_j$.
+
+Алфавит из $T$ символов: $\xi_1, \xi_2, \ldots \xi_T$, 
+\rlap{частоты $\nu_1, \nu_2, \ldots \nu_T \in \Naturalset %\cup \{0\}
+$,}
+\\
+сортируются по убыванию $\nu_1 \geqslant \nu_2 \geqslant \ldots \geqslant \nu_T$.
+\\
+Деление пропорционально $\nu_j$: 
+% $\omega_0 = 0, \omega_1 = \nu_1,  %\omega_2 = \omega_1 + \nu_2, 
+% % \ldots \omega_j = \omega_{j-1} + \nu_j, 
+% \ldots \omega_T = \omega_{T-1} + \nu_T.$ 
+{
+% \hspace*{2em}
+\renewcommand{\arraystretch}{0.7}
+$\left\{\begin{array}{@{}lll@{~}l@{}}
+\omega_0 &=& 0,\\
+\ldots\\
+\omega_j &=& \omega_{j-1} + \nu_j,\\
+\ldots\\
+\omega_T &=& \omega_{T-1} + \nu_T.
+\end{array}\right.$
+}\\
+$\displaystyle D = \omega_T = \sum_j {\nu_j}$ "--- делитель, %$D \neq 2^\logD$.
+не~обязательно~$2^\logD$.
+\hfill
+\hspace{-2em}%
+\begin{tikzpicture}[x=0.3\linewidth, y=12mm, baseline=(bs)]
+    \coordinate (bs) at (0,0);
+    \hmainline  
+%     \ABsubdiv{0}{1}
+    \foreach \begn/\endd in {0/1} { 
+        \coordinate (oldtick) at (0,\yticklevel);
+        \coordxtick{(oldtick)}
+
+        \tikzstyle{ticksymbolstyle}=[above, outer sep=0pt, inner sep=1pt]
+    
+        \foreach \dlen/\sym/\hlinestyle in {0.666667/$\xi_1=A$/, 0.333333/$\xi_2=B$/} { 
+        \xaddtickandsymbol[ticksymbolstyle]      
+        }
+    }    
+%     \node at (0, -0.25) {$\frac{N\cdot\omega_0}{D}=0$};
+%     \node at (0.675, -0.25) {$\frac{N\cdot\omega_1}{D}$};
+%     \node at (1, -0.25) {$\frac{N\cdot\omega_T}{D}=N$};
+    \node at (0, -0.25) {$\frac{\Delta\cdot\omega_0}{D}=l$};
+    \node at (0.675, -0.25) {$\frac{\Delta\cdot\omega_1}{D}$};
+    \node at (1, -0.25) {$\frac{\Delta\cdot\omega_T}{D}=t$};
+\end{tikzpicture}
+% \vspace{-\baselineskip}
+
+Изменение отрезка при чтении символа $c_i = \xi_j:$
+$\Delta = t - l, ~
+\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+l &\to& l + \frac{\Delta\cdot \omega_{j-1}}{D}\\
+t &\to& l + \frac{\Delta\cdot \omega_{j}}{D}\\
+\end{array}\right.$
+\\
+новый $[l, t)$ снова делится: в~вещественном концепте "--- до исчерпания $c_1c_2\ldots c_n$;
+в~целочисленной "--- пока не станет слишком маленьким (затем масштабирование).
+
+% \bigskip
+\vfill
+
+\setlength{\parskip}{0.\parskip}
+
+Выбор $N$ для кодирования: $N ~ \vdots ~ 4$ (для масштабирования);
+$\left.
+\begin{array}{@{}l@{\implies}l}
+\text{расчёт без переполнения} & \text{\enumilike{1} $N\cdot D \leqslant \max(type)$;}\\
+\text{$\Delta > \frac{N}{4}$ дважды делится на символы} & \text{\enumilike{2} $N \gg 4 D^2$.}\\
+\end{array}
+\right\}
+\implies \text{огр.\,$D$}
+$
+% 
+% % \begin{itemize}
+% % \item при кодировании $N$ делится на 
+% % \end{itemize}
+% % 
+% % 
+% %\begin{enumerate}
+% %\item 
+% \enumilike{1}
+% $N>>4 D^2$ 
+% % %(расчёт $\frac{\Delta\cdot \omega_{j}}{D}$ при $\Delta > \frac{N}{4}$ имеет \rlap{малую погрешность);}
+% % (перерасчёт $l$ и~$t$  при $\Delta > \frac{N}{4}$ достаточно точен);
+% (%двойное разделение при 
+% два деления
+% $\Delta > \frac{N}{4}$ "--- достаточно большие ПИ);
+% %
+% %\item 
+% \enumilike{2} $N\cdot D < \max(type)$ (расчёты производятся без переполнения);
+% \enumilike{3} .
+
+% \textterminblue{не только большое %круглое 
+% $N$, но и~относительно малое $D$!}
+
+Выбор $N$ для декодирования: деление на 2 всегда точно $\implies$
+\enumilike{3} $N=2^\alpha$, $ \alpha \gg 1 $
+
+\vfill
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+\section{Приведение частот}
+% \subsection{Приведение частот}
+
+\def\ByteMax{2^k-1}
+
+\begin{frame}{\insertsection}
+% \begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+
+Для вычислений требуется $T$ ненулевых частот в~порядке убывания ($\nu_1 \geqslant \nu_2 \geqslant \ldots \geqslant \nu_T$, 
+$\displaystyle\sum_{j=1}^{T}\nu_j = D$);
+но хранить% в~файле
+, как и~для Хаффмана, нужно частоты всех $2^k$ возможных символов ($k$-битных байтов)% в~«естественном» порядке
+:
+
+$\vec{\nu} = \Big(\nu(0), \nu(1), ..., \nu(\ByteMax)\Big)$, из них $T$ ненулевых и~$2^k-T$ нулевых; $\displaystyle\sum_{j=0}^{\ByteMax}\nu(j) = D$.
+
+Из файла длины $n$ символов $\overrightarrow{count} = \Big(count(0), count(1), ..., count(\ByteMax)\Big)$; $\displaystyle\sum_{j=0}^{\ByteMax}count(j) = n$.
+
+\begin{enumerate}
+\item Для вычислений требуется $D^2 \ll \frac{N}{4}$ $\implies$ частоты \termin{обязательно} нормируются:
+
+$\left\{
+\begin{array}{@{}l}
+\nu(0) + \nu(1)+ ... + \nu(\ByteMax) \approx D_{\text{желаемое}},\\
+\nu(0):\nu(1):...:\nu(\ByteMax) \approx count(0):count(1):...:count(\ByteMax),\\
+\end{array}
+\right.
+$
+\hfill
+$
+\nu(j) \in \Naturalset \cup \{0\}.
+$
+
+% то есть $\nu(j) \approx \dfrac{count(j)}{n}\cdot D_{\text{желаемое}}$.
+
+\vfill
+
+\item Арифметическое/интервальное кодирование принципиально не может записать символ с~$\nu_j = 0$ 
+$\implies$
+ненулевые частоты  не должны переходить в~нулевые:
+
+
+$\nu(j) = 0  \Leftrightarrow count(j) = 0.$
+% % ~~ то есть ~~
+% % $\left\{
+% % \begin{array}{@{}l@{~\to~}l}
+% % 0 & 0, \\
+% % 1 & 1;\\
+% % \end{array}
+% % \right.
+% % $
+% % 
+% то есть  если $\nu(j) \approx \dfrac{count(j)}{n}\cdot D_{\text{желаемое}} \in (0, 1),$ оно \termin{обязательно} округляется вверх.
+
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Выбор $D_{\text{жел}}$}
+\begin{frame}{\insertsubsection}
+
+% \begin{frame}{\insertsubsection: выбор $D_{\text{жел}}$}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+
+Пусть %удалось найти такие  
+$\nu_1, \nu_2, \ldots \nu_T \in \Naturalset$ (то есть ненулевые!), такие, что $\displaystyle\sum_{j=1}^{T}\nu_j = D$:
+\begin{itemize}
+\item 
+чем меньше $D$, тем точнее вычисления $\implies$ меньше размер сжатых данных;
+
+\item но при слишком малых $D$ менее точны $\nu(i):\nu(j) \approx count(i):count(j)$ $\implies$ модель не~соответствует исходному файлу $\implies$ больше размер сжатых данных.
+\end{itemize}
+
+\vfill
+
+\begin{enumerate}
+\item Если $D<T$, такие $\nu_1, \nu_2, \ldots \nu_T \in \Naturalset$ вообще невозможны.
+
+\vfill
+
+\item Если $D=T$, %единственно возможное соотношение 
+% $\nu_1:\nu_2:\ldots:\nu_T = 1:1:\ldots:1$.
+то $(\nu_1, \nu_2, \ldots, \nu_T)=
+(1, 1, \ldots, 1)$ $\implies$ код фиксированной ширины.
+
+\vfill
+
+\item Если $D=2T$, при равных частотах $(\nu_1, \nu_2, \ldots, \nu_T)=(2, 2, \ldots, 2)$; 
+% при 
+% % неравных возможны соотношения $1:2$, $1:3$ и~т.\,п.;
+% малых отклонениях от равных частот либо $2:2$, либо $1:2$, $1:3$ и~т.\,п.;
+% точность $count(i):count(j)$ мала.
+большие отклонения от~$count(i):count(j) = 1:1$ возможно отразить, малые нет.
+
+И т.\,д.: при равных частотах и~$D=4T$ $\vec{\nu}=(4, 4, \ldots, 4)$, при $D=8T$ $(8, 8, \ldots, 8)$...
+
+% \vfill
+% 
+% \item Если $D=4T$, при равных частотах $(\nu_1, \nu_2, \ldots, \nu_T)=(4, 4, \ldots, 4)$; 
+% % при малых отклонениях от равных частот возможны соотношения $3:4$ и~т.\,п.;
+% точность~$\nu(i):\nu(j) \approx count(i):count(j)$ мала, но выше, чем для $D=2T$.
+% \vfill
+% 
+% \item Если $D=8T$, при равных частотах $(\nu_1, \nu_2, \ldots, \nu_T)=(8, 8, \ldots, 8)$; 
+% точность~$\nu(i):\nu(j) \approx count(i):count(j)$ выше, чем для $D=4T$ и~т.\,д.
+
+\end{enumerate}
+
+\vfill
+
+Для $k$-битного байта $T_{max} = 2^k$, в~общем случае $D_{\text{жел}} \geqslant 8 T_{max} = 8\cdot 2^k = 2^{k+3}$. 
+
+\vfill
+
+% % Так как $T \leqslant 2^k$ и~может достигать $2^k$, при приведении частот $D_{\text{жел}} \geqslant 4\cdot 2^k = 2^{k+2}$.
+% 
+% % Выбираем $D_{\text{жел}} \geqslant 4\cdot 2^k = 2^{k+2}$ 
+% % $\implies$
+% % для всех $T \leqslant 2^k$ будет $D_{\text{жел}} \geqslant 4\cdot T$.
+% 
+% % Полагаем $D_{\text{жел}} \geqslant 4 T$; 
+% % в
+% В~примерах приведений полагаем $D_{\text{жел}} = 8 T_{max} = 8\cdot 2^k = 2^{k+3}$; 
+% %
+% для $k=3$:
+% $D_{\text{жел}} = 2^6 = 64$.
+% 
+
+
+\hrulefill
+
+Если частоты приведены к
+$%\displaystyle
+\sum%_j 
+\nu_j = D_{\text{жел}} = 2^\logD
+$, для записи $\nu_j$ достаточно $\logD$ бит ($\logD > k$, более байта):
+\begin{itemize}
+\item либо $\exists i{:} ~ \nu_i = 2^\logD ~\text{и}~\forall j \neq i{:} ~ \nu_j = 0$
+$\implies$
+записывается $\nu_i = 1$ и $\nu_j = 0$ при $j \neq i$, $|code(c_1c_2...c_n)| = 0$ бит (вырожденный случай);
+
+% \vfill
+
+\item либо $\forall j{:}~ \nu_j < 2^\logD$ $\implies$ все $\nu_j$ записываются $\logD$ битами.
+\end{itemize}
+
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+\subsection{Приведение $\sum count(j) = n$ к~$\sum\nu(j) = D_{\text{жел}}$}
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+\enumerateball{A} Соотношения всех частот немного искажаются, $D_{\text{жел}} \geqslant T$:
+
+$ x(j) =
+\left\{
+\begin{array}{l@{~}l@{~}l}
+0, & count(j) = 0, & (2^k -T) ~\text{штук};\\
+\frac{(count(j) -1)\cdot (D_{\text{жел}}-T)}{n-T} + 1, & count(j) > 0, & T ~\text{штук};
+\end{array}
+\right.
+$
+\hfill
+%
+$\nu(j) = \round_{\sum} \Big( x(j)\Big)$.
+
+\vfill
+
+\enumerateball{B} Соотношения меньших искажаются сильнее, $D_{\text{жел}} \geqslant 4T$:
+
+
+$ x(j) =
+\left\{
+\begin{array}{@{}l@{~~}l@{~}l@{~}l@{}}
+0, & &count(j) &= 0;  \\
+1, & 1\leqslant &count(j) &< \frac{3 n}{2 D_{\text{жел}}}, ~T_1~\text{штук}, ~\sum count = n_1;
+ \\
+\frac{count(j)\cdot (D_{\text{жел}} - T_1)}{n - n_1}, & &count(j) &\geqslant \frac{3 n}{2 D_{\text{жел}}}; \\
+\end{array}
+\right.
+\hfill%\implies\hfill
+\begin{array}{@{}ll@{}}
+\\
+\\
+\nu(j) = \round_{\sum} \Big( x(j)\Big).
+\end{array}
+$
+
+\vfill
+
+\hrulefill
+
+\vfill
+
+Если округлять к~ближайшему,  $\nu(j) = \round \Big( x(j)\Big)$, то $\sum\nu(j) \approx D_{\text{жел}}$ "--- не обязательно точно.
+
+\hrulefill
+
+
+$\round_{\sum}$ \termin{с~сохранением суммы:} \hfill $\nu(j) = \lfloor x(j) \rfloor$, \hfill $\Delta_{\nu} = D_{\text{жел}} - \sum \nu(j)$ "--- целое и~$\Delta_{\nu}= \sum \{x(j)\} \leqslant T$;
+
+$\Delta_{\nu}$ раз ищем $j$ с~наибольшим $\{x(j)\}$ и~заменяем~$\nu(j) \to \nu(j)+1$, $\{x(j)\} \to 0$; в~итоге  $\sum\nu(j) = D_{\text{жел}}$.
+
+\vfill
+
+Целочисленное,
+$x(j)$ вида $\frac{u(j) \cdot D}{U}$:
+\hfill $\nu(j) = \left\lfloor
+\frac{u(j) \cdot D}{U}
+\right\rfloor$; \hfill вместо $0 \leqslant \{x(j)\} < 1$ целое $0 \leqslant (u(j) \cdot D) {\%} U < U$.
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Приведение (A) и~(B)}
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+% Пусть $D_{\text{жел}}= 64$ и~$\overrightarrow{count} = (0, 45, 30, 46, 47, 30, 0, 40)$, $n=\sum count(j) = 238$;
+Пусть $D_{\text{жел}} = 2^6 = 64$ и~$\overrightarrow{count} = (0, 3, 1, 46, 47, 1, 0, 2)$, $n=\sum count(j) = 100$;
+ненулевых частот $T = 6$,
+
+
+$y(j) = \lfloor x(j) \rfloor$, ~ $r(j) \sim \{x(j)\}$, ~
+% "--- «целочисленная дробная часть», 
+$\nu(j)$
+% = \round_{\sum} \Big( x(j)\Big)$ 
+округлены с~сохранением суммы 
+и~$\widetilde{\nu}(j)$
+% = \round \Big( x(j)\Big)$ 
+к~ближайшему.
+
+%
+
+\vfill
+
+Приведение (A): ~~ $D_{\text{жел}}-T = 58,$ ~~
+% $n-T = 232$:
+$n-T = 94$:
+
+$ 
+\left\{
+\begin{array}{@{}l@{~~}l@{~~}l}
+count(j) = 0{:} & y(j)  = 0, &r(j) = 0;\\
+count(j) > 0{:} & y(j)  = \left\lfloor 
+\frac{(count(j) -1)\cdot (D_{\text{жел}}-T)}{n-T}
+\right\rfloor + 1
+, & r(j) = \Big( (count(j) -1)\cdot(D_{\text{жел}}-T) \Big) \% \Big(n-T\Big).
+\end{array}
+\right.
+$
+
+
+\vfill
+Приведение (B): $\frac{3 n}{2 D_{\text{жел}}} \approx 2,3$ $\implies$ 
+значений $1\leqslant count(j)< \frac{3 n}{2 D_{\text{жел}}} $
+в~массиве 
+$T_1 = 3$, их сумма
+$n_1 = 4$:
+
+
+$ 
+\left\{
+\begin{array}{@{}@{~}c@{~}l@{~}c@{~}l@{~~}l@{~~}lllllll}
+&&count(j)& = 0{:} & y(j)  = 0, &r(j) = 0;\\
+1&\leqslant& count(j)& < \frac{3 n}{2 D_{\text{жел}}} {:} & 
+y(j)  = 1
+, & r(j) = 0; \\
+%
+\frac{3 n}{2 D_{\text{жел}}}&\leqslant& count(j){:}&   & y(j)  = \left\lfloor 
+\frac{count(j)\cdot (D_{\text{жел}} - T_1)}{n - n_1}
+\right\rfloor
+, & r(j) = \Big( count(j)\cdot(D_{\text{жел}}-T_1) \Big) \% \Big(n-n_1\Big).
+\end{array}
+\right.
+$
+
+\vfill
+
+{
+\setlength{\tabcolsep}{3.5pt}
+% \hspace*{-2em}
+(A)~\begin{tabular}{|l|ccc>{\columncolor{yellow}}cccc>{\columncolor{yellow}}c|c|}\hline
+$j$ &   0&  1&  2&  3&  4&  5&  6&  7   & $\sum$  / $\Delta_\nu$\\\hline
+$r_A(j)$&   0 &   22   &  0   &   72 &    36  &   0  &  0  &  58 &\\\hline
+$y_A(j)$&   0 &   2 &     1 &     28 &    29 &    1 &   0  &  1  & 62 (2)\\\hline
+$\nu_A(j)$& 0 &   2 &     1 &     29 &    29 &    1 &   0  &  2  & 64\\\hline\hline
+\rowcolor{white}
+$\widetilde{\nu_A}(j)$& 0 &   2 &     1 &     29 &    29 &    1 &   0  &  2  & 64\\\hline
+\end{tabular}
+\hfill
+% \rlap{%
+(B)~\begin{tabular}{|l|c>{\columncolor{yellow}}ccc>{\columncolor{yellow}}cccc|c|}\hline
+$j$ &       0&      1&      2&      3&      4&      5&      6&      7   &$\sum$  / $\Delta_\nu$ \\\hline
+$r_B(j)$&     0 &     87   &  0  &   22 &    83  &   0  &  0  &  0 &\\\hline
+$y_B(j)$&     0 &   1 &     1 &     29 &    29 &    1 &   0  &  1  & 62 (2)\\\hline
+$\nu_B(j)$&   0 &   2 &     1 &     29 &    30 &    1 &   0  &  1  & 64\\\hline\hline
+\rowcolor{white}
+$\widetilde{\nu_B}(j)$&  0 &   2 &   1 &  29  & 30 &   1 &   0  &  1& 64\\\hline
+\end{tabular}
+% }
+
+}
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Приведение (A): $Max \to \sum$}
+
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+$D_{\text{жел}}= 64$ и~$\overrightarrow{count} = (0, 45, 30, 46, 47, 30, 0, 40)$, $n=\sum count(j) = 238_{10} = 356_8$,
+ненулевых $T = 6$.
+
+\vfill
+
+
+\enumerateball{1}
+Непосредственное (A) 
+$\overrightarrow{count} \to \vec{\nu}$:
+% \rlap{
+% \tiny
+% $
+% \left\{
+% \begin{array}{@{}l@{~~}l@{~~}l}
+% count(j) = 0{:} & y(j)  = 0, &r(j) = 0;\\
+% count(j) > 0{:} & y(j)  = \left\lfloor 
+% \frac{(count(j) -1)\cdot (D_{\text{жел}}-T)}{n-T}
+% \right\rfloor + 1
+% , & r(j) = \Big( (count(j) -1)\cdot(D_{\text{жел}}-T) \Big) \% \Big(n-T\Big):
+% \end{array}
+% \right.
+% $
+% }
+%
+\begin{tabular}{@{}l|cccc>{\columncolor{yellow}}ccc>{\columncolor{yellow}}c|c}
+$j$ &   0&  1&  2&  3&  4&  5&  6&  7   & $\sum$ \\\hline
+$r(j)$& 0&     0&    58 &   58 &  116&    58&     0 &  174   &\\\hline
+$y(j)$&  0&   12&    8  & 12   &12    &8   & 0   &10        &62 ($\Delta_y = 2$) \\\hline
+$\nu(j)$&  0&   12&    8  & 12   &13    &8   & 0   &11      &64\\\hline\hline
+\rowcolor{white}
+$\widetilde{\nu}(j)$& 0 &  12 &   8&   12  & 13  &  8  &  0&   11 & 64\\\hline
+\end{tabular}
+
+Разрядность $\nu(j)$ больше байта
+% (при $D_{\text{жел}}= 8T_{\max}$ больше на три бита; для "--- )
+$\implies$ массив частот объёмнее, чем для Хаффмана.
+
+
+\vfill
+
+
+\enumerateball{2}
+Вначале для записи в~файл (A) $\overrightarrow{count}$ к~однобайтовым $\vec{u}$:
+% (здесь $Max=7$), затем (A) $\vec{u} \to \vec{\nu}$:
+%
+$\vec{u} = (0,   7,   5,   7,   7,   5,   0,   6)$, $\sum u(j) =37$;
+% ~~
+% как
+% % \rlap{$
+% % \left\{
+% % \begin{array}{@{}l@{~~}l@{~~}l}
+% % count(j) = 0{:} & u(j)  = 0,\\
+% % count(j) > 0{:} & u(j)  = \mathrm{round}\left( \frac{(count(i) - 1)\cdot (Max - 1)}{\max(count) - 1} \right) + 1
+% % ;
+% % \end{array}
+% % \right.
+% % $}
+% $u_i = \left\{
+% \begin{array}{ll}
+% 0, & count(i) = 0,\\
+% \mathrm{round}\left( \frac{count(i) - 1}{\max(count) - 1} \cdot (Max - 1) \right) + 1, & count(i) > 0;
+% \end{array}
+% \right.
+% $
+
+затем (A) $\vec{u} \to \vec{\nu}$:
+% $\sum u_i =37$ к~сумме $D_{\text{жел}} = 64$:
+%
+\begin{tabular}{@{}l|cc>{\columncolor{yellow}}ccc>{\columncolor{yellow}}ccc|c}
+$j$ &   0&  1&  2&  3&  4&  5&  6&  7   & $\sum$ \\\hline
+$r(j)$  &  0&    7&   15&    7&    7&   15&    0&   11&          \\\hline
+$y(j)$  &  0&   12&    8&   12&   12&    8&    0&   10         &62 ($\Delta_y = 2$)\\\hline
+$\nu(j)$&  0&   12&    9&   12&   12&    9&    0&   10         &64\\\hline\hline
+\rowcolor{white}
+$\widetilde{\nu}(j)$& 0  & 12 &   8  & 12 &  12  &  8  &  0  & 10 & 62\\\hline
+\end{tabular}
+
+\vfill
+
+В файл:
+$\underbrace{0356}_n, ~ \underbrace{0   7   5   7   7   5   0   6}_{\vec{u}}$ и~код по 
+$\vec{\nu} = (0,   12,    9,   12,   12,    9,    0,   10)$
+(или по $\widetilde{\vec{\nu}}$ "--- как реализовано).
+
+Две перенормировки $\implies$ модель хуже подходит файлу $\implies$ больше размер;
+для 8-битного байта менее выражено, но
+на некоторых файлах код Хаффмана эффективнее целочисленной реализации AC.
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+% \subsection{Приведение частот~(задачи для семинаров)}
+\subsection{Задачи для семинаров и~вопросы}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+
+\begin{enumerate}
+\item
+% Задача: н
+Найдите возможные пары $N = 2^\alpha$ и~$D_{\text{жел}} = 2^\logD$ для алфавита из октетов (8-битных байтов IBM~PC), $T_{\max} = 2^8 = 256$
+и~а)~32-битной арифметики (все пары), б) 64-битной арифметики (граничные).
+
+\vfill
+
+
+\item
+% Задача: 
+% %найти худший случай %для $D_{\text{жел}} = T$ и~
+% о
+Oцените максимально возможное $\dfrac{\nu_{\max}}{\nu_{\min}}$  
+для октетов и~$D_{\text{жел}} \in\{ 
+2T, 4T, 8T, 16T \}$.
+
+\vfill
+
+
+\item
+Рассчитайте $\vec{\nu}$ при равных частотах, а~также максимально возможное $\dfrac{\nu_{\max}}{\nu_{\min}}$ 
+для октетов и~$D_{\text{жел}} = 2^{16}$.
+
+\vfill
+
+
+\hrulefill
+
+\vfill
+
+
+\item 
+% Пусть байт=октет, а~$D_{\text{жел}} = 2^{11} = 8 T_{\max}$.
+% В~общем случае для $\nu(j)$ требуется байт + 3 бита, но~во~многих случаях
+% % достаточно одного:
+% % при равных частотах $\vec{\nu} = (16, 16, \ldots, 16)$
+% (примерно равные частоты и~$\nu \approx 8$) достаточно одного байта.
+% \\
+% Как без дополнительных служебных полей понять при чтении массива из 256 октетов с~младшими частями $\nu(j)$ "--- достаточно их или позже должны следовать 
+% $\frac{3}{8}\cdot256 = 96$ октетов с~256 3-битными старшими частями  $\nu(j)$?
+% 
+% \vfill
+
+Пусть байт=октет, а~$D_{\text{жел}} = 2^{12} = 16 T_{\max}$.
+В~общем случае для $\nu(j)$ требуется полтора октета, но~во~многих случаях
+достаточно одного:
+% при равных частотах $\vec{\nu} = (16, 16, \ldots, 16)$
+% (
+примерно равные частоты всех байтов "--- $\nu \approx \frac{2^{12}}{256} = 16$; 
+%примерно равные частоты 
+печатных ASCII-символов  $\frac{2^{12}}{95} \approx 40$ для ненулевых;
+%примерно равные частоты 
+% только 
+строчной латиницы  $\frac{2^{12}}{25} \approx 160$ для ненулевых.
+% ) достаточно одного.
+
+
+\vfill
+
+Как без дополнительных служебных полей понять при чтении массива из 256 октетов с~младшими частями $\nu(j)$ "--- достаточно их или позже должны следовать 
+$\frac{4}{8}\cdot256 = 128$ октетов с~256 4-битными старшими частями  $\nu(j)$?
+
+\vfill
+
+Реализуемо ли предложенное для 
+$D_{\text{жел}} = 2^{11}$ или $2^{10}$?
+
+\vfill\vfill
+
+\item 
+
+Как выгоднее сохранять частоты октетов "--- 
+8-разрядными
+$\displaystyle (
+\max \nu_j = 2^8-1
+)
+$ с~перенормировкой перед расчётом
+или~готовыми $\logD$-разрядными ($\sum \nu_j = 2^{\logD}$, $\logD > 8$)? 
+Обоснуйте ответ.
+
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+% \begingroup
+% % \section{Арифметическое сжатие}
+% 
+% 
+% 
+% \begin{frame}{\insertsection}
+% \footnotesize
+% % \setlength{\parskip}{0.5\parskip}
+% 
+% % Отличие от перевода между СС "--- неравные вероятности символов $\xi_j$.
+% \end{frame}
+% \endgroup % ABsubdiv etc
+
+
+
+% \section{Шаги интервального кодирования и~декодирования}
+\section{Интервальное кодирование (реализация)}
+
+
+\subsection{Сжатие $\diamondsuit$ БАНАН $\hookrightarrow$ 
+{011\_ac\_samples/banan\_realset\_integerset.pdf}
+}
+
+\begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-2em}{-5em}
+% \footnotesize 
+% \setlength{\leftmargini}{0em} 
+% \setlength{\leftmarginii}{0em} 
+% \setlength{\leftmarginiii}{0em} 
+
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+% \setlength{\parskip}{0.7\parskip}
+\setlength{\parskip}{0.3\parskip}
+% \medskip
+
+\hspace*{-2em}Входной поток: символы $C = c_1c_2\ldots c_n$, выходной "--- биты \rlap{$B = b_1b_2b_3\ldots b_m$}
+
+\begin{enumerate}\setcounter{enumi}{-1}
+
+\item $l = 0, t = N,$ бит зарезервировано $\beta = 0,$  позиция символа $i = 0$
+
+\item чтение (${+}{+}i$) символа $C \to c_i = \xi_j$: 
+$\Delta = t - l, ~
+\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+l &\to& l + \frac{\Delta\cdot \omega_{j-1}}{D},\\
+t &\to& l + \frac{\Delta\cdot \omega_{j}}{D};\\
+\end{array}\right.$
+\rlap{%контроль $l<t$.
+авост при $t=l$.}
+
+\item масштабирование $l, t$: 
+$\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+l &\to& 2(l - L)\\
+t &\to& 2 (t - L)\\
+\end{array}\right.$
+и~запись бита $b$, \rlap{пока возможно (м.\,б.\,неск.):}\renewcommand{\arraystretch}{1.2}\\
+% \hspace*{-1.5em}%
+$\begin{array}{@{}l@{~\text{и}~}l@{~}l@{~}l@{}}
+\Big[\frac{b\cdot N}{2}, \frac{(b+1)\cdot N}{2}\Big), b \in \{0, 1\} \to [0, N) &\text{запись~} b \to B & \Big(b\underbrace{\overline{bb}\ldots\overline{b}}_{\beta} \to B, &\beta \to 0\Big)\\[-2ex]
+\big[\frac{N}{4}, \frac{3N}{4}) \to [0, N) & {+}{+}\beta \\
+\end{array}$
+
+\item 
+% ${+}{+}i$ и~переход к~чтению символа $c_i$ (к~шагу~\enumilike{1}); \mbox{если невозможно ($i > n$) "--- завершение и~запись $1 \to B$ 
+% % $\Big(1\underbrace{00\ldots0}_{\beta} \to B \Big)$
+% }
+если достигнуто $i = n$ "--- запись $1 \to B$
+$\left( 1\underbrace{00\ldots0}_{\beta} \to B \right)$ 
+и~завершение;
+\mbox{иначе переход к~шагу~\enumilike{1}}
+
+
+\end{enumerate}
+
+
+% % Файл arc-octocat $\hookrightarrow$
+% \vspace{-1\baselineskip}
+
+\hrulefill
+
+\begin{enumerate}
+\item Полученное $z \in [0, 1)$ соответствует \termin{бесконечно длинной строке} $c_1c_2\ldots c_n c_{n+1} c_{n+2}\ldots$
+%, для корректного декодирования 
+$\to$
+необходимо сохранить исходную длину $n$.
+
+\item Поточный вариант "--- $\nu_j$ и~$\omega_j$ пересчитываются.
+\end{enumerate}
+
+% \end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Распаковка}
+
+\begin{frame}{\insertsubsection}
+\footnotesize
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.5\parskip}
+\medskip
+
+
+Символов "--- $n$, входной поток "--- биты $B = b_1b_2b_3\ldots b_m 000 \ldots$, 
+\mbox{выходной поток "--- символы $C = c_1c_2\ldots c_n$.}
+
+% 
+% $[\lambda, \tau)$ соответствует текущему биту $b_k$,
+% $[l, t)$ "--- текущей цифре \rlap{$c_i= \xi$, }
+% $[\lambda, \tau) \subseteq [l, t) \subseteq [0, N-1]$
+
+
+
+\begin{enumerate}\setcounter{enumi}{-1}
+
+\item $l= \lambda = 0, t= \tau = N,$ № бита $k = 0,$ № символа $i = 0$
+
+\item чтение (${+}{+}k$) бита $B \to b_k$: $\delta = \tau - \lambda, ~
+\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+\lambda &\to& \lambda + \frac{\delta\cdot b_k}{2},\\
+\tau &\to& \lambda + \frac{\delta\cdot (b_k + 1)}{2}.\\
+\end{array}\right.$
+
+\item получение и~запись %(${+}{+}i$) в формуле 
+символа, если возможно: 
+% $\Delta = h - l + 1,$\\
+% $\exists j \in \{1,\ldots, T\}:
+% \hfill
+% % l + \frac{\Delta\cdot c}{D} \leqslant \lambda \leqslant h_b < l + \frac{\Delta\cdot (c+1)}{D}
+% % \left\{\begin{array}{@{}l@{}}
+% % l + \frac{\Delta\cdot \xi}{D}  \leqslant   \lambda\\
+% % h_b  <  l + \frac{\Delta\cdot (\xi+1)}{D}\\
+% % \end{array}\right.
+% [\lambda, \tau) \subseteq \Big[ l + \frac{\Delta\cdot \omega_{j-1}}{D}, ~ l + \frac{\Delta\cdot \omega_{j}}{D} \Big)
+% % 
+% \hfill\Longrightarrow\hfill\strut$
+% $\Longrightarrow\hfill
+% {+}{+}i, \hfill\text{запись} ~(c_i = \xi_j)  \to C, \hfill
+% \left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+% l &\to& l + \frac{\Delta\cdot \omega_{j-1}}{D}\\
+% h &\to& l + \frac{\Delta\cdot \omega_j}{D} - 1\\
+% \end{array}\right.
+% \hfill\mathstrut
+% $
+\rlap{$\Delta = t - l, ~ j \in \{1,\ldots, T\}$}\\
+\hspace*{-2em}$\exists j{:} ~
+[\lambda, \tau) \subseteq \Big[ l + \frac{\Delta\cdot \omega_{j-1}}{D}, ~ l + \frac{\Delta\cdot \omega_{j}}{D} \Big)
+% 
+\hfill\Longrightarrow\hfill
+{+}{+}i, ~\xi_j\to C, ~
+\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+l &\to& l + \frac{\Delta\cdot \omega_{j-1}}{D}\\
+t &\to& l + \frac{\Delta\cdot \omega_j}{D}\\
+\end{array}\right.$\hspace*{-1em}
+
+
+\item масштабирование
+% $\big[l, t\big)$ и~$\big[\lambda, \tau\big)$
+$l, \lambda, \tau, t$, пока возможно (м.\,б.\,несколько~раз):
+$\begin{array}{@{}l@{~\Longrightarrow~}l@{}}
+\big[l, t\big) \subseteq \big[L, L+\frac{N}{2}\big) & \big[L, L+\frac{N}{2}\big) \to [0, N)
+\end{array}$ (не влияет на выходной поток);
+% ($-L,$ $\cdot 2$)
+
+когда уже невозможно %($\Delta = t - l > \frac{N}{4}$) 
+"--- переход к~шагу~\enumilike{2} 
+
+
+% \item ${+}{+}k$ и~переход к~чтению бита $b_k$ (к~шагу~\enumilike{1}); \mbox{если достигнуто $i = n$ "--- завершение}
+ 
+\item \mbox{если достигнуто $i = n$ "--- завершение}, 
+иначе переход к~шагу~\enumilike{1} 
+
+\end{enumerate}
+
+\vspace*{-\parskip}
+\hrulefill
+
+
+$N=2^{\alpha}$ $\implies$ чтение бита точно  $\implies$ 
+на шаге \enumerateball{1} читаем сразу несколько бит (при $k=0$ читаем $\alpha$ бит), чтобы получить ПИ вида $[\lambda, \lambda+1)$.
+
+% $\implies$ на шаге \enumerateball{2} запишем хотя бы один символ.
+
+% Вначале ($k=0$) на шаге \enumerateball{1} можно прочесть $N$ бит и~получить ПИ вида $[\lambda, \lambda+1)$ $\implies$ на шаге \enumerateball{2} запишем хотя бы один символ.
+% 
+% Далее на шаге \enumerateball{1} читаем столько бит, чтобы получить ПИ вида $[\lambda, \lambda+1)$.
+
+
+\end{frame}
+
+
+
+
+
+
+% \subsection{Приведение частот}
+% 
+% 
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-5em}{-5em}
+% \footnotesize 
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% 
+% 
+% Соотношения для деления $[0, 1)$ хранятся в~виде целочисленных частот $\nu_j$.
+% 
+% Алфавит из $T$ символов: $\xi_1, \xi_2, \ldots \xi_T$, 
+% \rlap{частоты $\nu_1, \nu_2, \ldots \nu_T \in \Naturalset \cup \{0\}$,}
+% \\
+% сортируются по убыванию $\nu_1 \geqslant \nu_2 \geqslant \ldots \geqslant \nu_T$.
+% 
+% 
+% 
+% \begin{enumerate}
+% \item Для вычислений требуется $D^2 \ll \frac{N}{4}$ $\implies$ частоты \termin{обязательно} нормируются:
+% 
+% $\left\{
+% \begin{array}{@{}l}
+% \nu_1 + \nu_2+ ... + \nu_T \approx D_{\text{желаемое}},\\
+% \nu_1:\nu_2:...:\nu_T \approx count(\xi_1):count(\xi_2):...:count(\xi_T),\\
+% \end{array}
+% \right.
+% $
+% \hfill
+% $
+% \nu_1, \nu_2, \ldots \nu_T \in \Naturalset \cup \{0\};
+% $
+% \hfill{}
+% 
+% \item Арифметическое/интервальное кодирование принципиально не может записать символ с~$\nu_j = 0$ 
+% $\implies$
+% ненулевые частоты  не должны переходить в~нулевые:
+% $\nu_j = 0  \Leftrightarrow count(\xi_j) = 0.$
+% 
+% \item При $D = 2^\logD$ вычисления точнее $\implies$ либо код немного короче% при том же $\frac{N}{D^2}$
+% , либо $D^2 < \frac{N}{4}$ вместо $\ll$.
+% 
+% \hrulefill
+% 
+% \vfill
+% 
+% При разработке конкретного алгоритма выбирается $D_{\text{желаемое}} = 2^\logD $.
+% 
+% Из файла (длины $n$ байтов) имеем $\overrightarrow{count}$:  $count(0)+count(1)+...+count(2^k-1) = n$
+% 
+% Необходимо получить $\vec{\nu}$ такой, что 
+% $\nu_0 + \nu_1+ ... + \nu_T = D_{\text{желаемое}} = 2^\logD $ ($D_{\text{желаемое}}$ выбирается при разработке)
+% 
+% 
+% 
+% \end{enumerate}
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+\endgroup
+
+%\section{Интервальное кодирование (реализация)}
+
+
+
+
+% \section{Полуинтервалы и~отрезки}
+\subsection{Полуинтервалы и~отрезки}
+
+
+% \begin{frame}{\insertsection}
+\begin{frame}{\insertsubsection}
+\footnotesize
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.5\parskip}
+
+
+% \begin{enumerate}
+% 
+% \item $l= \lambda = 0, t= \tau = N,$ № бита $k = 0,$ № символа $i = 0$
+% 
+% 
+% \end{enumerate}
+
+Выше в~целочисленной реализации рабочий диапазон рассматривался как \termin{полуинтервал} $[l, t), ~ l \leqslant z < t$,\\
+где $t$ "--- \termin{невключаемая} верхняя граница.
+
+\termin{Тот же самый}  диапазон можно представить \\как \termin{отрезок} $[l, h], ~ l \leqslant z \leqslant h$, \\ где $h = t -1$  "--- \termin{включаемая} верхняя граница.
+
+Реализовать кодирование и~декодирование можно как для полуинтервалов $[l, t) / [\lambda, \tau)$, так и~для отрезков $[l, h] / [\lambda, \chi]$, но \termin{все} соотношения будут {различаться} (см.\,следующий лист)!
+ 
+
+\end{frame}
+
+
+
+
+
+\subsection{Основные соотношения для $t$ и~$h$}
+
+\begin{frame}{\insertsubsection{}}
+\begin{adjustwidth}{-1em}{-1em}
+\footnotesize
+\setlength{\parskip}{0.3\parskip}
+% \setlength{\parskip}{0.\parskip}
+\renewcommand{\arraystretch}{1.1}
+
+\smallskip
+
+$[l, t) = [l, h] \hfill\Longleftrightarrow\hfill h = t-1 \hfill\Longleftrightarrow\hfill t=h+1$
+
+% \renewcommand{\arraystretch}{1.2}
+% \hspace*{-0.05\linewidth}
+\begin{tabularx}{1.\linewidth}{L|L}
+Полуинтервал $[l, t)$, $l \leqslant z < t $  & Отрезок $[l, h]$, $l \leqslant z \leqslant h $ 
+\\\hline
+\multicolumn{2}{c}{Длина}\\
+$\Delta = t - l$ \hfill $\delta = \tau - \lambda$  & $\Delta = h - l + 1$ \hfill $\delta = \chi - \lambda + 1$\\
+\hline
+\multicolumn{2}{c}{Чтение символа $\xi_j$ или бита $b$}\\
+$\left\{\begin{array}{@{}lll@{}}
+l &\to& l + \frac{\Delta\cdot \omega_{j-1}}{D},\\
+t &\to& l + \frac{\Delta\cdot \omega_{j}}{D},\\
+\end{array}\right.$ 
+авост при $t=l$
+& 
+$\left\{\begin{array}{@{}lll@{}}
+l &\to& l + \frac{\Delta\cdot \omega_{j-1}}{D},\\
+h &\to& l + \frac{\Delta\cdot \omega_{j}}{D} - 1,\\
+\end{array}\right.$ 
+\rlap{авост при 
+%$\frac{\Delta\cdot \omega_{j-1}}{D}= \frac{\Delta\cdot \omega_{j}}{D}$
+$h<l$}
+\\[1ex]
+\hfill
+$\left\{\begin{array}{@{}lll@{}}
+\lambda &\to& \lambda + \frac{\delta\cdot b}{2}\\
+\tau &\to& \lambda + \frac{\delta\cdot (b+1)}{2}\\
+\end{array}\right.$ 
+& 
+\hfill
+$\left\{\begin{array}{@{}lll@{}}
+\lambda &\to& \lambda + \frac{\delta\cdot b}{2}\\
+\chi &\to& \lambda + \frac{\delta\cdot (b+1)}{2} - 1\\
+\end{array}\right.$ 
+\\[1ex]
+\hline
+% \multicolumn{2}{c}{Чтение бита $b$}\\
+% $\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+% \lambda &\to& \lambda + \frac{\Delta\cdot b}{2}\\
+% \tau &\to& \lambda + \frac{\Delta\cdot (b + 1)}{2}\\
+% \end{array}\right.$
+% & 
+% $\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+% \lambda &\to& \lambda + \frac{\Delta\cdot b}{2}\\
+% h_{bit} &\to& \lambda + \frac{\Delta\cdot (b + 1)}{2} - 1\\
+% \end{array}\right.$
+% \\[1ex]
+\multicolumn{2}{c}{Масштабирование $\big[L, L+\frac{N}{2}\big) \to [0, N), ~ L \in \left\{0, \frac{N}{4}, \frac{N}{2}\right\}$}\\[0.5ex]
+\hspace*{-2em}$[l, t) \subseteq \big[L, L+\frac{N}{2}\big) \Longleftrightarrow 
+\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+L & \leqslant & l\\
+t &\leqslant& L+\frac{N}{2}\\
+\end{array}\right.
+% L \leqslant l, t \leqslant L+\frac{N}{2}
+$
+&\rlap{$[l, h] \subseteq \big[L, L+\frac{N}{2}\big) \Longleftrightarrow 
+\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+L & \leqslant & l\\
+h & < & L+\frac{N}{2}\\
+\end{array}\right.
+% L \leqslant l, h < L+\frac{N}{2}
+$}
+\\[-3ex]
+% $\big[L, L+\frac{N}{2}\big) \to [0, N)$&$[L, L+\frac{N}{2}-1\big] \to [0, N-1]$
+% \\[1ex]
+$\left\{\begin{array}{@{}lll@{}}
+l &\to& 2(l-L)\\
+t &\to& 2(t-L)\\
+\end{array}\right.$ 
+& 
+$\left\{\begin{array}{@{}lll@{}}
+l &\to& 2(l-L)\\
+h &\to& 2(h-L) + 1\\
+\end{array}\right.$ 
+% $[l, t) \to \Big[2(l-L), 2(t-L)\Big)$
+% &
+% $[l, h] \to \Big[2(l-L), 2(h-L) + 1\Big]$
+\smallskip
+
+\textcolor{gray}{$2t-1 = 2(h+1)-1 = 2h+1$}
+\end{tabularx}
+
+\end{adjustwidth}
+\end{frame}
+
+% \section{Дмитрий Ватолин, МГУ}
+
+% \subsection{Д.\,Ватолин, для точных чисел \rlap{(полуинтервалы)}}
+% \begin{frame}[fragile]{\insertsubsection{}}
+% \footnotesize
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{3ex}
+% \setlength{\parskip}{0.8\parskip}
+% 
+% % \lstset{basicstyle=\ttfamily\scriptsize}
+% % \lstset{xleftmargin=8em}
+% % $\Big[ a[c]; b[c] \Big)$ "--- интервал символа~$c$ на $[0;1)$;\\
+% % $\Big[ l[i]; h[i] \Big)$ "--- рабочий интервал на шаге~$i$.
+% 
+% \lstset{basicstyle=\ttfamily\footnotesize}
+% \lstset{xleftmargin=7em}
+% $\Big[ a[c], b[c] \Big)$ "--- интервал~$c$ на $[0, 1)$; \hfill
+% $\Big[ l[i], h[i] \Big)$ "--- рабочий на шаге~$i$.
+% 
+% % Тогда, %без учёта масштабирования ()
+% % если считать переменные бесконечно точными, алгоритм кодирования имеет вид:
+% 
+% Сжатие:\vspace{-2.\baselineskip}
+% \begin{lstlisting}
+% l[0]=0; h[0]=1; i=0;
+% while (not DataFile.EOF()){
+%   c = DataFile.ReadSymbol(); i++;
+%   l[i] = l[i-1] + a[c]·(h[i-1] - l[i-1]);
+%   h[i] = l[i-1] + b[c]·(h[i-1] - l[i-1]);
+% };
+% \end{lstlisting} 
+% % \end{frame}
+% % 
+% % \subsection{Алгоритм распаковки}
+% % \begin{frame}[fragile]{\insertsubsection{}}
+% % \small
+% % 
+% % Если считать переменные бесконечно точными:
+% Распаковка:\vspace{-2.\baselineskip}
+% \begin{lstlisting}
+% l[0]=0; h[0]=1; value = File.Code();
+% for (i=0; i < File.DataLength(); i++){
+%   for (all symbols cj){
+%     l[i] = l[i-1] + a[cj]·(h[i-1] - l[i-1]);
+%     h[i] = l[i-1] + b[cj]·(h[i-1] - l[i-1]);
+%     if (l[i] <= value < h[i]) break;
+%   };
+%   DataFile.WriteSymbol(cj);
+% };
+% \end{lstlisting} 
+% \end{frame}
+
+
+
+
+
+
+
+
+\subsection{Д.\,Ватолин, целочисленный цикл (отрезки)}
+\begin{frame}[fragile]{\insertsubsection{}}
+% \footnotesize
+\scriptsize
+\vspace*{-1.5\baselineskip}
+\begin{lstlisting}
+l[0] = 0; h[0] = 65535; i = 0; delitel = b[c_last]; 
+First_qtr = (h[0] + 1)/4; Half = First_qtr*2; Third_qtr = First_qtr*3; 
+bits_to_follow = 0; // масштабирований [First_qtr; Third_qtr)
+while (not DataFile.EOF()) {
+  c = DataFile.ReadSymbol(); i++; // Кодируемый символ
+  j = IndexForSymbol(c);          // и его номер в алфавите
+  l[i] = l[i-1] + b[j-1]*(h[i-1] - l[i-1] + 1)/delitel;
+  h[i] = l[i-1] +   b[j]*(h[i-1] - l[i-1] + 1)/delitel - 1;
+  for(;;) {                   // Варианты масштабирования
+    if (h[i] < Half)          // [l; h] лежит в [0; Half)
+      bits_plus_follow(0);
+    else if (l[i] >= Half) {  // [l; h] лежит в [Half, max)
+      bits_plus_follow(1);
+      l[i] -= Half; h[i] -= Half;
+    }
+    else if ((l[i] >= First_qtr) && (h[i] < Third_qtr)) {
+      bits_to_follow++;
+      l[i] -= First_qtr; h[i] -= First_qtr;
+    } else break;
+    l[i] += l[i]; h[i] += h[i] + 1; // масштабирование *2
+  }
+}
+\end{lstlisting} 
+
+\end{frame}
+
+
+\begin{frame}[fragile]{\insertsubsection{}, запись бита  (bits\_plus\_follow)}
+% \subsection{Д.\,Ватолин, запись бита  (bits\_plus\_follow)}
+% \begin{frame}[fragile]{\insertsubsection{}}
+% \footnotesize
+% \scriptsize
+\small
+\setlength{\parskip}{0.5\parskip}
+
+% Запись найденных битов в выходной поток:
+\begin{lstlisting}
+void bits_plus_follow (int bit)
+{
+  CompressedFile.WriteBit(bit);
+  for(; bits_to_follow > 0; bits_to_follow--)
+    CompressedFile.WriteBit(!bit);
+}
+\end{lstlisting} 
+\lstinline!bits_to_follow! $=\beta$ "--- количество масштабирований из средней половины $\big[\frac{1}{4}; \frac{3}{4}\big) \to \big[0; 1\big)$ подряд
+% , после которых в~выходной поток вместо $0$ и~$1$ (значения bit) помещается $011...11$ и~$100...00$ соответственно.
+
+
+\begin{tabular}{@{}l@{}}Дмитрий Ватолин, МГУ,\\Media data compression.\\Сжатие без потерь
+\end{tabular}
+\hfill\includegraphics[width=\linewidth,height=0.5\slideheight,keepaspectratio,valign=c]{compr_lossless_titlepage}
+
+\end{frame}
+% \endgroup
+
+% 
+% % \subsection{Арифметическое сжатие}
+% % \begin{frame}{\insertsubsection}
+% % Поток представляется в~виде вещественного числа сверхвысокой точности.
+% % 
+% % \hfill\includegraphics[width=\linewidth,height=0.5\slideheight,keepaspectratio,valign=t]{compr_lossless_titlepage}
+% % 
+% % \end{frame}
+% % 
+% %     \setbeamercolor{background canvas}{bg=}
+% %     \includepdf[pages={1-16}]{compr_lossless_ac-crop.pdf}
+% %   
+% %   
+% % \begin{frame}{Адаптивный арифметический кодер}
+% % Вначале вероятности всех байтов одинаковы, потом пересчитываются
+% % \end{frame}
+% 
+% % \section{Пример целочисленной обработки}
+% \section{}
+% 
+% \section{}
+% \subsection{Литература}
+% 
+% \begin{frame}[fragile]{\insertsubsection{}}
+% 
+% \begin{itemize}
+% 
+% \item Ватолин\,Д. Media data compression. Сжатие без потерь
+% \hfill\includegraphics[width=\linewidth,height=0.5\slideheight,keepaspectratio,valign=t]{compr_lossless_titlepage}
+% 
+% \end{itemize}
+% \end{frame}
+% 
+% \subsection{Вопросы}
+% 
+% \begin{frame}{\insertsubsection{}}
+% 
+% \begin{itemize}
+% \item Что обычно является символом при сжатии?
+% 
+% \item Какова общая идея арифметического кодирования? 
+% 
+% \end{itemize}
+% \end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\makethanks
+
+
+
+\section{}
+
+
+% \section{Приведение частот (черновик)}
+
+
+
+
+\subsection{Нормировка на точную сумму}
+\begin{frame}{\insertsubsection}
+
+% \begin{frame}{\insertsubsection: нормировка на точную сумму}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+При $D = 2^\logD$ вычисления точнее $\implies$ либо код немного короче% при том же $\frac{N}{D^2}$
+, \cancel{%
+либо $D^2 < \frac{N}{4}$ 
+% $\Big(%NB{:} ~ 
+% D^2 \leqslant \frac{N}{4} ??? \Big)$
+вместо $\ll$%
+}:
+% , но дольше нормирование частот $\nu_i$ \rlap{($1 \to 1$):}
+
+% \vfill
+
+% $\left\{
+% \begin{array}{@{}l}
+% \nu(0) + \nu(1)+ ... + \nu(\ByteMax) = D_{\text{жел}} = 2^\logD,\\
+% \nu(0):\nu(1):...:\nu(\ByteMax) \approx count(0):count(1):...:count(\ByteMax),\\
+% \nu(j) = 0  \Leftrightarrow count(j) = 0.
+% \end{array}
+% \right.
+% $
+% \hfill
+% $
+% \nu(j) \in \Naturalset \cup \{0\};
+% $
+% \hfill{}
+
+% \vfill
+
+нужно найти $\vec{\nu} %= (\nu(0), \nu(1), ... , \nu(\ByteMax))
+$ с~
+$%\displaystyle\sum_{j=0}^{\ByteMax}
+\sum\nu(j) = D_{\text{жел}}$,
+%
+где $D_{\text{жел}} = 2^\logD \geqslant 2^{k+2}$ определено на этапе разработки алгоритма;
+\\
+$\overrightarrow{count} = \Big(count(0), count(1), ..., count(\ByteMax)\Big)$, 
+% $count(j) \in \Naturalset \cup \{0\}$;
+$%\displaystyle\sum_{j=0}^{\ByteMax}
+\sum count(j) = n$
+"--- из~исходного файла.
+
+
+\vfill
+
+\begin{enumerate}
+\item Если $n = D_{\text{жел}}$, приведение не требуется: $\nu(j) = count(j)$ для всех.
+
+\vfill
+
+\item Если $n < D_{\text{жел}}$:
+% \begin{itemize}
+% \item 
+для $count(j) = 0$ записываем $\nu(j) = 0$;
+
+% \item 
+осталось $T$ штук ненулевых частот
+$count(j) \geqslant 1$:
+\begin{itemize}
+\item рассчитываем нецелые $x(j) = \frac{count(j)}{n}\cdot D_{\text{жел}} > count(j) \geqslant 
+1$;
+~
+$%\displaystyle\sum_{j=0}^{\ByteMax} 
+\sum  
+x(j)
+= D_{\text{жел}}$;
+% ~ ($T$ штук);
+
+% \item %округляем все вниз 
+% $y(j) = \lfloor x(j) \rfloor$ и~сколько
+% % $\displaystyle
+% % \Delta_y = D_{\text{жел}} - \sum_{j=0}^{\ByteMax}y(j)
+% % $
+% не хватает до  $D_{\text{жел}}$:
+% $
+% \Delta_y = D_{\text{жел}} - \sum y(j) = \sum \{x(j)\} \leqslant T
+% $ и~целое;
+% 
+% 
+% \item упорядочиваем $x(j)$ по убыванию дробной части: 
+% \\для первых $\Delta_y$ штук $\nu(j) = y(j)+1$ (самые большие $\Delta_y\leqslant T$ дробных частей $x(j)$ округляем вверх);
+% % (округляем первые $\Delta_y$ штук $x(j)$ вверх)
+% \\
+% для остальных $\nu(j) = y(j)$ (остальные "--- меньшие "--- дробные части $x(j)$ округляем вниз).
+
+\item округляем $x(j)$ до целых {с~сохранением суммы}: $\nu(j) = \round_{\sum}\Big(x(j)\Big)$.
+\end{itemize}
+
+Нулевые $count(j) = 0$ можно и~по общему правилу: $x(j) = \frac{count(j)}{n}\cdot D_{\text{жел}} = 0$ "--- целые $\implies$ $\nu(j)  = 0$.
+
+% \end{itemize}
+\vfill
+
+\item Если $n > D_{\text{жел}}$, то  может быть  $x(j) = \frac{count(j)}{n}\cdot D_{\text{жел}} <1$ 
+$\implies$ 
+% нужен дополнительный анализ.
+дополнительное искажение.
+
+Как и~для нормировки на максимум (для Хаффмана), есть два способа:
+\begin{itemize}
+\item искажение всех соотношений $\nu(i):\nu(j) \approx count(i):count(j)$ понемногу (A);
+\item более точное $\nu(i):\nu(j) \approx count(i):count(j)$ для больш\'{и}х частот, а~для малых $\nu(i):\nu(j) = 1:1$ (B).
+\end{itemize}
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Округление с~сохранением суммы}
+\begin{frame}{\insertsubsection}
+
+% \begin{frame}{Округление с~сохранением суммы}
+\begin{adjustwidth}{-5em}{-5em}
+\setlength{\parskip}{0.\parskip}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+Здесь и~далее  $z(j) = round_{\sum}\Big(x(j)\Big)$ "--- округление \termin{набора} значений
+% $x(j)$ до набора целочисленных значений $z(j)$
+с~сохранением суммы:
+
+есть $T$ штук нецелых $x(j)$ с~целой суммой $\sum x(j) = D$, ~ необходимо получить $T$ штук целых $z(j)$
+\begin{itemize}
+\item точно сохранив сумму: $\sum z(j) = D$;
+% \item 
+\hfill \itemizeball{}
+максимально сохранив значения: $z(j) \approx x(j)$.
+\end{itemize}
+
+\hrulefill
+\vfill
+
+% Для этого:
+\begin{enumerate}
+
+\item $y(j) = \lfloor x(j) \rfloor$ ~~ (округляем все значения вниз);
+\hfill {}
+
+\item
+$
+\Delta_y = D_{\text{жел}} - \sum y(j) 
+$
+%
+\hfill (рассчитываем, сколько
+не хватает до  $D$); 
+\hfill $\Delta_y$ целое;
+\hfill $\Delta_y= \sum \{x(j)\} \leqslant T$;
+
+
+\item упорядочиваем значения по убыванию дробной части исходных $\{x(j)\}$: 
+\begin{itemize}
+\item для первых $\Delta_y$ штук $z(j) = y(j)+1$ \hfill ($x(j)$ с~самыми большими дробными частями округляем вверх);
+% (округляем первые $\Delta_y$ штук $x(j)$ вверх)
+
+\item для остальных $z(j) = y(j)$ \hfill (остальные "--- с~меньшими дробными частями "--- округляем вниз).
+\end{itemize}
+\end{enumerate}
+
+(Альтернативный \enumerateball{3} без пересортировок: $\Delta_y$ раз ищем $j$ с~наибольшим $\{x(j)\}$ и~заменяем~$y(j) \to y(j)+1$, $\{x(j)\} \to 0$;
+после завершения  $\Delta_y$ замен полагаем $z(j) = y(j)$).
+
+
+\hrulefill
+\vfill
+
+Полученные таким образом $z(j)$: ~~ \itemizeball{} целые;
+~~ \itemizeball{} 
+% приближённо равны $x(j)$;
+$z(j) \approx x(j)$;
+~~ \itemizeball{} $\sum z(j) = \sum y(j) +\Delta_y=  D$;
+\begin{itemize}
+% \item целые;
+% \item приближённо равны $x(j)$;
+% \item имеют ту же сумму $\sum z(j) = \sum y(j) +\Delta_y=  D$;
+% \item имеют приблизительно тот же минимум  $\min z(j) = \sum y(j) +\Delta_y=  D$;
+
+\item если $\forall j{:} ~ x(j) \geqslant a$ для какого-либо $a \in \Integerset$, то и~$\forall j{:} ~ z(j) \geqslant a$;
+\item если среди $x(j)$ есть $R$ штук целых "--- все они сохранят значение при округлении: $z(j) = x(j)$.
+\end{itemize}
+
+% \hrulefill
+% 
+% Медленно $\implies$ нормировка на точную сумму имеет смысл только для блочного кодека.
+
+\hrulefill
+
+Целочисл., 
+$x(j)$ вида $\frac{u(j) \cdot D}{U}$:
+сразу $y(j) = \left\lfloor
+\frac{u(j) \cdot D}{U}
+\right\rfloor$; вместо $0 \leqslant \{x(j)\} < 1$ целое $0 \leqslant (u(j) \cdot D) {\%} U < U$
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\subsection{(A) $\sum count(j) = n$ к~$\sum\nu(j) = D_{\text{жел}} \geqslant T$, искажение всех частот}
+\begin{frame}{\insertsubsection}
+
+% \begin{frame}{Приведение $\sum count(j) = n$ к~$\sum\nu(j) = D_{\text{жел}}$, искажение всех частот}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+Приведение (A) "--- аналогично $\mathrm{round}\left( \frac{count(i) - 1}{\max(count) - 1} \cdot (Max - 1) \right) + 1$
+для нормировки на максимум:
+
+\begin{enumerate}
+\item Для $count(j) = 0$ записываем $\nu(j) = 0$
+$\implies$
+осталось $T \leqslant 2^k$ ненулевых значений:
+
+\begin{itemize}
+\item $count(j) \geqslant 1$, $\sum count(j) = n$;
+
+\item необходимо привести к $\nu(j) \geqslant 1$ с~суммой $\sum \nu(j) = D_{\text{жел}}$.
+\end{itemize}
+
+\vfill
+
+\item Рассмотрим значения $u(j) = count(j) - 1$, ~~ тогда $u(j) \geqslant 0$, ~~ $\sum u(j) = \sum (count(j) - 1) = n-T$;
+
+будем приводить к~$\theta(j) = \nu(j) -1, ~~ \theta(j) \geqslant 0$, ~~ $\sum \theta(j) = \sum (\nu(j) - 1) = D_{\text{жел}}-T$:
+
+$x(j) = \frac{u(j)}{n-T}\cdot (D_{\text{жел}}-T)$
+% $\Bigg(
+% x(j) \geqslant 0, ~~ \sum x(j) = D_{\text{жел}}-T
+% \Bigg)$
+\hfill$\implies$\hfill
+$\theta(j)=\round_{\sum} \Big( x(j)\Big)$
+\hfill$\implies$\hfill
+$\nu(j) = \theta(j) + 1$.
+
+% \begin{itemize}
+% \item рассчитываем нецелые значения
+% %
+% $x(j) = \frac{u(j)}{n-T}\cdot (D_{\text{жел}}-T) 
+% % = \frac{count(j) -1}{n-T}\cdot (D_{\text{жел}}-T)
+% $; 
+% 
+% % (для них верно $x(j)\geqslant0$, ~~ $\sum x(j) = D_{\text{жел}}-T$);
+% 
+% \item округляем $x(j) \geqslant 0$ с~суммой $D_{\text{жел}}-T$ до $\theta(j) \geqslant 0$ с~сохранением суммы: $\theta(j)=\round_{\sum} \Big( x(j)\Big)$.
+% 
+% \end{itemize}
+
+% Так как $n>D_{\text{жел}}$ и~$D_{\text{жел}} \leqslant 4T$, то $n-T>0$ и~$D_{\text{жел}}-T > 0$.
+
+% \vfill
+
+% \item $\nu(j) = \theta(j) + 1 = \round_{\sum} \Big( x(j)\Big)+1$.
+% % \hfill
+% % $\Bigg(
+% % \enumerateball{2}+\enumerateball{3}:
+% % ~~
+% % \nu(j) = \round_{\sum
+% % }\Big( 
+% % \frac{count(j) -1}{n-T}\cdot (D_{\text{жел}}-T)
+% % \Big)
+% % +1
+% % \Bigg)$
+
+\end{enumerate}
+
+\hrulefill
+\vfill
+
+Так как 
+% округление с~сохранением суммы 
+$\round_{\sum}$
+проще реализовать на массиве «без дыр», а~целочисленные значения сохраняются:
+
+% \begin{enumerate}
+% \item 
+% $ x(j) =
+% \left\{
+% \begin{array}{l@{~}l@{~}l}
+% -1, & count(j) = 0, & T_0 ~\text{штук},\\
+% \frac{count(j) -1}{n-T}\cdot (D_{\text{жел}}-T), & count(j) > 0, & T ~\text{штук};
+% \end{array}
+% \right.
+% $
+% \hfill
+% % общее количество $T_0 + T = 2^k$. % (общее число байтов).
+% % 
+% % \rlap
+% {$\displaystyle\sum_{j=0}^{\ByteMax}x(j) 
+% % = (D_{\text{жел}}-T) + {T_0}\cdot(-1)
+% = (D_{\text{жел}}-T) - T_0
+% % = D_{\text{жел}} - (T+T_0) 
+% % = D_{\text{жел}} - 2^k
+% $.}
+% 
+% \item $\nu(j) = \round_{\sum} \Big( x(j)\Big)+1$,
+% \hfill
+% $\displaystyle\sum_{j=0}^{\ByteMax}\nu(j) 
+% % = ((D_{\text{жел}}-T) + {T_0}\cdot(-1)) + 2^k 
+% = (D_{\text{жел}}-T -T_0) + 2^k 
+% % = (D_{\text{жел}} - 2^k) + 2^k 
+% =D_{\text{жел}}
+% $.
+% \hfill{}
+
+
+% \begin{enumerate}
+\enumerateball{1}
+$ x(j) =
+\left\{
+\begin{array}{l@{~}l@{~}l}
+0, & count(j) = 0, & (2^k -T) ~\text{штук},\\
+\frac{(count(j) -1)\cdot (D_{\text{жел}}-T)}{n-T} + 1, & count(j) > 0, & T ~\text{штук};
+\end{array}
+\right.
+$
+\hfill
+\enumerateball{2}
+$\nu(j) = \round_{\sum} \Big( x(j)\Big)$.
+
+\vfill
+
+«Целочисленная дробная часть»
+$r(j) = \{x(j)\}\cdot (n-T) 
+% = \Big( (count(j) -1)\cdot(D_{\text{жел}}-T) \Big) \% \Big(n-T\Big)
+$,
+~
+$0\leqslant r(j) < (n-T) $:
+
+
+$ 
+\left\{
+\begin{array}{@{}l@{~~}l@{~~}l}
+count(j) = 0{:} & y(j)  = 0, &r(j) = 0;\\
+count(j) > 0{:} & y(j)  = \left\lfloor 
+\frac{(count(j) -1)\cdot (D_{\text{жел}}-T)}{n-T}
+\right\rfloor + 1
+, & r(j) = \Big( (count(j) -1)\cdot(D_{\text{жел}}-T) \Big) \% \Big(n-T\Big).
+\end{array}
+\right.
+$
+ 
+% $\displaystyle\sum_{j=0}^{\ByteMax}\nu(j) 
+% =\sum_{j=0}^{\ByteMax}x(j) 
+% = (D_{\text{жел}}-T) + T 
+% =D_{\text{жел}}
+% $;
+
+
+Применимо и~для $n\leqslant D_{\text{жел}}$, при этом $1 \to 1$; результат отличается от $\round_{\sum} \Big( \frac{count(j)}{n}\cdot D_{\text{жел}} \Big)$.
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+\subsection{(B) $\sum count(j) = n$ к~$\sum\nu(j) = D_{\text{жел}} \geqslant 4T$, все малые частоты в~$1$}
+\begin{frame}{\insertsubsection}
+
+% \begin{frame}{Приведение $\sum count(j) = n$ к~$\sum\nu(j) = D_{\text{жел}}$, точные соотношения больших частот}
+% \begin{adjustwidth}{-5.5em}{-6.5em}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+Приведение (B) "--- аналогично $\mathrm{round}\left( \frac{count(i)}{\max(count)} \cdot Max \right)$: 
+для больших $\nu(j) \approx \dfrac{count(j)}{n}\cdot D_{\text{жел}}$,
+
+
+% \begin{itemize}
+% \item 
+при $\frac{1}{2} < \frac{count(j)}{n}\cdot D_{\text{жел}} < \frac{3}{2}
+\Big( \frac{1}{2}\cdot\frac{n}{D_{\text{жел}}} < count(j) < \frac{3}{2}\cdot\frac{n}{D_{\text{жел}}}  \Big)
+$ 
+% значение $\nu(j)$  округляется до 1;
+$\nu(j) \approx 1$;
+% \item 
+при меньшем принудительно 1.
+% ненулевом $count(j)$ значение $\nu(j)$ должно быть выставлено в~1.
+% \end{itemize}
+
+% $D_{\text{жел}}$ выбирается на этапе разработки алгоритма так, что $D_{\text{жел}} \geqslant 4\cdot2^k \geqslant 4 T$.
+
+\vfill
+
+\begin{enumerate}
+\item Для $count(j) = 0$ записываем $\nu(j) = 0$
+$\implies$
+осталось $T \leqslant 2^k$ ненулевых $count(j)$, $\sum count(j) = n$.
+
+\vfill
+
+\item Для $1\leqslant count(j)< \frac{3 n}{2 D_{\text{жел}}} $ записываем $\nu(j) = 1$ 
+(пусть их $T_1 \leqslant T$ штук и~$\sum count(j) = n_1 \leqslant n$).
+
+\vfill
+
+При этом $T_1 < T$ и~$n_1 < n$
+% , то есть остались ещё неприведённые частоты 
+% \\
+(если %это все ненулевые частоты ($T_1 = T$),
+$T_1 = T$, 
+то 
+$n = \sum count(j) < \sum \frac{3 n}{2 D_{\text{жел}}} = T \cdot \frac{3 n}{2 D_{\text{жел}}}$,
+% то есть 
+% $1 < \frac{3}{2}\cdot\frac{T}{D_{\text{жел}}}$,
+% то есть 
+% $D_{\text{жел}} < \frac{3}{2}\cdot T$ 
+% что противоречит 
+но
+$D_{\text{жел}} \geqslant 4 T$).
+
+\vfill
+
+\item Оставшиеся $T-T_1$ частот 
+% $count(j) \geqslant \frac{3 n}{2 D_{\text{жел}}} $
+с~$\sum count(j) = n- n_1$
+%
+приводим к~$\sum \nu(j) = D_{\text{жел}} - T_1$.
+
+\end{enumerate}
+
+\hrulefill
+
+\vfill
+
+$ x(j) =
+\left\{
+\begin{array}{@{}l@{~~}l@{~}l@{~}l@{}}
+0, & &count(j) &= 0,  \\
+1, & 1\leqslant &count(j) &< \frac{3 n}{2 D_{\text{жел}}} %~(T_1~\text{штук}, ~\sum count = n_1)
+, \\
+\frac{count(j)\cdot (D_{\text{жел}} - T_1)}{n - n_1}, & &count(j) &\geqslant \frac{3 n}{2 D_{\text{жел}}}; \\
+\end{array}
+\right.
+\hfill\implies\hfill
+\nu(j) = \round_{\sum} \Big( x(j)\Big).
+$
+% \hfill{}
+
+\vfill
+
+% \hspace*{-1em}%
+При $D_{\text{жел}} \geqslant 4T$ в~третьем случае
+$\frac{count(j)\cdot (D_{\text{жел}} - T_1)}{n - n_1}
+> \frac{\frac{3 n}{2 D_{\text{жел}}}\cdot (D_{\text{жел}} - T)}{n}
+= \frac{3}{2}\cdot \Big( 1 - \frac{T}{D_{\text{жел}}}  \Big)
+\geqslant
+ \frac{9}{8} > 1$.
+% % %
+% % $\displaystyle\sum_{j=0}^{\ByteMax} x(j) 
+% % = (D_{\text{жел}}-T_1) + T_1
+% % = D_{\text{жел}}
+% % $
+% \hfill$\implies$\hfill
+% % $\nu(j) = \round_{\sum} \Big( x(j)\Big)$
+% % с
+% $
+% \left\{
+% \begin{array}{@{}l@{~\text{при}~}l@{}}
+% \nu(j) = 0 & count(j) = 0, \\
+% \nu(j) \geqslant 1 &  count(j) \geqslant 1. \\
+% \end{array}
+% \right.
+% $
+
+% Приведение (B) п
+Применимо и~для $n\leqslant D_{\text{жел}}$, при этом $1 \to 1$;
+отличается от $\round_{\sum} \Big( \frac{count(j)}{n}\cdot D_{\text{жел}} \Big)$ и~от (A).
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \section{Приведение частот (продолжение)}
+
+
+
+
+\subsection{Приведение (A) и~(B): $n < D_{\text{жел}}$}
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+Пусть $D_{\text{жел}} = 2^6 = 64$ и~$\overrightarrow{count} = (0, 3, 1, 16, 17, 1, 0, 2)$, $n=\sum count(j) = 40$;
+%
+ненулевых частот $T = 6$: 
+
+%
+
+\vfill
+
+Приведение (A):
+ ~~ $D_{\text{жел}}-T = 58,$ ~~ $n-T = 34:$
+
+$ 
+\left\{
+\begin{array}{@{}l@{~~}l@{~~}l}
+count(j) = 0{:} & y(j)  = 0, &r(j) = 0;\\
+count(j) > 0{:} & y(j)  = \left\lfloor 
+\frac{(count(j) -1)\cdot (D_{\text{жел}}-T)}{n-T}
+\right\rfloor + 1
+, & r(j) = \Big( (count(j) -1)\cdot(D_{\text{жел}}-T) \Big) \% \Big(n-T\Big).
+\end{array}
+\right.
+$
+
+\begin{tabular}{@{}l|ccc>{\columncolor{yellow}}cccc>{\columncolor{yellow}}c|c}
+$j$ &   0&  1&  2&  3&  4&  5&  6&  7   & $\sum$ \\\hline
+$r(j)$&   0 &   14   &  0   &   20 &    10  &   0  &  0  &  24 &\\\hline
+$y(j)$&   0 &   4 &     1 &     26 &    28 &    1 &   0  &  2  & 62\\\hline
+$\nu(j)$& 0 &   4 &     1 &     27 &    28 &    1 &   0  &  3  & 64
+\end{tabular}
+$\Delta_y = D_{\text{жел}} - \sum y = 2$ 
+
+
+\vfill
+Приведение (B): $\frac{3 n}{2 D_{\text{жел}}} \approx 0,9$ $\implies$ 
+значений $1\leqslant count(j)< \frac{3 n}{2 D_{\text{жел}}} $ нет, 
+$T_1 = n_1 = 0$
+
+
+$ 
+\left\{
+\begin{array}{@{}@{~}c@{~}l@{~}c@{~}l@{~~}l@{~~}lllllll}
+&&count(j)& = 0{:} & y(j)  = 0, &r(j) = 0;\\
+1&\leqslant& count(j)& < \frac{3 n}{2 D_{\text{жел}}} {:} & 
+y(j)  = 1
+, & r(j) = 0; \\
+%
+\frac{3 n}{2 D_{\text{жел}}}&\leqslant& count(j){:}&   & y(j)  = \left\lfloor 
+\frac{count(j)\cdot (D_{\text{жел}} - T_1)}{n - n_1}
+\right\rfloor
+, & r(j) = \Big( count(j)\cdot(D_{\text{жел}}-T_1) \Big) \% \Big(n-n_1\Big).
+\end{array}
+\right.
+$
+
+\begin{tabular}{@{}l|c>{\columncolor{yellow}}c>{\columncolor{yellow}}c>{\columncolor{yellow}}ccccc|c}
+$j$ &       0&      1&      2&      3&      4&      5&      6&      7   & $\sum$ \\\hline
+$r(j)$&     0 &     32   &  24  &   24 &    8  &   24  &  0  &  8 &\\\hline
+$y(j)$&     0 &   4 &     1 &     25 &    27 &    1 &   0  &  3  & 61\\\hline
+$\nu(j)$&   0 &   5 &     2 &     26 &    27 &    1 &   0  &  3  & 64
+\end{tabular}
+$\Delta_y = D_{\text{жел}} - \sum y = 3$ 
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+
+\end{document}

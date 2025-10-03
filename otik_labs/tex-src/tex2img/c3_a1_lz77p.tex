@@ -1,0 +1,616 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\input{\COMMONPATH/preamble-complex/tikz2}
+
+\usepackage{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+
+\usepackage{ifthen}
+\usepackage{xstring}
+% \newcommand{\ci}[1]{\tikzmath{integer \inext; \inext = #1+1;}\StrMid{Katie}{#1}{\inext}}
+
+% \newcommand{\CC}{012340123456789012345678901234540123ABCDEFFFFFFF0123}
+% \newcommand{\clen}{\StrLen{\CC}}
+
+% \newcommand{\ci}[1]{\StrMid{012340123456789012345678901234540123ABCDEFFFFFFF0123EFCD456789AB}{#1}{#1}}
+  \newcommand{\ci}[1]{\StrMid{012340123456789012345678901234540123ABCDEFFFFFFF123ABCDE456789AB}{#1}{#1}}
+\newcommand{\clen}{64}
+
+\newcommand{\CforP}                         {012345678901234540123ABCDEFFFFFFF123ABCDE456789AB} % без первых 15
+\newcommand{\frqcp}[1]{\hex{#1}^{\StrCount{\CforP}{#1}}}
+
+\newcommand{\pp}{6}
+
+\newcommand{\smax}{15}
+\newcommand{\lmin}{4}
+\newcommand{\lmax}{15}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\tikzset{node distance = 1ex and 0.3em}
+% \tikzset{node distance = 1ex and 0.4em}
+\tikzset{start chain=charline going right}
+% \tikzstyle{cchar}      = [outer xsep = 0em, inner xsep = 0em, outer ysep = 0ex, inner ysep = 0.5ex]
+\tikzstyle{commonchar} = [outer xsep = 0em, inner xsep = 0em, outer ysep = 0ex, inner ysep = 0ex]
+\tikzstyle{cchar}      = [commonchar]
+% \tikzstyle{ichar}      = [cchar, scale = 0.6]
+\tikzstyle{ichar}      = [commonchar, scale = 0.6, inner ysep = 0.5ex]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\pLS}[2]{\textcolor{green}{\hex{\pp}}\textcolor{red}{\hex{#1}}\textcolor{blue}{\hex{#2}}}
+\newcommand{\pfx}{\textcolor{green}{\hex{\pp 0}}}
+
+% \tikzstyle{prefixxx} = [green]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzstyle{neqe} = [gray]
+\tikzstyle{eqls} = [black, thick]
+% \tikzstyle{eqls} = [red, thick]
+\tikzstyle{etactive} = [red]
+% \tikzstyle{etzzzzzz} = [red!20!white]
+\tikzstyle{etzzzzzz} = [red!32!white]
+\tikzstyle{ssactive} = [blue]
+% \tikzstyle{sszzzzzz} = [blue!30!white]
+\tikzstyle{sszzzzzz} = [blue!32!white]
+
+\tikzstyle{outactiv} = [green!50!black]
+% \tikzstyle{eqline} = [yellow]
+\tikzstyle{eqline} = [green]
+
+\tikzstyle{lstyle}      = [etactive]
+\tikzstyle{sstyle}      = [ssactive]
+
+\tikzmath{integer \i, \iviewmin, \iviewmax;}
+\newcommand{\seti}[1]{\tikzmath{\i = #1; \iviewmin = \i-\smax; \iviewmax = \i+\lmax-1; }}
+
+\tikzmath{integer \globalviewmin, \globalviewmax;}
+\tikzmath{\globalviewmin = 1; \globalviewmax = \clen;}
+
+% L, S, стиль скобки sl
+\newcommand{\view}[3]{
+    \clearpage
+    \begin{tikzpicture}\scriptsize
+        
+    \tikzmath{integer \l, \s; \l = #1; \s = #2;  }
+    
+
+%     \foreach \idx in {\iviewmin,...,\iviewmax}
+%     \foreach \idx in {1,...,\clen}
+    \foreach \idx in {\globalviewmin,...,\globalviewmax}
+    {
+        \tikzmath{integer \viewable; \viewable = 1; }
+        \tikzmath{integer \eidx, \eactidx; \eidx = \idx-\i+1; \eactidx = \eidx; 
+            if \eactidx>\l then {\eactidx = -1;};  
+            if \eidx>\lmax then {\eactidx = -1; \eidx = -1; \viewable = 0; }; 
+        }
+        \tikzmath{integer \sidx, \sactidx; \sidx = \i-\idx;   \sactidx = \sidx; 
+            if \sactidx<\s then {\sactidx = -1;};
+            if \sidx>\smax then {\sactidx = -1; \sidx = -1; \viewable = 0;};
+        }
+        \tikzmath{integer \lidx, \lactidx; \lidx = \s-\sidx+1; \lactidx = \lidx; 
+            if \lidx>\lmax then {\lactidx = -1; \lidx = -1; }; 
+            if \lactidx>\l then {\lactidx = -1;};  
+        }
+        
+        \tikzstyle{estyle} = [etzzzzzz]
+        \tikzstyle{sstyle} = [sszzzzzz]
+        \tikzstyle{lstyle} = [etzzzzzz]
+        \tikzstyle{cstyle} = []
+        
+        \ifthenelse{\eactidx>0}{\tikzstyle{estyle} = [etactive]; \tikzstyle{cstyle} = [etactive]}{}
+        \ifthenelse{\sactidx>0}{\tikzstyle{sstyle} = [ssactive]; }{}
+        \ifthenelse{\lactidx>0}{\tikzstyle{lstyle} = [etactive]; }{}
+            
+        \node[on chain=charline, cchar] (c\idx) {\hex{\ci{\idx}}};
+    
+        \ifthenelse{\viewable>0}
+        {
+            \ifthenelse{\eidx>0}
+            {
+                \node[below = 1ex of c\idx, ichar, estyle] (e\idx) {$\eidx$};
+            }{}
+            
+            \ifthenelse{\sidx>0}
+            {        
+                \node[below = 1ex of c\idx, ichar, sstyle] (s\idx) {$\sidx$};
+            }{}
+            
+            \ifthenelse{\lidx>0}
+            {
+                \node[above = 1ex of c\idx, ichar, lstyle] (l\idx) {$\lidx$};
+            }{}
+        }{}
+
+%         \node[above = 3ex of c\idx, ichar] (i\idx) {$\idx$};
+    }
+    \ifthenelse{\globalviewmin>1}
+    {   
+        \node[left = 0.1em of c\globalviewmin, cchar] (beforeellips) {\hex{\strut...}};
+    }{}
+    
+    \ifthenelse{\globalviewmax<\clen}
+    {
+        \node[right = 0.1em of c\globalviewmax, cchar] (afterellips) {\hex{...\strut}};
+    }{}
+        
+    \tikzmath{integer \il; \il = \i+\l-1; }
+    \draw[decorate,decoration={brace,mirror,raise=0.8ex}, etactive] (c\i.west)--(c\il.east);
+
+    \tikzmath{integer \is, \isl; \is = \i-\s; \isl = \is+\l-1; }
+    \draw[decorate,decoration={brace,raise=0.8ex}, #3] (c\is.west)--(c\isl.east);
+                 
+    \node[below = 4ex of c\i, ichar] (i) {$i=\i$};
+    \draw[-latex'] (i) -- (e\i);
+               
+%     \node[above = 4ex of c\is, ichar] (is) {$i-S=\is$};
+    \node[above = 4ex of c\is, ichar] (is) {$S=\s$};
+%     \node[above = 4ex of c\is, ichar] (is) {$i-S$};
+    \draw[-latex'] (is) -- (l\is);
+    
+
+    \end{tikzpicture}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\eqlines}[4]{
+    \draw[eqline] (#1.south west) -- (#3.north west);
+    \draw[eqline] (#2.south east) -- (#4.north east);
+}
+
+\tikzmath{integer \codei; \codei = 0;}
+
+\newcommand{\codecopy}[2]{
+    \foreach \i [remember=\codei as \codeilast (initially \codei)] in {#1,...,#2}
+    {
+        \node[on chain=charline, cchar, below = 4ex of c\i] (code\i) {\hex{\ci{\i}}};
+        \tikzmath{ \codei = \codeilast + 1; }
+        \node[above = 1ex of code\i, ichar] {$\codei$};
+    }
+    \tikzmath{ \codei = \codeilast;  }
+    \eqlines{c#1}{c#2}{code#1}{code#2}
+}
+
+\newcommand{\codelink}[4]{
+    \tikzmath{integer \centr; \centr=(#1+#2)/2; }
+    
+    \node[on chain=charline, cchar, below = 4ex of c\centr ] (codeLS#1) {\pLS{#3}{#4}};
+    \eqlines{c#1}{c#2}{codeLS#1}{codeLS#1}
+    
+    \tikzmath{ \i1 = \codei + 1; \i2 = \codei + 2; \i3 = \codei + 3; \codei = \codei + 3;  }
+    \node[above = 1ex of codeLS#1, ichar] {$\i1~\i2~\i3$};
+}
+
+\newcommand{\codeprfx}[1]{   
+    \node[on chain=charline, cchar, below = 4ex of c#1 ] (code#1) {\pfx};
+    \eqlines{c#1}{c#1}{code#1}{code#1}
+    
+    \tikzmath{ \i1 = \codei + 1; \i2 = \codei + 2; \codei = \codei + 2;  }
+    \node[above = 1ex of code#1, ichar] {$\i1\i2$};
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{tikzpicture}\scriptsize
+
+
+\node[on chain=charline] (ctitle) {$C=$};
+
+\foreach \i in {1,...,\clen}
+{
+    \node[on chain=charline, cchar] (c\i) {\hex{\ci{\i}}};
+    \node[above = 1ex of c\i, ichar] (i\i) {$\i$};
+
+}
+
+\codecopy{1}{15}
+% \foreach \i in {1,...,15}
+% {
+%     \node[on chain=charline, cchar, below = 3ex of c\i] (code\i) {\hex{\ci{\i}}};
+% }
+
+% \node[anchor=east, outer ysep=0ex, inner ysep=0ex] at (ctitle.east|-code1) (codetitle) {$code(C)=$};
+\node[anchor=east, outer ysep=0ex, inner ysep=0ex] at (ctitle.east|-code1) (codetitle) {$A1(C)=$};
+\node[above = 0ex of codetitle.north west, anchor=south west] {$p=\hex{\pp}$};
+
+% \eqlines{c1}{c15}{code1}{code15}
+
+\codelink{16}{30}{F}{A}
+% \node[on chain=charline, cchar, below = 3ex of c23 ] (codeLS1) {\pLS{F}{A}};
+% \eqlines{c16}{c30}{codeLS1}{codeLS1}
+    
+
+
+\codecopy{31}{32}
+
+% \foreach \i in {31, 32}
+% {
+%     \node[on chain=charline, cchar, below = 3ex of c\i] (code\i) {\hex{\ci{\i}}};
+% }
+% \eqlines{c31}{c32}{code31}{code32}
+
+
+\codelink{33}{36}{4}{7}
+% \node[on chain=charline, cchar, below = 3ex of c34 ] (codeLS2) {\pLS{4}{7}};
+% \eqlines{c33}{c36}{codeLS2}{codeLS2}
+
+\codecopy{37}{42}
+\codelink{43}{48}{6}{1}
+
+% \codecopy{49}{58}
+\codelink{49}{56}{8}{F}
+
+\tikzstyle{cchar}      = [commonchar, xshift = -2em]
+\codecopy{57}{58}
+
+\tikzstyle{cchar}      = [commonchar, xshift = -1em]
+\codeprfx{59}
+
+
+% \tikzstyle{cchar}      = [commonchar, xshift = 1em]
+\tikzstyle{cchar}      = [commonchar]
+
+\codecopy{60}{64}
+
+\end{tikzpicture}
+
+
+\clearpage
+
+
+
+
+
+\begin{tikzpicture}\scriptsize
+
+
+\node[on chain=charline] (ctitle) {$C=$};
+
+\foreach \i in {1,...,\clen}
+{
+    \node[on chain=charline, cchar] (c\i) {\hex{\ci{\i}}};
+    \node[above = 1ex of c\i, ichar] (i\i) {$\i$};
+
+}
+% \draw[decorate,decoration={brace,mirror,raise=0.6ex}, outactiv] (c1.west)--(c15.east) 
+%     node[pos=0.5, auto, swap, outer sep = 1ex, outactiv, text badly centered, text width = 12em] {не~сжимаем $\to$ не~экранируем $p$};
+
+\draw[decorate,decoration={brace,mirror,raise=1ex}] (c16.west)--(c\clen.east) 
+    node[pos=0.5, auto, swap, outer sep = 1ex] {$\Big( 
+    \frqcp{0}, \frqcp{1}, \frqcp{2}, \frqcp{3},  \frqcp{4}, \frqcp{5}, \frqcp{6}, \frqcp{7},  
+    \frqcp{8}, \frqcp{9}, \frqcp{A}, \frqcp{B},  \frqcp{C}, \frqcp{D}, \frqcp{E}, \frqcp{F}
+    \Big)    
+%     \to p \in \{\hex{6, 7, 8, 9, A, B, C, D, E}\}    
+%     \to p = 6
+    $};
+
+\end{tikzpicture}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \clearpage
+% 
+% \begin{tikzpicture}\scriptsize
+% \foreach \i in {1,...,\smax}
+% {
+%     \node[on chain=charline, cchar, outactiv] (c\i) {\hex{\ci{\i}}};
+% %     \node[above = 0ex of c\i, ichar, outactiv] (i\i) {$\i$};
+% 
+% }
+% \end{tikzpicture}
+
+% \tikzmath{integer \i, \iviewmin, \iviewmax; \i = \smax+1; \iviewmin = \i-\smax; \iviewmax = \i+\lmax-1; }
+
+% \tikzmath{\globalviewmin = 1; \globalviewmax = 32;}
+% \tikzmath{\globalviewmin = 1; \globalviewmax = 48;}
+\tikzmath{\globalviewmin = 1; \globalviewmax = 40;}
+
+\seti{\smax+1}
+
+
+
+
+    \clearpage
+    \begin{tikzpicture}\scriptsize
+        
+    \tikzmath{integer \l, \s; \l = 4; \s = 1;  }
+
+    \foreach \idx in {\globalviewmin,...,\globalviewmax}
+    {
+        \tikzmath{integer \viewable; \viewable = 1; }
+        \tikzmath{integer \eidx, \eactidx; \eidx = \idx-\i+1; \eactidx = \eidx; 
+            if \eactidx>\l then {\eactidx = -1;};  
+            if \eidx>\lmax then {\eactidx = -1; \eidx = -1; \viewable = 0; }; 
+        }
+        \tikzmath{integer \sidx, \sactidx; \sidx = \i-\idx;   \sactidx = \sidx; 
+            if \sactidx<\s then {\sactidx = -1;};
+            if \sidx>\smax then {\sactidx = -1; \sidx = -1; \viewable = 0;};
+        }
+        \tikzmath{integer \lidx, \lactidx; \lidx = \s-\sidx+1; \lactidx = \lidx; 
+            if \lidx>\lmax then {\lactidx = -1; \lidx = -1; }; 
+            if \lactidx>\l then {\lactidx = -1;};  
+        }
+        
+        \tikzstyle{estyle} = [etzzzzzz]
+        \tikzstyle{sstyle} = [ssactive]
+        \tikzstyle{lstyle} = [etzzzzzz]
+        \tikzstyle{cstyle} = []
+        
+        \ifthenelse{\eactidx>0}{\tikzstyle{estyle} = [etactive]; \tikzstyle{cstyle} = [etactive]}{}
+%         \ifthenelse{\sactidx>0}{\tikzstyle{sstyle} = [ssactive]; }{}
+%         \ifthenelse{\lactidx>0}{\tikzstyle{lstyle} = [etactive]; }{}
+            
+        \node[on chain=charline, cchar] (c\idx) {\hex{\ci{\idx}}};
+    
+        \ifthenelse{\viewable>0}
+        {
+%             \ifthenelse{\eidx>0}
+%             {
+%                 \node[below = 1ex of c\idx, ichar, estyle] (e\idx) {$\eidx$};
+%             }{}
+            
+            \ifthenelse{\sidx>0}
+            {        
+                \node[below = 1ex of c\idx, ichar, sstyle] (s\idx) {$\sidx$};
+            }{}
+            
+%             \ifthenelse{\lidx>0}
+%             {
+%                 \node[above = 1ex of c\idx, ichar, lstyle] (l\idx) {$\lidx$};
+%             }{}
+        }{}
+
+%         \node[above = 3ex of c\idx, ichar] (i\idx) {$\idx$};
+    }
+        
+%     \tikzmath{integer \il; \il = \i+\l-1; }
+%     \draw[decorate,decoration={brace,mirror,raise=0.8ex}, etactive] (c\i.west)--(c\il.east);
+
+%     \tikzmath{integer \is, \isl; \is = \i-\s; \isl = \is+\l-1; }
+%     \draw[decorate,decoration={brace,raise=0.8ex}, #3] (c\is.west)--(c\isl.east);
+                 
+    \coordinate[below = 0.6ex of c\i] (iarrowend);
+    \node[below = 4ex of c\i, ichar] (i) {$i=\i$};
+    \draw[-latex'] (i) -- (iarrowend);
+    
+\draw[decorate,decoration={brace,mirror,raise=3ex}, sstyle] (c1.west)--(c15.east) node[pos=0.5, auto, swap, outer sep = 3ex] {окно размера $w=S_{\max}$};
+               
+\draw[decorate,decoration={brace,mirror,raise=0.8ex}, etactive] (c16.west)--(c19.east) node[pos=0.5, auto, swap, outer sep = 1.ex, anchor=167] {эталон $E_{\min}$ длины $L_{\min}$};
+
+    \end{tikzpicture}
+
+
+
+
+
+
+
+
+
+\foreach \l in {4, 5}
+{
+    \view{\l}{15}{eqls}
+}
+\view{6}{15}{neqe}
+
+\foreach \s in {14, ..., 11}
+% \foreach \s in {14, 11}
+{
+    \view{6}{\s}{neqe}
+}
+
+% \foreach \l in {6, 7, 15}
+\foreach \l in {6, 15}
+{
+    \view{\l}{10}{eqls}
+}
+
+% \tikzmath{\globalviewmin = 9; \globalviewmax = 40;}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\seti{\i+15}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \tikzmath{\globalviewmin = 9; \globalviewmax = 56;}
+\tikzmath{\globalviewmin = 13; \globalviewmax = 52;}
+
+% \foreach \idx in {1,2,3}
+% {
+%     \view{4}{15}{neqe}
+%     \seti{\i+1}
+% }
+
+% \view{4}{15}{neqe}
+% \foreach \s in {15, ..., 1}
+% \foreach \s in {15, 14, 2, 1}
+\foreach \s in {15, 1}
+{
+    \view{4}{\s}{neqe}
+}
+
+
+
+\seti{\i+1}
+
+
+% \tikzmath{\globalviewmin = 16; \globalviewmax = 49;}
+
+
+\view{4}{15}{neqe}
+\seti{\i+1}
+
+% \tikzmath{\globalviewmin = 16; \globalviewmax = 64;}
+% \tikzmath{\globalviewmin = 17; \globalviewmax = 64;}
+
+\view{4}{15}{neqe}
+% \view{4}{14}{neqe}
+% \foreach \s in {15, ..., 8}
+% {
+%     \view{4}{\s}{neqe}
+% }
+\view{4}{7}{eqls}
+\view{5}{7}{neqe}
+% \view{5}{6}{neqe}
+% \foreach \s in {6, ..., 1}
+\foreach \s in {6,  1}
+{
+    \view{5}{\s}{neqe}
+}
+\seti{\i+4}
+\tikzmath{\globalviewmin = 21; \globalviewmax = 60;}
+
+\view{4}{15}{neqe}
+
+
+\seti{43}
+\view{4}{15}{neqe}
+\view{4}{1}{eqls}
+% \view{5}{1}{eqls}
+\view{6}{1}{eqls}
+
+% \tikzmath{\globalviewmin = 31; \globalviewmax = 64;}
+\tikzmath{\globalviewmin = 25; \globalviewmax = 64;}
+
+\seti{49}
+\view{4}{15}{eqls}
+\view{8}{15}{eqls}
+
+% \seti{50}
+% \view{4}{15}{neqe}
+
+\seti{57}
+% \view{4}{15}{neqe}
+
+% \seti{51}
+% \view{4}{15}{neqe}
+% 
+% \seti{61}
+% \view{4}{15}{neqe}
+% \seti{62}
+% 
+% % \view{4}{15}{neqe}
+% 
+    \clearpage
+    \begin{tikzpicture}\scriptsize
+        
+    \tikzmath{integer \l, \s; \l = 4; \s = 1;  }
+
+    \foreach \idx in {\globalviewmin,...,\globalviewmax}
+    {
+        \tikzmath{integer \viewable; \viewable = 1; }
+        \tikzmath{integer \eidx, \eactidx; \eidx = \idx-\i+1; \eactidx = \eidx; 
+            if \eactidx>\l then {\eactidx = -1;};  
+%             if \eidx>3 then {\eactidx = -1; \eidx = -1; \viewable = 0; }; 
+            if \eidx>\lmax then {\eactidx = -1; \eidx = -1; \viewable = 0; }; 
+        }
+        \tikzmath{integer \sidx, \sactidx; \sidx = \i-\idx;   \sactidx = \sidx; 
+            if \sactidx<\s then {\sactidx = -1;};
+            if \sidx>\smax then {\sactidx = -1; \sidx = -1; \viewable = 0;};
+        }
+%         \tikzmath{integer \lidx, \lactidx; \lidx = \s-\sidx+1; \lactidx = \lidx; 
+%             if \lidx>\lmax then {\lactidx = -1; \lidx = -1; }; 
+%             if \lactidx>\l then {\lactidx = -1;};  
+%         }
+        
+        \tikzstyle{estyle} = [etzzzzzz]
+        \tikzstyle{sstyle} = [ssactive]
+        \tikzstyle{lstyle} = [etzzzzzz]
+        \tikzstyle{cstyle} = []
+        
+        \ifthenelse{\eactidx>0}{\tikzstyle{estyle} = [etactive]; \tikzstyle{cstyle} = [etactive]}{}
+%         \ifthenelse{\sactidx>0}{\tikzstyle{sstyle} = [ssactive]; }{}
+%         \ifthenelse{\lactidx>0}{\tikzstyle{lstyle} = [etactive]; }{}
+            
+        \node[on chain=charline, cchar] (c\idx) {\hex{\ci{\idx}}};
+    
+        \ifthenelse{\viewable>0}
+        {
+            \ifthenelse{\eidx>0}
+            {
+                \node[below = 1ex of c\idx, ichar, estyle] (e\idx) {$\eidx$};
+            }{}
+            
+            \ifthenelse{\sidx>0}
+            {        
+                \node[below = 1ex of c\idx, ichar, sstyle] (s\idx) {$\sidx$};
+            }{}
+            
+%             \ifthenelse{\lidx>0}
+%             {
+%                 \node[above = 1ex of c\idx, ichar, lstyle] (l\idx) {$\lidx$};
+%             }{}
+        }{}
+
+    }
+    
+%     \node[above = 1ex of c47, ichar, lstyle] (lqq) {$?$};
+   
+    
+    \ifthenelse{\globalviewmin>1}
+    {   
+        \node[left = 0.1em of c\globalviewmin, cchar] (beforeellips) {\hex{\strut...}};
+    }{}
+    
+    \ifthenelse{\globalviewmax<\clen}
+    {
+        \node[right = 0.1em of c\globalviewmax, cchar] (afterellips) {\hex{...\strut}};
+    }{}
+        
+                 
+%     \coordinate[below = 0.6ex of c\i] (iarrowend);
+%     \node[below = 4ex of c\i, ichar] (i) {$i=\i$};
+%     \draw[-latex'] (i) -- (iarrowend);
+    
+    \node[below = 4ex of c\i, ichar] (i) {$i=\i$};
+    \draw[-latex'] (i) -- (e\i);
+
+    \end{tikzpicture}
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% code(C) = 0 1 2 3 4 0 1 2 3 4 5 6 7 8 9 6FA 5 4 647 ABCDEF 661 0 1 2 3 E F C D 4 5607 8 9 A B

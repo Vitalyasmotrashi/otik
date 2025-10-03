@@ -1,0 +1,139 @@
+\input{commonpath}
+\input{\ARITHMETICPATH/common_preamble}
+
+\geometry{margin=10mm, left =10mm, paperwidth=2200mm,paperheight=700mm}
+
+
+\begin{document}
+\input{\ARITHMETICPATH/common_encode}
+
+\noindent
+\begin{tikzpicture}
+\holineStart
+
+\def\ticksymbolcontrol{0.8}
+\hlineRealStart
+
+\hlineRealStep{¿/2/5,Õ/4/5,¡/1/1}{4/5}{1/1}{0/1/$0$}
+
+\hlineRealStep{¡¿/2/5,¡Õ/4/5,¡¡/1/1}{4/5}{22/25}{0/1/$0$, 1/1/$1$}
+
+\def\ticksymbolcontrol{0.5}
+
+\hlineRealStep{¡¿¿/2/5,¡¿Õ/4/5,¡¿¡/1/1}{104/125}{108/125}{0/1/$0$, 1/1/$1$}
+
+
+
+\tikzstyle{pilabelstyle}=[sloped, scale=0.5, above, rotate=90, anchor=west]
+\tikzstyle{labelbelowstyle}=[rotate=90, anchor=east]
+\def\ticksymbolcontrol{0.3}
+
+
+% 104/125+8/625 = \frac{528}{625}
+\hlineRealStep{¡¿Õ¿/2/5,¡¿ÕÕ/4/5,¡¿Õ¡/1/1}{104/125}{528/625}{0/1/$0$, 1/1/$1$}
+
+\tikzstyle{labelbelowstyle}=[rotate=90, scale=0.6, anchor=east]
+
+% 2616/3125 + 16/3125
+\hlineRealStep{¡¿Õ¿¿/2/5,¡¿Õ¿Õ/4/5,¡¿Õ¿¡/1/1}{2616/3125}{2632/3125}{0/1/$0$, 1/1/$1$}
+
+\hlineRealFinal{¡¿Õ¿Õ/1/1}{0/1/$0$, 1/1/$1$, 1/2/{$\frac{1}{2}=0,1$}, 3/4/{$\frac{3}{4}=0,11$}, 7/8/{$\frac{7}{8}=0,111$}, 
+13/16/{$0,1101$}, 
+% 53/64/{$0,1101010$},105/128/{$0,1101001$},107/128/{$0,1101011$},27/32/{$0,1101100$}
+209/256/{$0,11010001$}, 210/256/{$0,11010010$}, 211/256/{$0,11010011$}, 212/256/{$0,11010100$}, 213/256/{$0,11010101$}, 214/256/{$0,11010110$}, 215/256/{$\textcolor{red}{0,11010111}$}, 216/256/{$0,11011$}
+}
+
+
+
+
+
+
+
+% \tikzstyle{ticklinestyle}=[]
+\tikzstyle{labelbelowstyle}=[]
+% \tikzstyle{labelabovestyle}=[]
+\tikzstyle{pilabelstyle}=[sloped, above]
+
+\tikzstyle{symlinestyle}=[red]
+
+\def\ticksymbolcontrol{0.8}
+
+
+\hlineIntStart
+
+\hlineIntStepChar{¿/2/5,Õ/4/5,¡/1/1}{4/5}{1/1}{0/0/1/{$0,0$}, /1/1/{$1,0$}}
+
+\hlineIntStepScale{1}{{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, /0/1/{$0,0$}, /1/1/{$1,0$}, {0}/\realLview/1/{$0,1$} }
+
+\hlineIntStepScale{1}{{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, /0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, {0}/\realLview/1/{$0,11$} }
+
+\hlineIntStepChar{¡¿/2/5,¡Õ/4/5,¡¡/1/1}{0/1}{2/5}{0/0/1/{$0,0$}, /1/2/{$0,1$}, %/1/1/{$1,0$}, 
+{0}/\realLview/1/{$0,\outbits{11}$}, {\N}/\realLview+\realDview/1/{$1,0=0,\outbits{11}(1)~~~~~~~~~~\mathstrut$}}
+
+\hlineIntStepChar{¡¿¿/2/5,¡¿Õ/4/5,¡¿¡/1/1}{2/5}{4/5}{0/0/1/{$0,0$}, /1/2/{$0,1$}, %/1/1/{$1,0$}, 
+{0}/\realLview/1/{$0,\outbits{11}$}, {\N}/\realLview+\realDview/1/{$1,0=0,\outbits{11}(1)~~~~~~~~~~\mathstrut$}}
+
+\tikzstyle{labelabovestyle}=[rotate=90, anchor=west]
+
+
+\hlineIntStepScale{0}{{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, /0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, {0}/\realLview/1/{$0,\outbits{110}$}, 
+% {\N}/\realLview+\realDview/1/{$\mathstrut~~~~\begin{array}{@{}c@{}}0,111 =\\=0,\outbits{110}(1)\end{array}$}
+{\N}/\realLview+\realDview/1/{\rlap{$0,111 = 0,\outbits{110}(1)$}} 
+}
+
+\hlineIntStepScale{1}{{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, /0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, /3/4/{$0,11$}, {0}/\realLview/1/{$0,\outbits{1101}$}, 
+{\N}/\realLview+\realDview/1/{\rlap{$0,111 = 0,\outbits{1101}(1)$}} 
+}
+
+\tikzmath{
+    \yspaceInMm = 17;
+}  
+    
+\def\ticksymbolcontrol{0.3}
+\tikzstyle{pilabelstyle}=[sloped, above, rotate=90, anchor=west]
+
+\hlineIntStepChar{¡¿Õ¿/2/5,¡¿ÕÕ/4/5,¡¿Õ¡/1/1}{0/1}{2/5}{/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, /3/4/{$0,11$}, {0}/\realLview/1/{$0,\outbits{1101}$}, 
+{\N}/\realLview+\realDview/1/{\rlap{$0,111 = 0,\outbits{1101}(1)$}}
+}
+
+\tikzstyle{labelbelowstyle}=[rotate=90, anchor=east]
+
+\hlineIntStepScale{2}{{\ell=\intl}/\reall/1/, {\raisebox{-2ex}{\hex{t=\intt}}}/\realt/1/, /0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, /3/4/{$0,11$}, /13/16/{$0,1101$}, /7/8/{$0,111$}, 
+{0}/\realLview/1/{$0,\outbits{1101}01$}, 
+{\raisebox{2ex}{\hex{\NH}}}/\realLview+\realDview*0.5/1/{\raisebox{2ex}{$0,\outbits{1101}10$}},
+{\N}/\realLview+\realDview/1/{$0,\outbits{1101}11$}
+}
+
+\tikzstyle{pilabelstyle}=[sloped, scale=0.5, above, rotate=90, anchor=west]
+\tikzstyle{labelbelowstyle}=[rotate=90, anchor=east]
+\def\ticksymbolcontrol{0.3}
+
+\tikzmath{
+    \yspaceInMm = 20;
+}  
+
+
+
+\hlineIntStepChar{¡¿Õ¿¿/2/5,¡¿Õ¿Õ/4/5,¡¿Õ¿¡/1/1}{2/5}{4/5}{/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, /3/4/{$0,11$}, /13/16/{$0,1101$}, /7/8/{$0,111$}, 
+{0}/\realLview/1/{$0,\outbits{1101}01$}, 
+{\N}/\realLview+\realDview/1/{$0,\outbits{1101}11$}
+}
+
+
+\hlineIntStepScale{0}{{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, /0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, /3/4/{$0,11$}, /13/16/{$0,1101$}, /7/8/{$0,111$}, /55/64/{$0,110111$}, 
+{0}/\realLview/1/{$0,\outbits{110101}0$}, 
+{\raisebox{2ex}{\hex{\NH}}}/\realLview+\realDview*0.5/1/{{\raisebox{2ex}{$0,\outbits{110101}1$}}},
+{\N}/\realLview+\realDview/1/{$0,{1101}10 = 0,\outbits{110101}(1)$}
+}
+
+\hlineIntStepScale{1}{{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, /0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, /3/4/{$0,11$}, /13/16/{$0,1101$}, /7/8/{$0,111$}, 
+/53/64/{$0,110101$}, /55/64/{$0,110111$}, 
+{0}/\realLview/1/{$0,\outbits{1101011}0$}, 
+\NH/\realLview+\realDview*0.5/1/{{$\finalval{0,\outbits{1101011}1}$}},
+{\N}/\realLview+\realDview/1/{$0,{1101}10 = 0,\outbits{1101011}(1)$}
+}
+
+
+\end{tikzpicture}
+
+\end{document}

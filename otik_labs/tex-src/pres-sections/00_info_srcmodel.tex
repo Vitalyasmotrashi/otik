@@ -1,0 +1,131 @@
+
+\section{ћодель источника}
+
+
+\subsection{ћодель источника: $X$ неизвестен}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.4em}{-1.5em}
+
+% \def\msg{\chi}
+\def\msg{x}
+
+
+\small
+\setbeamertemplate{itemize/enumerate body begin}{\small}
+\setbeamertemplate{itemize/enumerate subbody begin}{\small}
+\setlength{\leftmargini}{0em} 
+% \setlength{\leftmarginii}{0.5em} 
+\setlength{\leftmarginii}{1em} 
+
+\setlength{\parskip}{\smallskipamount} 
+\smallskip
+
+ќценка алфавита $A_1$ и~веро€тностей %$p(a)$ 
+источника по сообщению: 
+% обороноспособность (18)
+\rlap{$\msg = $\termin{Ђмолокої}}%
+% (6) $ = c_1, c_2, c_3, c_4, c_5, c_6$
+
+\begin{enumerate}
+
+\item $A_1$ "--- koi-8, равноверо€тные символы: $p =
+% p(\text{к}) = p(\text{л})  = p(\text{м})= p(\text{о}) = 
+\frac{1}{256}$, $I(\msg) = 6\cdot \log_2(256) = 48$ \rlap{(бит)}
+\smallskip
+
+\item $A_1$ "--- русский алфавит, равноверо€тные: $p%(\text{к}) = \ldots 
+= \frac{1}{33}$, $I(\msg) = 6\cdot \log_2(33) \approx 30,3$ 
+\smallskip
+
+\item $A_1$ "--- Unicode {\UnicodeVersion}, равноверо€тные: $p = \frac{1}{\UnicodeSymCount}, I(\msg)\approx 6\cdot 17,1  \approx 102,4$ 
+\smallskip
+
+\item $A_1 = \{\text{к}, \text{л}, \text{м}, \text{о}\}$, равноверо€тные: 
+% $p(\text{к}) = \ldots = \frac{1}{4}$
+$p = \frac{1}{4}$, $I(\msg) = 6\cdot \log_2(4) = 12$ 
+\medskip
+
+\item $A_1 = \{\text{к}, \text{л}, \text{м}, \text{о}\}$ или koi-8, неравноверо€тные, стац-й источник без пам€ти:
+%\termin{»сточник без пам€ти} "--- предполагаем $p(c_i = a) = p(a) = const$ дл€~всех $i$ и~всех $a \in A_1$:
+
+о (3) + к (1) + л (1) + м (1): \hfill $p(\text{о}) = \frac{3}{6}, \hfill p(\text{к}) = p(\text{л})  = p(\text{м})= \frac{1}{6}$
+
+$I(\msg) = - 3\cdot \log_2(\frac{3}{6}) - \log_2(\frac{1}{6})- \log_2(\frac{1}{6})- \log_2(\frac{1}{6}) = 3\cdot \log_2(2) + 3\cdot \log_2(6)
+\approx 10,8$%
+\medskip
+
+\item 
+$A_1 = \{\text{к}, \text{л}, \text{м}, \text{о}\}$ или koi-8, 
+% неравноверо€тные символы, пам€ть на 1~символ:
+марковский источник первого пор€дка:
+% $p(c_i=a) = p(a,c_{i-1})$:
+
+$
+\begin{array}{@{}l|c|c|c|c|@{}}
+% c_{i-1}&p(c_i=\text{к})&p(c_i=\text{л})&p(c_i=\text{м})&p(c_i=\text{о})\\\hline
+\text{предыдущий}&p(\text{к})&p(\text{л})&p(\text{м})&p(\text{о})\\\hline
+-&\frac{1}{4}&\frac{1}{4}&\frac{1}{4}&\frac{1}{4}\\\hline
+\text{к, л, м}&0&0&0&1\\\hline
+% \text{л}&0&0&0&1\\\hline
+% \text{м}&0&0&0&1\\\hline
+\text{о}&\frac{1}{2}&\frac{1}{2}&0&0\\\hline
+\end{array}
+$\hfill$\begin{array}{@{}c@{}}
+I(\msg) = - \log_2(\frac{1}{4}) - \log_2(1) -\\
+- \log_2(\frac{1}{2})- \log_2(1)-\\- \log_2(\frac{1}{2})- \log_2(1) =\\ = 2 + 1 + 1 = 4
+\end{array}
+$\hfill\strut
+\smallskip
+\item $A_1 = \{\text{молоко}, \text{чай}\}$, равноверо€тные символы: $p = \frac{1}{2}, I(\msg) = 1$ 
+\smallskip
+
+\item $A_1 = \{\text{молоко}\}$: $p = 1, I(\msg) = 0$ 
+\end{enumerate}
+
+% всего: 
+% о (7) + с (3) + б (2) + н (2) + п (1) + р (1) + т (1) + ь (1)
+
+% полагаем 
+% $p(\text{о}) = \frac{7}{18}, p(\text{с}) = \frac{3}{18}, p(\text{б}) = p(\text{н}) = \frac{2}{18}, p(\text{п}) = p(\text{р}) = p(\text{т}) = p(\text{ь}) = \frac{1}{18}$
+
+% \termin{»сточник с~пам€тью} "--- предполагаем $p(c_i = a) = p(a, c_{i-1}, c_{i-2}, \ldots)$
+
+% после Ђої: 
+% об, ор, он, ос (3): $p(\text{с}|\text{о}) = \frac{3}{6}, p(\text{б}|\text{о}) = p(\text{р}|\text{о}) =p(\text{н}|\text{о}) =\frac{1}{6}$\\
+% $p(\text{о}|\text{о}) = p(\text{п}|\text{о}) =p(\text{т}|\text{о})=p(\text{ь}|\text{о}) =0$
+
+% бо, бн:
+% 
+% ро:
+% 
+% но (2):
+% 
+% сп, со, ст:
+% 
+% по:
+% 
+% ть:
+
+
+
+\end{adjustwidth}
+
+% \termin{»сточники данных} порождают только элементы,  \termin{физические} источники информации "--- символы или элементы.
+\end{frame}
+
+\subsection{«адачи}
+\begin{frame}{\insertsubsection}
+\small
+
+ќценить алфавит и~построить модели источника: а) равноверо€тную, б) стационарную без пам€ти, в) марковскую первого пор€дка дл€ сообщени€ $x$,
+по модели оценить  $I(x)$ и~$I(y)$.
+
+\begin{enumerate}
+
+\item $x = \text{хрюхрюхрюм€ухрюм€ум€ухрюм€ум€у}$ (30 символов, 5~Ђхрюї (0) и~5 Ђм€уї (1) 0001011011); $y=\text{рюх}$.
+
+\item $x = \text{кукукукукарекукукукарекукукарекукукукарекукукареку}$ (50~символов, 5~Ђкуї (0) и~5~Ђкукарекуї (1) аналогично); $y=\text{кар}$.
+
+\end{enumerate}
+
+\end{frame}

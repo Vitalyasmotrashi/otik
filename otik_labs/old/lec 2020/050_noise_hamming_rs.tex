@@ -1,0 +1,552 @@
+\input{commonpres}
+
+\title{Передача информации. Помехи. Помехозащитное кодирование}
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+% Предмет и основные разделы кибернетики. Формальное представление знаний. Виды информации. Хранение, измерение, обработка и передача информации. Базовые понятия теории информации. Способы измерения информации. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+\colorlet{xy}{red}
+\colorlet{yx}{blue}
+
+
+
+
+% \section{Информационный канал}
+
+
+\subsection{Информационный канал}
+\begin{frame}{\insertsubsection}
+\footnotesize
+% \setlength{\parskip}{0\parskip}
+
+\begin{adjustwidth}{-0.5em}{-1.9em}
+% \termin{Информационный канал}
+ "--- совокупность устройств, объединённых линиями связи, предназначенных для передачи информации от источника информации (начального устройства канала) до её приёмника (конечного устройства канала).
+
+{
+\includegraphics[width=0.3\linewidth,valign=c]{07_channel}\centering
+
+}
+
+\begin{itemize}
+\item достоверность передачи информации;
+\item надёжность работы устройств;
+\item скорость передачи информации (пропускная способность, ёмкость);
+\item задержка сигнала во времени (латентность).
+\end{itemize}
+
+\end{adjustwidth}
+
+$X$, $Y$ "--- источники сообщений:
+по каналу передаются сообщения из~$X$. Из-за помех приёмником  воспринимается~$Y$.
+
+\end{frame}
+
+
+
+\subsection{Пропускная способность (ёмкость) $C$ канала}
+\begin{frame}{\insertsubsection}
+\footnotesize
+\setlength{\parskip}{0.\parskip}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+\begin{adjustwidth}{-0.5em}{-1.9em}
+$$
+C=\lim\limits_{T\rightarrow\infty}{  \dfrac{\max\limits_X \big(I(X,Y)\big)}{T}  } 
+~~ \left[ \frac{\text{бит}}{\text{с}}\right]
+~~
+\textcolor{gray}{
+\text{бод "--- по одним источникам то же,} \atop \text{по другим --- $\text{бод} = \frac{\text{тактов}}{\text{с}}$}
+}
+$$
+"--- максимальное количество информации, передаваемое в~единицу времени.
+
+Для канала без шума: % формула расчёта ёмкости канала имеет вид
+\hfill
+$C=\lim\limits_{T\rightarrow\infty}{  \dfrac{\max\limits_X \big(I(X)\big)}{T}  } 
+=\lim\limits_{T\rightarrow\infty}{\log_2N(T)\over T},$
+
+где $N(T)$ "--- число всех возможных сигналов (сообщений)
+за время $T$.
+\bigskip
+
+\termin{Первая теорема Шеннона (для канала без помех)}
+
+\begin{enumerate}
+\item  При любой производительности источника сообщений, меньшей пропускной способности канала: %, то есть при условии:
+$
+\frac{I(X)}{T} < C
+$,
+% - сколь угодно малая положительная величина.
+существует способ кодирования, позволяющий передавать по каналу все сообщения, вырабатываемые источником.
+
+\item Не существует способа кодирования, обеспечивающего передачу сообщения без их неограниченного накопления, если
+$
+\frac{I(X)}{T} > C.
+$
+\end{enumerate}
+
+\end{adjustwidth}
+
+\end{frame}
+
+
+% \subsection{Единицы измерения}
+% \begin{frame}{\insertsubsection}
+% \footnotesize
+% % \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% % \lstset{xleftmargin=1em,numbers=none}
+% % \lstset{lineskip=0.5ex}
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{3ex}
+% \setlength{\parskip}{0.\parskip}
+% 
+% Ёмкость "--- \termin{бод:}
+% \begin{itemize}
+% % Бод "--- единица измерения символьной скорости, количество изменений информационного параметра несущего периодического сигнала в~секунду. wiki
+% \item
+% «1 бод равен одному изменению информационного параметра в~секунду.
+% <...>
+% скорость в~бодах целиком определяется величиной такта»
+% (В.\,Г.\,Олифер, Н.\,А.\,Олифер  Компьютерные сети. Принципы, технологии, протоколы);
+% % Для двоичного кодирования без избыточности [бод]=[бит/с]
+% 
+% \item  «1 бод равно 0.8 бит/сек» (справочный портал \url{calc.ru});
+% % (\url{http://www.calc.ru/Peredacha-dannykh/bod-v-bit-sek.html});
+% 
+% \item «При пользовании нормальным компьютером бод эквивалентен количеству битов (bits) в~секунду» (Словарь бизнес-терминов).
+% \end{itemize}
+% % \end{frame}
+% % 
+% % \subsection{Информационная скорость}
+% % \begin{frame}{\insertsubsection}
+% % \setbeamertemplate{itemize/enumerate body begin}{\vspace{-0.9\baselineskip}}
+% % \setbeamertemplate{itemize/enumerate body end}{\vspace{-0.9\baselineskip}}
+% 
+% % \insertframetitle{}
+% % % Скорость передачи полезной информации
+% % измеряется в~битах в~секунду.
+% 
+% Информационная скорость "--- \termin{бит в~секунду} 
+% % (С.В. Кривальцевич):
+% (Олифер, Олифер):
+% 
+% \begin{itemize}
+% \item Если сигнал $\nu>2$ различимых состояний и~нет избыточности, то~каждое состояние несёт $\log_2 \nu$ бит, и~1~бод = $\log_2 \nu$ бит/с.
+% \item Если сигнал имеет 2 состояния и~для надёжности бит кодируется последовательностью из $\eta$ символов, то 1~бит/с = $\eta$ бод.
+% 
+% \end{itemize}
+% \end{frame}
+
+
+
+
+
+% \section{Помехозащитное кодирование}
+
+% http://fkn.ktu10.com/?q=forum/123
+\subsection{Вторая теорема Шеннона (для канала с~помехами)}
+\begin{frame}{\insertsubsection}
+\small
+% \footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+\begin{enumerate}
+% \item При любой производительности источника сообщений, меньшей, чем пропускная способность канала 
+\item  При любой производительности источника сообщений, меньшей пропускной способности канала: %, то есть при условии:
+$$
+\frac{I(X)}{T} < C
+$$    
+    существует  способ кодирования,  позволяющий обеспечить передачу всей информации со \termin{сколь угодно малой вероятностью ошибки.}
+    
+% \item Если производительность источника сообщений больше, чем пропускная способность канала, то не существует способа кодирования, который позволил бы обеспечить передачу информации со сколь угодно малой вероятностью ошибки.
+\item Не существует способа кодирования, обеспечивающего передачу информации со сколь угодно малой вероятностью ошибки, если
+$$
+\frac{I(X)}{T} > C
+$$
+\end{enumerate}
+
+
+% Если производительность источника сообщений $H(X)$ меньше пропускной способности канала $C$:
+% $H(X) < C$
+% 
+% то существует способ кодирования (преобразования сообщения в сигнал на входе) и декодирования (преобразования сигнала в сообщение на выходе канала), при котором вероятность ошибочного декодирования и ненадежность Н(А|A?) могут быть сколь угодно малы. Если же Н'(А)С, то таких способов не существует. 
+% 
+% Пусть источник характеризуется д.с.в. $X$. Рассматривается канал с~шумом, т.е. для каждого передаваемого сообщения задана вероятность его искажения в~процессе передачи (вероятность ошибки). 
+% 
+% Тогда существует такая скорость передачи $u$, зависящая только от $X$,\\ что $\forall\varepsilon>0\; \exists u'<u$ сколь угодно близкая к~$u$\\ такая, что существует способ передавать значения $X$ со скоростью $u'$ и~с~вероятностью ошибки меньшей $\varepsilon,$\\
+% причём
+% $u={C\over HX}.$
+% 
+% Упомянутый способ образует помехоустойчивый код.
+
+\end{frame}
+
+
+% \begin{frame}{Обратная теорема (Фэно)}
+% % Кроме того, Фэно доказана1 следующая обратная теорема о~кодировании при наличии помех. 
+% 
+% Для $u'>u$ можно найти такое положительное число $\varepsilon,$\\
+% что в~случае передачи информации по линии связи со скоростью $u'$ вероятность ошибки $\varepsilon_i$ передачи каждого символа сообщения при любом методе кодирования и~декодирования будет не меньше $\varepsilon$\\ ($\varepsilon$ очевидно растет вслед за ростом $u'$).
+% 
+% \end{frame}
+
+
+
+
+
+\section{Информационные потери}
+
+
+
+\subsection{Матмодель канала}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.5em}{-1.8em}
+\footnotesize
+% \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% \lstset{xleftmargin=1em,numbers=none}
+% \lstset{lineskip=0.5ex}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+
+\begin{enumerate}
+\item источник $X$ сообщений на входе, $Y$ "--- на выходе;
+\item условные вероятности 
+% $p(y|x)$ получения сигнала $y$ на выходе при  $x$ на входе
+"--- статистические свойства шумов (помех):
+\end{enumerate}
+
+\textcolor{yx}{$p(y_j|x_i) = \frac{p(x_i, y_j)}{p(x_i)}$  "--- вероятность того,  что отправив  $x_i$ "---  получим $y_j$}
+
+\textcolor{xy}{$p(x_i|y_j) = \frac{p(x_i, y_j)}{p(y_j)}$  "--- после получения~$y_j$, что было отправлено именно $x_i$}
+
+
+\hrulefill
+\bigskip
+
+\begin{tabularx}{1\linewidth}{@{}cL@{}}
+\includegraphics[height=12ex,valign=t]{01_Entropy-mutual-information-relative-entropy-relation-diagram}
+&
+$H(X) = I(X)$ "--- энтропия $X$ (средняя информация в~$X$)
+
+$H(Y) = I(Y)$ "--- энтропия $Y$ (средняя информация в~$Y$)
+
+$I(X,Y)=I(Y,X)$ "--- {относительная} \mbox{информация $X$  и~$Y$}
+
+$H(X,Y)=H(Y,X)$ "--- энтропия объединения $X$  и~$Y$
+
+\end{tabularx}
+
+\textcolor{yx}{$H(Y|X)$ "--- условная энтропия $Y$ относительно~$X$ (шум)}
+\\
+\textcolor{xy}{$H(X|Y)$ "--- условная энтропия $X$ относительно~$Y$ (инф.\,потери)}
+
+Канал без шумов:
+$X=Y$,
+$p(y|x)= \left\{\begin{array}{ll} 
+1,&  \text{при} ~ y=x\\
+0,&  \text{при} ~ y\neq x\\
+\end{array}\right.$
+$I(X,Y) = I(X)$
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Взаимные информация и~энтропия}
+% \subsection{Формулы и свойства}
+\begin{frame}%[allowframebreaks]
+{\insertsubsection}
+\begin{adjustwidth}{-1.5em}{-1.8em}
+% \small
+\footnotesize
+\setlength{\parskip}{0ex}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+\begin{tabular}{@{}l@{}l@{}}
+$\begin{array}{@{}l@{}}
+\displaystyle
+I(X,Y)=\sum_{i}\sum_{j} p(x_i, y_j) \log_2{ \dfrac{p(x_i, y_j)}{p(x_i) \cdot p(y_j)} } 
+\\[3ex]
+\displaystyle
+\textcolor{xy}{
+H(X|Y) = M[-\log_2{p(X|Y)}] %=
+= - \sum_{i}\sum_{j} p(x_i, y_j)\cdot \log_2{p(x_i| y_j)} =
+}
+\\
+\displaystyle
+\textcolor{lightgray}{\left[p(x_i|y_j) = \frac{p(x_i, y_j)}{p(y_j)}\right]}
+\textcolor{xy}{
+% = - \sum_{i}\sum_{j} p(x_i) p(y_j|x_i) \cdot \log_2{p(x_i| y_j)} 
+= - \sum_{j} p(y_j) \sum_{i}p(x_i|y_j) \cdot \log_2{p(x_i| y_j)} 
+}
+\\[3ex]
+H(X,Y)= M[-\log_2{p(X, Y)%p(x_i, y_j)
+}]
+%=\\
+=\displaystyle
+- \sum_{i}\sum_{j} p(x_i, y_j) \cdot \log_2{p(x_i, y_j)}
+\end{array}$%
+% ~~~
+&\hspace{-1.3em}%
+\rlap{\includegraphics[width=8em,valign=t]{01_Entropy-mutual-information-relative-entropy-relation-diagram}}
+\end{tabular}
+% \bigskip
+% \\\textcolor{gray}{%При этом 
+% $p(x_i, y_j) = p(x_i) \cdot p(y_j|x_i) = p(y_j) \cdot p(x_i|y_j)$: 
+% $\displaystyle H(X|Y) = - \sum_{j} p(y_j)\sum_{i} p(x_i|y_j) \cdot \log_2{p(x_i| y_j)}$
+% }
+
+\begin{enumerate}
+\item  $I(X,Y)\geqslant 0$, ~~ $I(X,Y)=0 \Leftrightarrow$ $X$ и $Y$ независимы;\hfill\strut
+\item  $H(X)=0 ~~ \Big(I(X)=0\Big) ~~ \Leftrightarrow ~~ X$ "--- константа;
+\item  $I(X,Y)=I(Y,X)$;
+\item\label{item:Joint-entropy}  $I(X,Y)=I(X)+I(Y)-H(X,Y) = \textcolor{xy}{I(X) - H(X|Y)} = \textcolor{yx}{I(Y) - H(Y|X)}$
+%, где $H(X,Y)=-\sum_{i}\sum_{j} p(x_i, y_j)\log_2 p(x_i, y_j)$;
+\item  $I(X,Y)\leqslant I(X,X) = I(X) =H(X).$ 
+
+Если $I(X,Y)=I(X)$, то $X$ "--- функция от $Y$ (разные $y$ при разных $x$, передача без потерь). 
+
+% Если $X$ "--- инъективная функция от $Y$ (разные $y$ "--- в~разные $x$), то $I(X,Y)=I(X,X)$.
+\end{enumerate}
+\vspace{-\baselineskip}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\subsection{Шум и~потери}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1em}{-1em}
+\footnotesize
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{3ex}
+% % \setlength{\parskip}{0.\parskip}
+% \setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+% \setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+% \vspace*{-2\baselineskip}
+
+\begin{tabularx}{1\linewidth}{@{}L|L@{}}
+\setlength{\parskip}{1ex}
+
+\resizebox{1\linewidth}{!}{
+  \begin{tikzpicture}%[baseline=(current bounding box.north)]
+  [baseline=(K-1-1.base)]
+    \matrix (K)
+    [matrix of math nodes,%
+    ampersand replacement=\&,
+    nodes={outer sep=0pt,circle,minimum size=4pt,draw},
+    column sep={32ex,between origins},
+    row sep={8ex,between origins}]
+    {
+      a \& a\\
+      b \& b\\
+        \& c\\
+    };
+  \draw[arrowline] (K-1-1) -- node[text=yx,auto,pos=0.2] {$1$} node[text=xy,auto,pos=0.8] {$1$} (K-1-2);
+  \draw[arrowline] (K-2-1) -- node[text=yx,auto,pos=0.2] {$\frac{1}{2}$} node[text=xy,auto,pos=0.8] {$1$} (K-2-2);
+  \draw[arrowline] (K-2-1) -- node[text=yx,auto,pos=0.2,swap] {$\frac{1}{2}$} node[text=xy,auto,pos=0.8,swap] {$1$} (K-3-2);
+  
+  \node[left=0em of K-1-1] {$\frac{1}{2}$};
+  \node[left=0em of K-2-1] {$\frac{1}{2}$};
+  
+  \node[right=0em of K-1-2] {$\frac{1}{2}$};
+  \node[right=0em of K-2-2] {$\frac{1}{4}$};
+  \node[right=0em of K-3-2] {$\frac{1}{4}$};
+  \end{tikzpicture}
+}
+
+$I(X) = 1,$ \hfill $I(Y) = \frac{3}{2}$
+
+\textcolor{xy}{$H(X|Y) = 0$}
+
+{\color{yx}
+$H(Y|X) =$
+\scalebox{.7}{$\displaystyle-\sum_{i}\sum_{j} p(x_i, y_j) \log_2{p(x_i| y_j)} $ }
+$=$
+% = -\left(p(a,a)\cdot \log_2 1 + p(b,b)\cdot \log_2 \frac{1}{2} + p(b,c)\cdot \log_2 \frac{1}{2} \right) 
+
+$=  p(a, a)\cdot 0 +  p(b, b)\cdot 1 + p(b, c)\cdot 1 =$
+$= p(x{=}b) = \frac{1}{2}$
+}
+
+$I(X,Y) 
+% = 1-0 = \frac{3}{2}-\frac{1}{2} 
+= 1 = I(X)$
+
+Есть шумы, нет потерь
+
+&
+\setlength{\parskip}{1ex}
+
+\resizebox{1\linewidth}{!}{
+  \begin{tikzpicture}%[baseline=(current bounding box.north)]
+  [baseline=(K-1-1.base)]
+    \matrix (K)
+    [matrix of math nodes,%
+    ampersand replacement=\&,
+    nodes={outer sep=0pt,circle,minimum size=4pt,draw},
+    column sep={32ex,between origins},
+    row sep={8ex,between origins}]
+    {
+      a \& a\\
+      b \& b\\
+      c  \& \\
+    };
+  \draw[arrowline] (K-1-1) -- node[text=yx,auto,pos=0.2] {$1$} node[text=xy,auto,pos=0.8] {$1$} (K-1-2);
+  \draw[arrowline] (K-2-1) -- node[text=yx,auto,pos=0.2] {$1$} node[text=xy,auto,pos=0.8] {$\frac{1}{2}$} (K-2-2);
+  \draw[arrowline] (K-3-1) -- node[text=yx,auto,pos=0.2,swap] {$1$} node[text=xy,auto,pos=0.8,swap] {$\frac{1}{2}$} (K-2-2);
+  
+  \node[left=0em of K-1-1] {$\frac{1}{3}$};
+  \node[left=0em of K-2-1] {$\frac{1}{3}$};
+  \node[left=0em of K-3-1] {$\frac{1}{3}$};
+  
+  \node[right=0em of K-1-2] {$\frac{1}{3}$};
+  \node[right=0em of K-2-2] {$\frac{2}{3}$};
+  \end{tikzpicture}
+}
+
+$I(X) = \log_2 3,$ \hfill $I(Y) = \log_2 3 - \frac{2}{3}$
+
+\textcolor{yx}{$H(Y|X) = 0$}
+
+{\color{xy}
+$H(X|Y) =$
+% \scalebox{.7}{$\displaystyle-\sum_{i}\sum_{j} p(y_j, x_i) \log_2{p(y_j|x_i)} $ }
+\scalebox{.7}{$\displaystyle-\sum_{i}\sum_{j} p(x_i, y_j) \log_2{p(y_j|x_i)} $ }
+$=$
+
+$=  p(a, a)\cdot 0 +  p(b, b)\cdot 1 + p(c, b)\cdot 1 =$
+$= p(y{=}b) = \frac{2}{3}$
+}
+
+$I(X,Y)= \log_2 3 - \frac{2}{3} = I(Y)$
+
+
+Есть потери, нет шума
+
+
+\end{tabularx}
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\input{sec/05_bin_symm_channel.tex}
+
+
+
+
+\subsection{Помехозащитное кодирование}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-0.5em}{-1.em}
+\setlength{\parskip}{0.3\parskip}
+\footnotesize
+
+Файл \termin{разрезается на  блоки} по $N$ байт (последний блок, если неполный, дополняется до $N$), каждый из которых дополняется избыточными (контрольными) данными до $M$ байт.
+
+Размер блока ($N$ и~$M$) выбирается исходя из:
+\begin{itemize}
+\item особенностей алгоритма (удобства реализации);
+\item свойств канала (информационных потерь);
+\end{itemize}
+и~ни в~коем случае не зависит от размера файла $n$.
+
+% \bigskip
+
+Совместно: вначале применяются все алгоритмы сжатия, \\ затем "--- защита от~помех.
+
+% \bigskip
+
+После декодирования необходимо восстановить исходную длину файла $n$!
+
+\vfill
+
+\termin{Синдром} $S$ блока "--- величина, равная нулю при успешной передаче (для непротиворечивого блока)
+и~указывающая на место ошибки при $S \neq 0$.
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \subsection{Передача и хранение информации}
+% \begin{frame}{\insertsubsection}
+% \small
+% 
+% \begin{adjustwidth}{0em}{-2em}
+% \begin{description}
+% \item[кодер источника] "--- представление информации в~наиболее компактной форме;
+% 
+% \item[кодер канала] "--- защита от помех и~возможных искажений;
+% 
+% \item[модулятор] "--- преобразование в~сигналы среды.
+% \end{description}
+% \end{adjustwidth}
+% 
+% \includegraphics[width=1\linewidth,valign=t]{00_communications_system}\centering\par
+% 
+% % \begin{adjustwidth}{0em}{-2em}
+% % Декодеры и~демодулятор "--- обратные операции и~восстановление
+% % \end{adjustwidth}
+% 
+% \end{frame}
+
+% \subsection{Простейшие коды, обнаруживающие одиночную инверсию бита}
+% \begin{frame}{\insertsubsection}
+% 
+% Простейший код, обнаруживающий одиночную ошибку в~одном бите "--- двойное повторение каждого бита. 
+% 
+% Простейший код, обнаруживающий ошибки в~блоке из $N$ бит "---  контроль чётности (добавление к~каждому блоку $N+1$-го бита так, чтобы дополнить количество единиц до заранее выбранного для кода чётного (even) или нечетного (odd) значения).
+% 
+% Если в~одном блоке возникнет двойная ошибка, то она не будет обнаружена.
+% 
+% \end{frame}
+% 
+% 
+% \subsection{Простейшие коды, исправляющие одиночную инверсию бита}
+% \begin{frame}{\insertsubsection}
+% % Простейший код, обнаруживающий ошибки "---  контроль чётности (добавление к каждому байту девятого бита так, чтобы дополнить количество единиц до заранее выбранного для кода чётного (even) или нечетного (odd) значения).
+% 
+% Простейший код, исправляющий одиночную ошибку  в~одном бите "--- тройное повторение каждого бита. 
+% \\
+% Если в~одной тройке возникнет двойная или тройная ошибка, то будут получены неправильные данные.
+% 
+% Простейший код, исправляющий одиночную ошибку в~блоке из $N$ бит "--- код Хэмминга.
+% \end{frame}
+
+
+\input{sec/06_hamming.tex}
+\input{sec/08_rs_poly.tex}
+\input{sec/08_rs_z5.tex}
+
+
+\makethanks
+\end{document}

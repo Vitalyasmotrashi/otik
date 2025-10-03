@@ -1,0 +1,137 @@
+\input{arc-commonheader.tex}
+
+\geometry{margin=10mm, paperwidth=200mm,paperheight=2200mm}
+
+
+\begin{document}
+
+\section{Кодирование: «партаппарат»}
+
+
+
+\input{arc-commonencode.tex}
+
+\initencodesection{партаппарат}{
+  let \c{1} = А;
+  let \c{2} = П;
+  let \c{3} = Р;
+  let \c{4} = Т;
+}{4,3,2,2}
+
+
+\noindent
+\begin{tikzpicture}
+  \intinit 0 [0,\N-1], {}  
+  \intsubdiv[\intsubdivlabel]{2}  
+%   \intscale[\intscalelabel]{0.25}{00,01,10,11}
+%   \binlines[0.5]{01,10}
+
+  \intsubdiv[\intsubdivlabel]{1}  
+%   \intscale[\intscalelabel]{0}{01,10}
+
+  \intsubdiv[\intsubdivlabel]{3}  
+%   \intscale[\intscalelabel]{0.5}{0,1}
+% 
+%   \intscale[\intscalelabel]{0.25}{00,01,10,11}
+%   \intscale[\intscalelabel]{0.25}{010,011,100,101}
+
+  \intsubdiv[\intsubdivlabel]{4}    
+%   \intscale[\intscalelabel]{0.5}{011,100}
+
+%   \intscale{0}{0,1}
+  \intsubdiv{1}
+
+%   \intscale{0.25}{00,01,10,11}
+%   \intscale{0.25}{010,011,100,101}
+
+  \intsubdiv[\intsubdivlabel]{2}  
+%   \intscale[\intscalelabel]{0}{011,100}
+
+%   \intscale{0.5}{0,1}
+  \intsubdiv{2}  
+%   \intscale{0.25}{00,01,10,11}
+%   \def\scalecodepos{0.5}
+  \intsubdiv{1}  
+%   \intscale{0}{01,10}  
+
+  
+%   \intscale{0.5}{0,1}
+  \intsubdiv{3}  
+%   \intscale{0.5}{0,1}
+
+%   \intscale{0.5}{0,1}
+%   \intscale{0}{0,1}
+  \intsubdiv{1}  
+
+  
+  \intsubdiv{4}  
+%   \binlines[0.125]{000,001,010,011,100,101,110,111}
+%   \codelabelat{$011100001000110100111$}{-2.5}
+  
+  \finalbit{1}
+
+\end{tikzpicture}
+
+% % \footnotesize
+% % 
+% % Из интервала $[55,67]$ выбираем середину:
+% % 
+% % $[55,67], 011011110100010111 \to 0110111101000101111$
+% 
+% \end{frame}
+
+\def\finalcode{011100001110111101}
+\def\msglen{11}
+
+
+
+
+
+\input{arc-concldecode.tex}
+
+
+
+
+\noindent
+\begin{tikzpicture}
+  \intinit [0,\N-1], [0,\N-1], {}  
+  
+  \readbit{0}
+  \readbit{1}
+  \readbit{1}
+  \readbit{1}
+  \readbit{0}
+  \readbit{0}
+  \readbit{0}
+  \readbit{0}
+  \readbit{1}
+  \readbit{1}
+  \readbit{1}
+  \readbit{0}
+  \readbit{1}
+  \readbit{1}
+  \readbit{1}
+  \readbit{1}
+  \readbit{0}
+  \readbit{1}
+  \readbit{0}
+  \readbit{0}
+  \readbit{0}
+  \readbit{0}
+  \readbit{0}
+  \readbit{0}
+%   \readbit{0}
+%   \readbit{0}
+%   \readbit{0}
+%   \readbit{0}
+%   \readbit{0}
+%   \readbit{0}
+
+\end{tikzpicture}
+
+
+
+
+
+
+\end{document}

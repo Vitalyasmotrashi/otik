@@ -1,0 +1,205 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+   
+\tikzstyle{normalblockheight}      = [minimum height=7ex]
+\tikzstyle{miniblockheight}      = [minimum height=4ex]
+
+\tikzstyle{normalblocksep}      = [inner sep = 0.2em]
+
+\tikzstyle{curvedblockxsep}      = [inner xsep = 0em]
+\tikzstyle{ddblockxsep}      = [inner xsep = -0.8em]
+
+
+% размеры
+\tikzstyle{normalblock}  = [normalblockheight, text width=8em, normalblocksep]
+
+\tikzstyle{wideblock}        = [normalblockheight, text width=12.5em, normalblocksep]
+\tikzstyle{narrowblock}      = [normalblockheight, text width=6.5em, normalblocksep]
+
+\tikzstyle{normaldatafile} = [minimum width=7ex, minimum height=8em, normalblocksep] % для лежачего цилиндра высота — это width!
+
+\tikzstyle{connector}=[espdconnector, minimum height=2ex, scale=0.7, normalblocksep]
+
+
+\tikzstyle{normaldatablock}  = [normalblock,   inner xsep = -0.6em, espdblackcenter, espddata]
+\tikzstyle{narrowdatablock}  = [narrowblock,   inner xsep = -0.6em, espdblackcenter, espddata]
+
+
+
+
+
+\tikzset{node distance = 3ex and 2em}
+\tikzstyle{Gblock}  = [wideblock,  espdblackcenter, espddata, text width=13em,   inner xsep = -0.8em]
+
+
+
+
+
+\node[normaldatafile, espdblackcenter, espddatafile, text width=8em] (C)  {Восстановленный файл $c_1\, c_2 \ldots c_n$};
+\node[normaldatablock, above = of C.west|-C.north, anchor = bottom left corner
+    ] (decode) {Декодированный: $c_1\, c_2 \ldots c_n 0\,0\ldots$};
+
+\node[normaldatablock, espdblackcenter, espddata, text width=10em, left = of decode, inner xsep = -0.8em, ] (E) {Слово $E_{L}$ с~номером $N$ в~словаре};
+\node[miniblockheight, espdblackcenter, espddata, left = of E    ] (N) {$N$};
+\node[normaldatafile, espdblackcenter, espddatafile, left = of N] (arch)  {Архив};
+    
+\node[normaldatablock, above = of decode.bottom right corner|-decode.north, anchor = bottom right corner    ] (Dnew) {Обновлённое $D_{L+1} =D_L \cup c$};
+
+
+% \node[miniblockheight, espdblackcenter, espddata,  left = of Dnew.bottom left corner, anchor = bottom right corner ] (c) {$c=E_L(1)$}; 
+\coordinate (Dnew_to_W)    at ($(Dnew.top left corner)!0.2!(Dnew.bottom left corner)$);
+\coordinate (Dnew_from_c)  at ($(Dnew.top left corner)!0.8!(Dnew.bottom left corner)$);
+\node[miniblockheight, espdblackcenter, espddata,  left = of Dnew_from_c ] (c) {$c=E_L(1)$}; 
+\coordinate[left = of c] (W_to_E_x);
+% \coordinate (W_to_E_x) at (c-|$(W)!0.5!(E)$);
+
+
+\node[Gblock,  , above = of Dnew.north-|Dnew.bottom right corner, anchor = bottom right corner
+] (D) {Слово с~номером $m-1$ "--- предыдущее %(до~$E_{L+1}$) 
+последнее: $D_{L+1} =D_L \cup {?}$};
+
+\node[wideblock,  espdblackcenter, espdprocess, anchor=west    ] (init_1) at (arch.west|-D) 
+    {\underline{Первичная инициализация:}  \mbox{$\big\{(0, \hex{00}), (1, \hex{01}),  \ldots  (255, \hex{FF})\big\}$}    };
+
+% \node[narrowblock, inner xsep = -0.8em, text width=4.6em, espdblackcenter, espddata, left = of D] (W) {Словарь};
+\node[narrowblock, inner xsep = -0.8em, 
+% text width=4.6em, 
+% text width=5em, 
+espdblackcenter, espddata] (W) at ($(init_1.east)!0.5!(D.west)$) {Словарь \mbox{из~$m$ слов}};
+
+
+% \coordinate (WE_center) at ($(W)!0.5!(E)$);
+% \coordinate (W_to_E_x) at (c-|WE_center);
+
+
+% \node[Gblock,  , left = of W] (E1)  {Новое последнее слово: $E_{L+1} =E_L \cup {?}$};
+% \node[Gblock, left = 0em of c.bottom left corner-|W.bottom left corner, anchor = bottom right corner ] (E1)  {Новое последнее слово: $E_{L+1} =E_L \cup {?}$};
+\node[Gblock, %text width=9em, 
+text width=12em, 
+left = 2.5em  of c.bottom left corner-|W_to_E_x, anchor = bottom right corner ] (E1)  
+% {Новое последнее слово (следующее за~$D_{L+1}$): $E_{L+1} =E_L \cup {?}$};
+{Слово с~номером $m$ "--- новое последнее: $E_{L+1} =E_L \cup {?}$};
+
+
+\node[narrowdatablock, anchor = bottom left corner] (n) at (arch.west|-C.south)  {Длина исх.\,файла $n$};
+
+
+% \path (W.bottom left corner) -- coordinate[pos=0.25] (W_from_E1) coordinate[pos=0.5] (W_to_E) coordinate[pos=0.75] (W_from_Dnew) 
+%     (W.bottom right corner);
+
+% \path (W.bottom left corner-|E1.top right corner) -- coordinate[pos=0.33] (W_from_E1) coordinate[pos=0.67] (W_to_E)     (W.bottom right corner-|c.west);
+% \path (W.bottom left corner) -- coordinate[pos=0.8] (W_from_Dnew)   (W.bottom right corner);
+    
+    
+\draw[espdstreamto] (init_1) -- (W);
+\draw[espdstreamto] (arch) -- (N);  
+\draw[espdstreamto] (arch.south-|n) -- (n);
+\draw[espdstreamto] (N) -- (E);
+
+
+    
+\draw[espdstreamto] (E) -- (decode);
+    
+\draw[espdstreamto] (decode.south-|C) -- (C);
+\draw[espdstreamto] (n) -- (C);
+
+\draw[espdstreamto] (W) -- (D);
+
+% \draw[espdstreamto] (E1) -| (W);
+% \draw[espdstreamto] (E1) -| (W_from_E1);
+% \coordinate (W_from_E1_x)     at ($(E1.top right corner)!0.5!(W.bottom left corner)$);
+\coordinate (W_from_E1_x)     at ($(E1.bottom right corner)!0.5!(W.bottom left corner)$);
+\coordinate (E_to_E1_x)     at ($(E.top left corner)!0.5!(E1.bottom right corner)$);
+% \coordinate (E_to_E1_to_W_x)  at ($(W_from_E1_x)!0.5!(E_to_E1_x)$);
+\coordinate (E_to_E1_to_W_x)  at (E_to_E1_x);
+
+\coordinate (W_from_E1_x)     at (E_to_E1_to_W_x);
+\coordinate (W_from_E1)     at (W_from_E1_x|-W.south);
+\draw[espdstreamto] (W_from_E1_x|-E1.north) -- (W_from_E1);
+
+
+\draw[espdstreamto] (c|-E.north) -- (c|-c.south);
+\draw[espdstreamto] (Dnew|-D.south) -- (Dnew|-Dnew.north);
+
+
+
+% \draw[espdstreamto] (c) -- (Dnew);
+\coordinate (Dnew_from_c) at (intersection cs:first line={(Dnew.bottom left corner)--(Dnew.top left corner)}, second line={(c.west)--(c.east)});
+\draw[espdstreamto] (c) -- (Dnew_from_c);
+
+% % \coordinate (Dnew_to_W)    at ($(Dnew.top left corner)-(Dnew_from_c)+(Dnew.bottom left corner)$);
+% \coordinate (Dnew_to_W)    at ($(Dnew.top left corner)!0.2!(Dnew.bottom left corner)$);
+% % \draw[espdstreamto] (Dnew_to_W) -| (W);
+% % \coordinate (W_from_Dnew)    at ($(W.bottom left corner-|W_to_E_x)!0.5!(W.bottom right corner)$);
+% \coordinate (W_from_Dnew)    at ($(W.bottom left corner-|W_to_E_x)!0.66!(W.bottom right corner)$);
+% \draw[espdstreamto] (Dnew_to_W) -| (W_from_Dnew);
+
+% \coordinate (Dnew_to_W)    at ($(Dnew.top left corner)-(Dnew_from_c)+(Dnew.bottom left corner)$);
+% \draw[espdstreamto] (Dnew_to_W) -- (W);
+
+
+% \coordinate (E_to_E1_x)     at ($(E.top left corner)!0.5!(E1.bottom right corner)$);
+% \coordinate (E_to_E1_x)     at (W_from_E1_x);
+\coordinate (E_to_E1_x)     at (E_to_E1_to_W_x);
+\draw[espdstreamto] (E_to_E1_x|-E.north) -- (E_to_E1_x|-E1.south);
+
+% \coordinate (W_to_E_x)     at ($(E1.top right corner)!0.5!(c.bottom left corner)$);
+\draw[espdstreamto] (W_to_E_x|-W.south) -- (W_to_E_x|-E.north);
+% \draw[espdstreamto] (W_to_E) -- (W_to_E|-E.north);
+
+\coordinate (W_from_Dnew)    at ($(W.bottom right corner)-(W_from_E1)+(W.bottom left corner)$); % (W.bottom right corner) - [(W_from_E1) - (W.bottom left corner)]
+\draw[espdstreamto] (Dnew_to_W) -| node[pos=0.25, auto, swap, text badly ragged, inner sep =0.2ex, 
+text width=7em, scale=0.8
+% text width=14em, 
+] {кроме первого ($m=256$) шага}  (W_from_Dnew);
+
+
+\end{tikzpicture}
+}
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

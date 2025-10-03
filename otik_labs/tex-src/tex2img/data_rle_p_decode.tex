@@ -1,0 +1,242 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+\newcommand{\upair}[2]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+{#1}\\ {#2}
+\end{array}\right\}
+}}
+     
+\newcommand{\Lcmin}{\ensuremath{%
+% L^c_{\min}
+L_{\min}
+}}
+    
+\newcommand{\Lcmax}{\ensuremath{%
+% L^c_{\max}
+L_{\max}
+}}
+   
+\tikzstyle{normalblockheight}      = [minimum height=7ex]
+\tikzstyle{miniblockheight}      = [minimum height=4ex]
+
+\tikzstyle{normalblocksep}      = [inner sep = 0.2em]
+
+
+
+% размеры
+\tikzstyle{normalblock}  = [normalblockheight, text width=6em, normalblocksep]
+
+\tikzstyle{wideblock}        = [normalblockheight, text width=15em, normalblocksep]
+\tikzstyle{narrowblock}      = [normalblockheight, text width=10em, normalblocksep]
+
+\tikzstyle{normaldatafile} = [minimum width=7ex, minimum height=8em, normalblocksep] % для цилиндра высота — это width!
+
+\tikzstyle{connector}=[espdconnector, minimum height=2ex, normalblocksep]
+
+
+
+
+% \tikzset{node distance = 2ex and 1em}
+\tikzset{node distance = 10ex and 2em}
+
+
+
+\node[espdblackcenter, espddata, miniblockheight ] (b1) {$b_i$};
+
+\node[espdblackcenter, espddata, miniblockheight, below = of b1.top left corner|-b1.south, anchor = top left corner ] (b12) {$b_i\, b_{i+1} = p \, b_{i+1}$};
+
+\node[espdblackcenter, espddata, miniblockheight, below = of b12.top left corner|-b12.south, anchor = top left corner  ] 
+(b123) {$b_i \, b_{i+1} \, b_{i+2} = p \, \widetilde{L} \, c$};
+
+\tikzset{node distance = 6ex and 2em}
+
+\node[fit=(b1)(b12)(b123), inner sep = 0.em] (bbox) {};
+
+% \coordinate[left = of bbox] (arch_to_all);
+\coordinate[left = of b1] (arch_to_all);
+\node[normaldatafile, espdblackcenter, espddatafile, left = 0.7em of arch_to_all] (arch)  {Архив};
+
+
+% \node[espdblackcenter, espddata, miniblockheight, below = 8ex of arch ] (p) {$p$};
+
+
+
+
+{
+\tikzset{node distance = 4ex and 6em}
+
+
+\node[espdblackcenter, espddata, miniblockheight, right = of b1-|bbox.east] (simple_c) {$c = b_i$};
+
+\node[espdblackcenter, espddata, miniblockheight, right = of b12-|bbox.east] (simple_p) {$c = p$};
+
+}
+
+{
+\tikzset{node distance = 4ex and 4em}
+
+\node[espdblackcenter, espddata, miniblockheight, right = of b123-|bbox.east] (LL) {$\smash{\widetilde{L}}\vphantom{L}$};
+\node[espdblackcenter, espddata, miniblockheight, below = of LL] (c) {$c$};
+\coordinate[below = of c] (p_to_L_mid);
+
+}
+
+
+\node[fit=(simple_c)(simple_p), inner sep = 0.em] (cbox) {};
+
+\coordinate[right = of cbox] (write_c_from_all);
+\node[normalblock, espdblackcenter, espdprocess, 
+right = of write_c_from_all 
+] (write_c) {Один раз запись~$c$ в~конец~$C$};
+
+
+\node[espdblackcenter, espddata, miniblockheight, right = of LL ] (L) {$L$};
+\node[fit=(LL)(L)(c), inner sep = 0.em] (Lc) {};
+
+
+\coordinate[right = of Lc] (write_Lc_from_all);
+\node[normalblock, espdblackcenter, espdprocess, 
+% right = of write_Lc_from_all 
+] (write_Lc) 
+at (write_c|-write_Lc_from_all)
+{$L$ раз запись~$c$ в~конец~$C$};
+
+\node[normaldatafile, espdblackcenter, espddatafile, right = of current bounding box] (C)  {$C = c_1 c_2 \ldots c_n$};
+
+
+
+\tikzset{node distance = 4ex and 2em}
+
+
+\node[espdblackcenter, espddata, miniblockheight, above = of arch ] (p) {$p$};
+
+
+
+
+
+% \tikzstyle{fffit}  = [espdfit, inner sep = 2ex]
+% \node[fffit, fit=(b1)(b12)(b123)] (bptotal) {};
+% \draw[espdstreamto] (p) |- (bptotal.-137);
+
+
+
+
+\draw[espdstreamto] (arch) --       node[auto, pos=0.7,  text width=4em, text badly centered]{из\\заголовка}         (p);
+
+\draw[espdstreamto] (arch) -- (b1);
+\draw[espdstreamto] (arch_to_all) |- (b12);
+\draw[espdstreamto] (arch_to_all) |- (b123);
+
+
+\draw[espdstreamto] (b1) --      node[auto, pos=0.5] (bp1) {$b_i = p$}         (b12.north-|b1);
+
+\draw[espdstreamto] (b12.south-|b1) --      node[auto, pos=0.5] {$b_{i+1} \neq 0$}         (b123.north-|b1);
+
+
+
+\draw[espdstreamto] (b1) --      node[auto, pos=0.2] (bp2) {$b_i \neq p$}        (simple_c);
+\draw[espdstreamto] (b12) --      node[auto, pos=0.5]{$b_{i+1} = 0$}        node[auto, swap, pos=0.5]{спец.\,зн.\,$(p,0)$~~}         (simple_p);
+
+
+\draw[espdstream] (simple_c) -|  coordinate[pos=0.25] (arrow_1)   (write_c_from_all);
+\coordinate[right = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+\draw[espdstream] (simple_p) -|  coordinate[pos=0.25] (arrow_1)   (write_c_from_all);
+\coordinate[right = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+\draw[espdstreamto] (write_c_from_all) -- (write_c);
+
+
+\draw[espdstreamto] (write_c) -| (C);
+\draw[espdstreamto] (write_Lc) -| (C);
+
+
+
+
+
+\draw[espdstreamto] (b123) --    coordinate [pos=0.5] (b123_to_all)    (LL);
+\draw[espdstreamto] (b123_to_all) |-  (c);
+
+
+\tikzstyle{fffit}  = [espdfit, inner ysep = -0.2ex, inner xsep = 0.7em]
+\node[fffit, fit=(b1)(bp1)(bp2)] (bptotal) {};
+
+\draw[espdstreamto] (p) -| (bptotal);
+
+\node[espdblackcenter, connector, right = of p-|bptotal ] (p_to_other) {$1$};
+\draw[espdstreamto] (p) -- (p_to_other);
+
+\node[espdblackcenter, connector, above = of L ] (p_to_L) {$1$};
+
+
+\draw[espdstreamto] (LL) -- (L);
+% \draw[espdstreamto] (c) -- (c-|L);
+% \draw[espdstreamto] (p) |- (p_to_L_mid) -| (L);
+
+\draw[espdstreamto] (c.20) -| (L);
+\draw[espdstreamto] (p_to_L) --  node[auto, pos=0.5] {$p$}    (L);
+
+
+
+\draw[espdstream] (c.-20) -| coordinate[pos=0.25] (arrow_1)    (write_Lc_from_all);
+\coordinate[right = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+\draw[espdstream] (L) -|   coordinate[pos=0.25] (arrow_1)    (write_Lc_from_all);
+\coordinate[right = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+\draw[espdstreamto] (write_Lc_from_all) -- (write_Lc);
+
+\end{tikzpicture}
+}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

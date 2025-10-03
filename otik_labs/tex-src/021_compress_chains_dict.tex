@@ -1,0 +1,839 @@
+\input{commonpath}
+\input{\SRCROOTPATH/widepres}
+\def\IMGPATH{\SRCROOTPATH/img/}
+
+\title[Сжатие с~учётом контекста. LZ78]{\mbox{Сжатие с~учётом контекста.}
+\mbox{Словарные методы с~отдельным словарём \mbox{(дерево/таблица)}}  --- \mbox{семейство кодов Зива---Лемпеля, основанных на идее 1978~г., LZ78}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% \def\UnicodeVersion{12.1}
+% \def\UnicodeSymCount{137\,994}
+% 
+% \newcommand{\gt}[1]{\textcolor{gray}{#1}}
+% \newcommand{\m}[1]{\textcolor{red}{#1}}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+% \widepressetfontsize{\large}
+
+\maketitle
+
+
+\newcommand{\nondecdigit}[1]{\lapbox[\digitwidth]{0.06\digitwidth}{\ensuremath{\mathrm{\resizebox*{1.12\digitwidth}{\digitheight}{#1}}}}}
+\newcommand{\digitA}{\nondecdigit{A}}
+\newcommand{\digitB}{\nondecdigit{B}}
+\newcommand{\digitC}{\nondecdigit{C}}
+\newcommand{\digitD}{\nondecdigit{D}}
+\newcommand{\digitE}{\nondecdigit{E}}
+\newcommand{\digitF}{\nondecdigit{F}}
+
+\colorlet{clCode}{red}
+\newcommand{\cm}[1]{\textcolor{red}{#1}}
+\newcommand{\ctm}[1]{\textcolor{violet}{#1}}
+\newcommand{\um}[1]{\textcolor{green!70!black}{#1}}
+
+
+\tikzstyle{tnode}	= [circle, minimum height=1.2ex, draw=black,inner sep=0pt, outer sep=0pt]
+
+\subsection{Алфавит и~сообщение}
+\begin{frame}{\insertsubsection}
+
+% Для кодов семейства LZ78, как и~практически для любого кода, алфавит "--- набор байтов, исходный текст "--- 
+% % некоторый двоичный файл.
+% последовательность байтов.
+% % При этом для адекватной демонстрации алгоритма в~сообщении желательно использовать все симво
+% 
+% Для наглядности сопоставим каждому из трёхбитных байтов доски глиф 
+% 
+% Рассмотрим сообщение «Обороноспособность» (18 символов всего, 8~разных)
+% % \begin{enumerate}
+% % \item 
+% в~8-символьном алфавите из 3-битных байтов (в~сообщении встречаются все 8~возможных символов):
+% % \item в~16-символьном алфавите из 4-битных байтов (в~сообщении встречается только часть из~16 возможных символов). 
+% % \end{enumerate}
+
+Символ=байт (для доски байт = триада = 3 бита):
+
+
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}\hline
+значение байта  &  0&  1   &2   &3   &4   &5   &6   &7   \\\hline
+глиф &  б  &н  &о &п &р &с &т &ь  \\\hline
+\end{tabular}
+
+Сообщение $C = {}$«обороноспособность» ($n = 18$ символов всего, 8~разных).
+
+
+\end{frame}
+
+
+
+
+
+\section{LZ78/LZ2: концепт Зива--Лемпеля 1978~г.}
+
+% \subsection{Схема данных кодирования реализацией LZ78 от 1978~г.}
+\subsection[Схема данных кодирования]{схема данных кодирования}
+\begin{frame}{\insertsection{} --- \insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz78_c78_encode_v2}
+\end{frame}
+\subsection[Схема данных декодирования]{схема данных декодирования}
+\begin{frame}{\insertsection{} --- \insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz78_c78_decode}
+\end{frame}
+
+\subsection{Концепт Зива--Лемпеля 1978~г.}
+\begin{frame}{\insertsection{}}
+\setlength{\parskip}{0.5\parskip}
+\widepressetfontsize{\normalsize\setlistspacing{1}{0.0ex}}
+% \widepressetfontsize{\small}
+1978 г., Якоб Зив (Jacob Ziv) и Абрахам Лемпель (Abraham Lempel):
+
+\begin{itemize}
+\item словарь = дерево, каждый узел имеет номер $N$ и~символ $c\in A$:
+узел = пара $(N, c)$;
+\item корень %словаря-дерева 
+"--- пара $(0, \text{пустая строка})$ "--- имеет номер $0$, но не имеет символа;
+% в~реализации для ЭВМ корень и~прочие узлы "--- разные структуры данных;
+% ; %: если в~словаре  $m$ слов, то номера  узлов $0, 1, \ldots m-1$.
+
+\item слово $E$ с~номером $N$ читается от корня вниз до узла $(N, c)$ "--- символ $c$ последний в~$E$.
+\end{itemize}
+
+\begin{enumerate}
+\item Вначале словарь пуст 
+% (только корень с~номером $0$ "--- в~словаре $m=1$ пустое слово).
+(в~словаре $m=1$ пустое слово с~номером $0$), позиция в~файле $i=1$.
+\item На каждом шаге $m$ (в~словаре $m$ слов), % "--- уже есть номера $0, 1, \ldots m-1$, 
+текущая позиция в~файле $i$:
+\begin{enumerate}
+\item разыскивается такая длина текущего слова $L$, что:
+\begin{tabularx}{\linewidth}{@{}c@{~}c@{~$=$~}c@{\,}c@{~}l@{}}
+\itemizeball&$E_{L}$    &$c_i \ldots c_{i+L-1}$&&  в~словаре уже есть "--- узел $(N_L, c_{i+L-1})$, \hfill $0 \leqslant N_L \leqslant m-1$; \\
+\itemizeball&$E_{L+1}$  &$c_i \ldots c_{i+L-1}$&$c_{i+L}$& ещё нет;
+\end{tabularx}
+% \begin{itemize}
+% \item $E_{L} = c_i \ldots c_{i+L-1}$ в~словаре уже есть "--- узел $(N_L, c_{i+L-1})$, \hfill $0 \leqslant N_L \leqslant m-1$;
+% \item $E_{L+1} = c_i \ldots c_{i+L-1} c_{i+L}$ ещё нет;
+% \end{itemize}
+
+\item в~словарь  добавляется новый лист $(m, c_{i+L})$, его родитель имеет номер $P = N_L$;
+
+
+
+\item в~выходной поток записываются номер родителя $P$ и~символ нового листа $c_{i+L}$ "--- для~компактности далее  $(P, c_{i+L})$ (это не узел!).
+\end{enumerate}
+% \item Когда кончается ёмкость номера листа, дерево:
+
+% \item Если $|n|=|c|$, то в~нх.\,сл. "--- увеличение объёма в~2~раза:\\ 
+% LZ78 создавался для малоцветных изображений (gif)
+
+\item При необходимости входной поток дополняется (либо конец обрабатывается особо).
+\end{enumerate}
+
+% Кодирование "--- в~один проход вперёд.
+
+% Вместо поиска в~скользящем окне (возврата назад по файлу) "--- быстрый поиск в~словаре-дереве 
+% $\Longrightarrow$ высокая скорость кодирования-декодирования.
+Вместо возврата назад по файлу "--- быстрый поиск в~дереве 
+$\Longrightarrow$ высокая скорость кодирования.
+\end{frame}
+
+
+
+
+\subsection{«обороноспособность» (18, 8~разных)}
+\begin{frame}{\insertsection{} --- \insertsubsection}
+
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0\parskip}
+\widepressetfontsize{\small\setlistspacing{1}{0.4ex}}
+\setlength{\leftmargini}{0ex}
+
+\begin{enumerate}
+
+\item Первичная инициализация: словарь = корень (пустая строка), \mbox{$m=1$ (№ добавляемого узла, с~1).} 
+
+\item\label{item_lz78c_next_i} Инициализация для нового $i$: $P=0$ (текущий узел "--- корень), $c$ (текущий символ входного потока).
+
+\item\label{item_lz78c_next_c} Если у~$P$ есть дочерний $(N, c)$, меняем текущий узел ($P=N$), читаем новый текущий символ $c$, к~\enumerateball{\ref{item_lz78c_next_c}}.
+\item Если   $c$ нет в~дочерних узлах $P$:
+% \itemizeball{} добавляем $P$ дочерний  $(m, c)$, ${+}{+}m$,  в~выходной поток пишем $(P, c)$;
+
+\begin{itemize}
+\item добавляем $P$ дочерний $(m, c)$, $i$ увеличиваем на длину слова, ${+}{+}m$,  в~\cm{выходной поток} пишем $(P, c)$;
+\item читаем новый текущий символ $c$, к~\enumerateball{\ref{item_lz78c_next_i}}.
+\end{itemize}
+
+\end{enumerate}
+
+% \termin{обороноспособность}
+% \strut\hfill
+\begin{tabular}{@{}l>{\color{clCode}}ll@{}}
+% №&выход\\
+1&(0,о)&о\\
+2&(0,б)&б\\
+3&(1,р)&ор\\
+4&(1,н)&он\\
+5&(1,с)&ос\\
+6&(0,п)&п\\
+7&(5,о)&осо\\
+8&(2,н)&бн\\
+9&(5,т)&ост\\
+10&(0,ь)&ь\\
+\end{tabular}
+\hfill
+% \includegraphics[width=\linewidth,height=0.5\slideheight,keepaspectratio,valign=c]{lz78}\centering
+\begin{tikzpicture}[
+start chain=nlvl going right, 
+every label/.style={scale=0.7,inner sep=1pt},
+%	 	y and x
+node distance=5ex and 2em,
+label distance=0pt,
+baseline=(current bounding box.center),
+]
+
+\foreach \c/\n
+in {р/3,н/4,с/5,н/8}
+{
+  \node[tnode, on chain=nlvl, label=60:$\n$] (n\n) {\c\strut};
+}
+% 
+% \foreach \c/\n/\parent
+% in {с/19/13,н/18/8,о/17/14}
+% {
+%   \node[tnode, label=60:$\n$, below=of n\parent] (n\n) {\c\strut};
+%   \draw (n\parent) -- (n\n);
+% }
+
+\foreach \c/\n/\child in {о/1/4,б/2/8}
+{
+  \node[tnode, label=60:$\n$, on chain=nlvl, above=of n\child] (n\n) {\c\strut};
+  \draw (n\child) -- (n\n);
+}
+\foreach \child in {3,5}
+{
+  \draw (n\child) -- (n1);
+}
+\foreach \c/\n in {п/6,ь/10}
+{
+  \node[tnode, on chain=nlvl, label=60:$\n$] (n\n) {\c\strut};
+}
+
+% \node[circle, minimum height=0pt, fill, draw, label=60:$0$, above= 8ex of $0.5*(n2)+0.5*(n6)$, inner sep=1pt, outer sep=0pt] (n0) {};
+\node[circle, minimum height=0pt, fill, draw, label=60:$0$, above= 5.8ex of n2.north, inner sep=1pt, outer sep=0pt] (n0) {};
+\foreach \child in {1,2,6,10}
+{
+  \draw (n\child) -- (n0);
+}
+
+  \node[tnode, label=30:$7$, below=of $0.5*(n4)+0.5*(n5)$] (n7) {о\strut};
+  \node[tnode, label=60:$9$, below=of $0.5*(n5)+0.5*(n8)$] (n9) {т\strut};
+\foreach \child in {7,9}
+{
+  \draw (n\child) -- (n5);
+}
+
+\node at (n9-|n10)  {$10$ пар};
+\end{tikzpicture}
+% \hfill\strut
+
+\end{frame}
+
+
+
+% \section{LZ78/LZ2: концепт Зива--Лемпеля 1978~г.: минимальная длина кода для $P$}
+% \section{Концепт Зива--Лемпеля 1978~г., продолжение: минимальная длина кода для $P$}
+\section{Концепт Зива--Лемпеля 1978~г.: минимальная длина кода для $P$}
+
+
+\subsection{Как записать пару $(P, c)$ на шаге $m$?}
+\begin{frame}{\insertsubsection}
+% \widepressetfontsize{\normalsize \setlistspacing{1}{0.0ex}}
+\setlength{\parskip}{0.\parskip}
+\widepressetfontsize{\small\setlistspacing{1}{0.0ex}}
+В~каждой паре $(P, c)$:
+\begin{itemize}
+\item разрядность $|c|$ символа $c$ постоянна и~равна разрядности $k$ байта в~исходном тексте;
+
+\item разрядность $|P|$ номера $P$ узла-родителя в~общем случае не равна $k$.
+\end{itemize}
+
+В~памяти ЭВМ $P$ типа $long~long$ (его разрядность $|P| = 64$ бита) и~не переполняется.
+% ($m < n$). не всегда
+
+\vfill
+
+В~выходном потоке $|P|$ может:
+\begin{enumerate}
+\item меняться "--- расти с~ростом номера $m$ шага: \termin{минимальная длина} кода достигается при~\termin{побитовом увеличении $|P|$}:
+\begin{itemize}
+\item тогда поток пар  $(P, c)$ "--- битовый, а~не байтовый;
+\item далее в~лекции "--- побитовое увеличение $|P|$ и~рассчитывается минимальная длина кода;
+\end{itemize}
+
+
+% 
+
+\vfill
+
+\item быть постоянной,  $|P|\gg|c|$ 
+% (при $|P|=|c|=k$ %в~наихудшем случае "--- 
+% возможно
+% увеличение объёма в~2~раза вместо сжатия):
+(при $|P|=|c|$  всегда хуже кода фиксированной ширины, сжатия нет):
+\begin{itemize}
+\item[а)] при $m < 2^{|P|-1}$ длина больше минимальной \enumerateball{1}; \hfill \termin{б)} при $2^{|P|-1} \leqslant m < 2^{|P|}$  длина равна \enumerateball{1};
+\item[в)] на шаге $m = 2^{|P|}$ номер $P$ узла-родителя переполняется, при этом дерево:
+
+\end{itemize}
+
+% \vfill
+
+% $P$ постоянной разрядности при $|P| < \log_2 (m-1)$ переполняется, при этом дерево:
+\begin{itemize}
+\item либо уничтожается и~растится заново с~нуля (следующее $m$ после $(2^{|P|}-1)$ "--- не $2^{|P|}$, а $1$);
+\item либо ветви уничтожаются выборочно ($m$ уменьшается, но не до $1$);
+\item либо фиксируется и~не растёт: \termin{код меняется;}  сбои, если на первом уровне не весь алфавит. 
+% на шаге $m = 2^{|P|}$ и~позже разыскивается слово $P$ в~словаре, в~файл записывается только $P$ (нет~прикорневого узла $\Longrightarrow$ сбои).
+\end{itemize}
+\end{enumerate}
+
+\end{frame}
+
+\subsection{Концепт 1978 г., «обороноспособность», минимальная общая длина кода}
+\begin{frame}{\insertsubsection}
+
+\setlength{\parskip}{0.\parskip}
+\widepressetfontsize{\small\setlistspacing{1}{0.0ex}}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+
+В~коде сообщения $m_{\max} = 10$ пар $(P, c)$, то есть:
+\begin{itemize}
+\item 10 символов $c$ ($|c| = k~\text{бит} = 1~\text{байт}$, суммарная длина $|c|_{\sum} =m_{\max} =  10$~байтов);
+
+\item и~10 номеров родительских узлов $P$, причём для каждого шага $m$ разрядность $P \in \{0, 1, \ldots m-1 \}$ выбирается минимально возможной (тогда общая длина кода $|code|$ "--- минимальна):
+\end{itemize}
+
+\vfill
+
+\setlength{\tabcolsep}{5pt}
+
+\begin{tabularx}{1\linewidth}{@{}lL@{}}
+\begin{tabular}{@{}l|l@{~}|l@{}}
+$m$&Возможные $P$&$\min(|P|)$, бит\\\hline
+1 &только 0 &0 (не сохр.)\\\hline
+2 &0 или 1  &1\\\hline
+3 &0, 1, 2   &2\\
+4 &0, 1, 2, 3&2\\\hline
+5 &0, 1, ... 4& 3\\
+6 &0, 1, ... 5&3\\
+7 &0, 1, ... 6&3\\
+8 &0, 1, ... 7&3\\\hline
+9 &0, 1, ... 8&4\\
+10&0, 1, ... 9&4\\
+\end{tabular}
+&
+% Исходная длина (в~символах) сообщения «обороноспособность» "--- 18 символов.
+% \medskip
+%
+\vspace*{-6\baselineskip}
+% Суммарная длина (в~символах) полей $c$ во всех 10 парах постоянна и~равна 10~символов (байтов).
+% \medskip
+
+% Минимальная с
+Суммарная длина (в~битах) полей $P$ во всех 10 парах:
+$|P|_{\sum} = 1 + 2\cdot2 + 3\cdot4 + 4\cdot2 = 25$ бит.
+
+% \smallskip
+
+\textterminblue{Зависит только от $m_{\max}$, но не от разрядности $k$ байта.
+При~$m_{\max} = 2^Q + R,$ $0\leqslant R < 2^Q$:
+\hfill
+$\displaystyle |P|_{\sum} = \sum_{i=0}^{Q} i 2^{i-1} + (Q+1) R$ \rlap{бит.}
+}
+
+% \bigskip
+\medskip
+
+Общая длина кода 10 пар  (в~трёхбитных байтах): 
+
+$|code| = |c|_{\sum}~\text{[байтов]} + \frac{|P|_{\sum} ~\text{[бит]}}{k} = 10 + \frac{25}{3} %= 10 + 8 + \frac{1}{3} 
+= 18\frac{1}{3} \cong 19$~байтов.
+
+% б) $|c| = 4$ (4-битный байт): $|code| = 10 + \frac{25}{4} = 10 + 6 + \frac{1}{4} \cong 17$;
+
+% (для записи «лишнего» бита необходим целый байт).
+\medskip
+
+Исходная длина "--- 18 символов=байтов: увеличение размера.
+% : реальное сжатие возможно только если дерево много больше алфавита 
+% (сейчас размер дерева 11 узлов и~размер алфавита 8 символов сопоставимы)
+% \medskip
+
+\textterminblue{Задача: закодировать «обороноспособностьобороноспособность». Будет ли сжатие?}
+
+\end{tabularx}
+\vspace{-2\baselineskip}
+\end{frame}
+
+\subsection{Концепт 1978 г., минимальная длина кода $P$}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+
+Общая длина полей $P$ в~$m_{\max} = 2^Q + R$ парах ($0\leqslant R < 2^Q$) в~коде концепта 1978 г.:
+$\displaystyle |P|_{\sum}(2^Q + R) = \sum_{i=0}^{Q} i\cdot 2^{i-1} + (Q+1) R$ бит
+\hfill 
+\termin{"--- не зависит от разрядности $k$ байта.} %, только от $m_{\max}$.
+
+\vfill
+
+При $R=0$ (то есть $m_{\max} = 2^Q$):\hfill\strut
+$\displaystyle |P|_{\sum}(2^Q) = \sum_{i=0}^{Q} i\cdot 2^{i-1}$ бит. 
+\hfill\strut
+
+Слагаемые $i\cdot 2^{i-1}$: 
+% \\
+\hfill
+0, 1, 4, 12, 32, 80, 192, 448, 1024, %2304, 5120, 11264, 24576, 53248, 114688, 245760, 524288, 1114112, 2359296, 4980736, 
+...
+"--- последовательность OEIS A001787,
+\\
+% её частичная сумма
+% \hfill
+$\displaystyle %|P|_{\sum}(2^Q) = 
+\sum_{i=0}^{Q} i\cdot 2^{i-1} = (Q-1)\cdot2^Q + 1$:
+\hfill
+0, 1, 5, 17, 49, 129, 321, 769, 1793, %4097, 9217, 20481, 45057, 98305, 212993, 458753, 983041, 2097153, 4456449, 9437185, 19922945, 41943041, 88080385, 184549377, 385875969, 805306369, 1677721601, 3489660929, 7247757313, 15032385537, 31138512897, 64424509441
+...
+\hfill
+"--- %последовательность 
+OEIS A000337.
+
+\vfill
+
+
+% \begin{tabularx}{\linewidth}{c|cccccccccccccccccccccccccccccccccccccccccccccc}
+% $m_{\max}$ & $1$ \\\hline
+% $|P|_{\sum}^{\text{к}1987}(m_{\max})$
+% \end{tabularx}
+
+\small
+
+\setlength{\arraycolsep}{4pt}
+
+\hspace*{-1.5em}%
+$
+\begin{array}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}\hline
+m_{\max}
+&1  &2+R    &4+R    &8+R    &16+R   &32+R   &64+R   &128+R  &256+R      &512+R
+\\\hline 
+% |P|_{\sum}^{\text{к}1978}, ~\text{бит}
+|P|_{\sum}, ~\text{бит}
+&0  &1+2R   &5+3R   &17+4R  &49+5R  &129+6R &321+7R &769+8R &1793+9R    &4097+10R
+\\\hline
+\multicolumn{11}{c}{}
+\\[-1ex]\hline 
+m_{\max}
+&1  &2    &4-R    &8-R    &16-R   &32-R   &64-R   &128-R  &256-R      &512-R
+\\\hline
+|P|_{\sum}, ~\text{бит}
+&0  &1   &5-2R   &17-3R  &49-4R  &129-5R &321-6R &769-7R &1793-8R    &4097-9R
+\\\hline 
+\end{array}
+$
+\end{frame}
+
+
+
+\section{LZ78/LZ2: код Зива--Лемпеля--Велча, LZW}
+
+\begin{frame}{\insertsection}
+
+\setlength{\parskip}{0.\parskip}
+\widepressetfontsize{\small\setlistspacing{1}{0.0ex}}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\leftmarginiii}{1em}
+
+1984 г., Терри Велч (Terry Welch) по концепции LZ78:
+
+\begin{enumerate}
+
+\item Вначале словарь = первый уровень (все одиночные символы, $2^k$ штук для $k$-битного \mbox{символа=байта).}
+Тогда корень можно не нумеровать (прикорневые нумеруем с~нуля).
+
+% \vfill
+% \item Номер шага кодирования/декодирования "--- 
+
+\vfill
+\item Кодирование: при добавлении узлу $P$ дочернего узла %с~номером $m$ и~символом $c$%(новое слово $c_{i-r}c_{i-r+1}...c_i$)
+$(m, c)$:
+\begin{itemize}
+\item \termin{оставляем $c$ во входном потоке} ($c$ "--- последний символ текущего слова и~первый следующего);
+\item в~выходной поток пишем только $P$.
+\end{itemize}
+
+\vfill
+
+\item Декодирование: прочитан номер $P$ "--- родительский для $(m, ?)$:
+% %номер шага $m$ = номер добавляемого узла.
+% %
+% перед любым шагом, кроме первого, последний узел (с~номером $m-1$) "--- пустой (с~неизвестным символом $c_j$);
+% %
+% читаем $P \in \{0, 1, ..., m-1\}$ $\implies$ пишем в~выходной поток слово = ветвь $P$ и~одновременно заполняем пустой узел:
+\begin{enumerate}
+\item символ $c$, соответствующий первому (прикорневому $\implies$ всегда известному) узлу ветви $P$:
+\begin{itemize}
+\item пишем~в~выходной поток;
+\item %при $m>2^k$ 
+пишем~в~%пустой узел с~номером $m-1$ (первый символ слова = последний предыдущего);
+узел $(m-1, ?)$ (первый символ слова = последний предыдущего), теперь это $(m-1, c)$;
+\end{itemize}
+% $\implies$ 
+% теперь все узлы заполнены;
+% нет пустых;
+\item {} [теперь %нет пустых узлов] 
+все узлы известны]
+прочие символы ветви $P$, включая сам $P$ "--- только в выходной поток;
+% "--- тепер
+\item добавляем узлу $P$ 
+% пустой (с~неизвестным $c$) дочерний с~номером $m$.
+дочерний $(m, ?)$ с~номером $m$ и~пока неизвестным $c$, ~  ${+}{+}m$.
+% \mbox{(и~$m \to m+1$ для следующего шага).}
+\end{enumerate}
+
+% \vfill
+
+\termin{Первый шаг} (номер %шага 
+$m=2^k$, $P \in \{0, 1, ..., 2^k-1\}$ кодирует первый символ файла $c_1$) \termin{необходимо обработать отдельно:} 
+% $P \in \{0, 1, ..., 2^k-1\}$, 
+% % пустого узла нет.
+% все $c$ в~дереве известны, в~том числе 
+пред.\,слова нет;
+узел $(m-1, 2^k-1)$ менять нельзя, в~общем случае \rlap{$c_1 \neq 2^k-1$.}
+
+
+\vfill
+
+% \item $|P|\gg|c|$, во многих реализациях увеличивается по битам.
+
+\item Дерево часто разворачивается в~таблицу.
+
+\item Входной поток \termin{всегда} дополняется как минимум одним незначащим \rlap{символом.}
+
+\end{enumerate}
+
+
+\end{frame}
+
+\subsection{Схема данных кодирования LZW (семейство LZ78), для октетов}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz78_lzw_encode_v2}
+\end{frame}
+
+\subsection{Схема данных декодирования LZW (семейство LZ78), для октетов}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz78_lzw_decode_v2}
+\end{frame}
+
+
+\subsection{«обороноспособность» (18, алфавит из~8)}
+\begin{frame}{\insertsection --- \insertsubsection}
+
+\setbeamerfont{itemize/enumerate body}{size=\footnotesize}
+\setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\footnotesize
+% \setlength{\parskip}{0\parskip}
+
+\begin{tikzpicture}[
+start chain=nlvl going right, 
+every label/.style={scale=0.7,inner sep=1pt},
+%	 	y and x
+node distance=4ex and 1.5em,
+label distance=0pt
+]
+
+% вторая линия, потому что она самая длинная
+\foreach \c/\n%/\x/\y 
+in {о/9,о/13,б/8,р/10,н/12,с/14,о/16,о/11,п/15,т/20,ь/21}
+{
+  \node[tnode, on chain=nlvl, label=60:$\n$] (n\n) {\c\strut};
+}
+
+% третья линия, дырявая
+\foreach \c/\n/\parent
+in {с/19/13,н/18/8,о/17/14}
+{
+  \node[tnode, label=60:$\n$, below=of n\parent] (n\n) {\c\strut};
+  \draw (n\parent) -- (n\n);
+}
+
+% те из первой линии, которые строго над
+\foreach \c/\n/\child
+in {б/0/9,н/1/13,п/3/16,р/4/11,т/6/21}
+{
+  \node[tnode, label=60:$\n$, on chain=nlvl, above=of n\child] (n\n) {\c\strut};
+  \draw (n\child) -- (n\n);
+}
+\node[tnode, on chain=nlvl, label=60:$7$] (n7) {ь\strut};
+
+% те из первой линии, которые над серединой
+
+\coordinate (rootox) at ($0.5*(n10)+0.5*(n12)$);
+\coordinate (rootsx) at ($0.5*(n15)+0.5*(n20)$);
+
+\foreach \c/\n/\xcoord
+in {о/2/rootox,с/5/rootsx}
+{
+  \node[tnode, label=60:$\n$] (n\n) at (\xcoord|-n0) {\c\strut};
+}
+
+\foreach \child in {8,10,12,14}
+{
+  \draw (n\child) -- (n2);
+}
+
+\foreach \child in {15,20}
+{
+  \draw (n\child) -- (n5);
+}
+
+% добавленный символ б — нельзя внести ь в третий цикл, это б должно быть в первом!
+% или так, заодно перекрасим
+\foreach \c/\n/\parent
+in {б/22/7}
+{
+  \node[tnode, label=60:$\n$, below=of n\parent, gray] (n\n) {\c\strut};
+  \draw[gray] (n\parent) -- (n\n);
+}
+
+
+\end{tikzpicture}
+
+
+\begin{tabular}{@{}lll>{\color{clCode}}l@{}}
+8&(2, б)&об&2\\
+9&(0, о)&бо&0\\
+10&(2, р)&ор&2\\
+11&(4, о)&ро&4\\
+12&(2, н)&он&2\\
+13&(1, о)&но&1\\
+14&(2, с)&ос&2\\
+15&(5, п)&сп&5\\
+\end{tabular}
+\hfill
+\begin{tabular}{@{}lll>{\color{clCode}}l@{}}
+16&(3, о)&по&3\\
+17&(14, о)&осо&14\\
+18&(8, н)&обн&8\\
+19&(13, с)&нос&13\\
+20&(5, т)&ст&5\\
+21&(6, ь)&ть&6\\
+22&(7, б)&ь\textcolor{gray}{б}&7\\
+\multicolumn{4}{@{}l@{}}{15 значений}\\
+\end{tabular}
+\hfill
+\strut
+
+\end{frame}
+
+\section{LZW: минимальная длина кода для $P$}
+
+
+% \subsection{Минимально возможная длина кода}
+\subsection{LZW, «обороноспособность», минимальная  длина кода}
+\begin{frame}{\insertsubsection}
+
+\setlength{\parskip}{0.\parskip}
+\widepressetfontsize{\small\setlistspacing{1}{0.0ex}}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+
+В~коде сообщения $m_{\max}-m_{\min}+1 = 22-8+1 = 15$ значений $P$:
+
+\vfill
+
+
+\begin{tabularx}{1\linewidth}{@{}lL@{}}
+\begin{tabular}{@{}l|l@{~}|l@{}}
+$m$&Возможные $P$&$\min(|P|)$, бит\\\hline
+8 &0, 1, ... 7&3\\\hline
+9 &0, 1, ... 8&4\\
+10&0, 1, ... 9&4\\
+11&0, 1, ... 10&4\\
+12&0, 1, ... 11&4\\
+13&0, 1, ... 12&4\\
+14&0, 1, ... 13&4\\
+15&0, 1, ... 14&4\\
+16&0, 1, ... 15&4\\\hline
+17&0, 1, ... 16&5\\
+18&0, 1, ... 17&5\\
+19&0, 1, ... 18&5\\
+20&0, 1, ... 19&5\\
+21&0, 1, ... 20&5\\
+22&0, 1, ... 21&5\\
+\end{tabular}
+&
+% Исходная длина (в~символах) сообщения «обороноспособность» "--- 18 символов.
+% \medskip
+%
+\vspace*{-4\baselineskip}
+% Суммарная длина (в~символах) полей $c$ во всех 10 парах постоянна и~равна 10~символов (байтов).
+% \medskip
+
+% Минимальная с
+Общая длина кода (в~битах): 
+$|P|_{\sum} = 3 + 4\cdot8 + 5\cdot6 = 65$ бит.
+\medskip
+
+Общая длина кода (в~трёхбитных байтах): 
+
+$|code| = |P|_{\sum} = \frac{65}{3} %= 10 + 8 + \frac{1}{3} 
+= 21\frac{2}{3} \cong 22$~символа=байта.
+
+% б) $|c| = 4$ (4-битный байт): $|code| = 10 + \frac{25}{4} = 10 + 6 + \frac{1}{4} \cong 17$;
+
+% (для записи «лишнего» бита необходим целый байт).
+\medskip
+
+Исходная длина "--- 18 символов=байтов: увеличение размера.
+% : реальное сжатие возможно только если дерево много больше алфавита 
+% (сейчас размер дерева 11 узлов и~размер алфавита 8 символов сопоставимы)
+\medskip
+
+\textterminblue{Задача: закодировать:
+\mbox{а)~«обороноспособностьобороноспособность»,}
+\mbox{б)~«обороноспособностьобороноспособностьобороноспособность».} 
+Будет ли сжатие?}
+
+\medskip
+% Семейство 
+LZ78 (в~том числе LZW) "--- для малоцветных \termin{изображений.}
+
+\end{tabularx}
+\end{frame}
+
+
+
+
+\subsection{LZW, минимальная длина кода}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+\widepressetfontsize{\small}
+
+% При~оптимальном кодировании для LZW: % (алфавит $A$ из $|A| = 2^k$ значений байта):
+% % растёт так же, как для концепта, но не с~нуля 
+% \hfill
+% % Общая длина кода LZW  в~$m_{\max}-m_{\min}+1$  полях $P$:
+% $\displaystyle |P|_{\sum}^{\text{LZW}}(m_{\max}) 
+% = |P|_{\sum}^{\text{к1978}}(m_{\max}) - |P|_{\sum}^{\text{к1978}}(m_{\min}-1)
+% % = |P|_{\sum}^{\text{к1978}}(m_{\max}) - |P|_{\sum}^{\text{к1978}}(|A|-1)
+% ~ \text{бит},$%
+% % 
+% % \vfill
+% % 
+% % Номер $m_{\min}$ первого шага LZW "--- размер алфавита: $m_{\min} = |A| = 2^k$:
+% % % ,
+% % % $m_{\min}-1 = 2^k-1$:
+% % 
+% % $|P|_{\sum}^{\text{к1978}}(2^k-1) ~~=~~ |P|_{\sum}^{\text{к1978}}(2^k) - k
+% % % = \Big((k-1)\cdot2^k + 1\Big) - k
+% % ~~=~~ (k-1)\cdot2^k + 1 - k
+% % $ бит. 
+% % 
+% % \vfill
+% % 
+% % То есть $|P|_{\sum}^{\text{LZW}}(m_{\max})$ зависит не только от $m_{\max}$, но и~от разрядности $k$ байта:
+% 
+% где~$m_{\min} = |A| = 2^k$ постоянно:\hfill
+% $\displaystyle |P|_{\sum}^{\text{LZW}}(m_{\max}) 
+% ~~=~~ |P|_{\sum}^{\text{к1978}}(m_{\max}) - (k-1)\cdot2^k -1 +k 
+% ~ \text{бит},$%
+% 
+% в~частности,\hfill~\hfill
+% $\displaystyle |P|_{\sum}^{\text{LZW}}(2^Q) 
+% % \hfill=\hfill 
+% % (Q-1)\cdot2^Q + 1 - (k-1)\cdot2^k -1 +k
+% % \hfill=\hfill 
+% ~~=~~
+% (Q-1)\cdot2^Q  - (k-1)\cdot2^k +k
+% ~ \text{бит}.
+% $%
+
+{
+\renewcommand{\arraystretch}{1.5} % Default value: 1
+
+\begin{tabularx}{1\linewidth}{@{}L@{~}c@{~=~}c@{~$-$~}c@{~}r@{}}
+% % скобок нет, знаки в последнем столбце — не те, что со скобками!!!
+При~оптимальном кодировании $P$ LZW:        &$|P|_{\sum}^{\text{LZW}}(m_{\max})$    &$|P|_{\sum}^{\text{к1978}}(m_{\max})$  &$|P|_{\sum}^{\text{к1978}}(m_{\min}-1)$&бит,\\
+где~$m_{\min} = |A| = 2^k$ постоянно:   &$|P|_{\sum}^{\text{LZW}}(m_{\max})$    &$|P|_{\sum}^{\text{к1978}}(m_{\max})$  &$(k-1)\cdot2^k -1 +k$&бит,\\
+в~частности,                            &$|P|_{\sum}^{\text{LZW}}(2^Q) $        &$(Q-1)\cdot2^Q$                        &$(k-1)\cdot2^k +k$&бит.
+\end{tabularx}
+
+}
+
+\vfill
+
+\setlength{\arraycolsep}{4pt}
+
+Для доски $k = 3$ \hfill$\implies$\hfill $m_{\min}=8$ \hfill$\implies$\hfill 
+% $|P|_{\sum}^{\text{к1978}}(m_{\min}-1)=2\cdot 8+1-3 = 14$ бит:
+$|P|_{\sum}^{\text{LZW}}(2^Q) = (Q-1)\cdot2^Q  - 2\cdot 8+3 = (Q-1)\cdot2^Q - 13$
+
+$
+\begin{array}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}\hline
+m_{\max}
+&8+R    &16+R   &32+R   &64+R   &128+R  %&256+R      &512+R  &1024+R
+\\\hline 
+|P|_{\sum}, ~\text{бит}
+&3+4R  &35+5R  &115+6R &307+7R &755+8R %&1779+9R    &4083+10R    &9203+11R
+\\\hline 
+|P|_{\sum}, ~\text{триад}
+&1+R+\frac{R}{3}  &11+\frac{2}{3}+R+\frac{2R}{3}  &38+\frac{1}{3}+2R &102+\frac{1}{3}+2R+\frac{R}{3} &251+\frac{2}{3}+2R+\frac{2R}{3} 
+\\\hline
+\end{array}
+$
+
+\vfill
+
+Для x86/amd64 $k = 8$ $\implies$ $m_{\min}=256$ $\implies$ 
+\rlap{$|P|_{\sum}^{\text{LZW}}(2^Q) 
+% = (Q-1)\cdot2^Q  - 7\cdot 256+8 
+= (Q-1)\cdot2^Q -1784$
+}
+
+$
+\begin{array}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}\hline
+m_{\max}
+&256+R      &512+R  &1024+R         &2048+R
+\\\hline 
+|P|_{\sum}, ~\text{бит}
+&8+9R    &2312+10R    &7432+11R     &18696+12R
+\\\hline 
+|P|_{\sum}, ~\text{октетов}
+&1+R+\frac{R}{8}    &289+R+\frac{2R}{8}    &939+R+\frac{3R}{8}     &2337+R+\frac{4R}{8}
+\\\hline
+\end{array}
+$
+
+
+\end{frame}
+
+
+
+
+
+\makethanks
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

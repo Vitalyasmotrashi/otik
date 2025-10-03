@@ -1,0 +1,240 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не раст€гивать недозаполненные страницы по высоте, а оставл€ть место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+\newcommand{\upair}[2]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+{#1}\\ {#2}
+\end{array}\right\}
+}}
+     
+\newcommand{\Lcmin}{\ensuremath{%
+% L^c_{\min}
+L_{\min}
+}}
+    
+\newcommand{\Lcmax}{\ensuremath{%
+% L^c_{\max}
+L_{\max}
+}}
+   
+\tikzstyle{espdnormalheight}      = [minimum height=7ex]
+
+% размеры
+\tikzstyle{espdnormalsize}  = [espdnormalheight, text width=12em, inner sep = 0.2em]
+\tikzstyle{espdwide}        = [espdnormalheight, text width=15em, inner sep = 0.2em]
+\tikzstyle{espdhuge}        = [espdnormalheight, text width=33em, inner sep = 0.2em]
+\tikzstyle{espdnarrow}      = [espdnormalheight, text width=10em, inner sep = 0.2em]
+% \tikzstyle{espdmini}      = [minimum height=5ex]
+\tikzstyle{espdmini}      = [minimum height=4ex]
+
+\tikzstyle{espddatafilesize} = [minimum width=7ex, minimum height=8em, inner sep = 0.2em] % дл€ цилиндра высота Ч это width!
+
+\tikzstyle{connector}=[espdconnector, minimum height=2ex, inner sep = 0.2em]
+
+
+
+
+% \tikzset{node distance = 2ex and 1em}
+\tikzset{node distance = 4ex and 2em}
+
+\node[espdblackcenter, espddata, espdmini ] (L) {$L$};
+\node[espdblackcenter, espddata, espdmini, right = of L] (c) {$c$};
+
+\node[espdblackcenter, espddata, espdmini, left = of L] (c_next)  {$c_{i+L}$};
+
+% \node[fit=(c_next)(L)(c), inner sep = 0.em] (Lc) {};
+\node[fit=(L)(c), inner sep = 0.em] (Lc) {};
+
+
+\node[espddatafilesize, espdblackcenter, espddatafile, 
+left = of c_next, 
+] (C)  {»сх. $C = c_1\, c_2 \ldots c_n$};
+
+
+\node[espdwide, espdblackcenter, espdprocess, 
+above = of Lc  
+% above = 1ex of Lc  
+] (initL) {
+    \uline{»нициализаци€ сжатой цепочки:}
+
+    $c = c_i,$ ~ $L=1=\Lcmin$
+    
+};
+
+\node[espdwide, espdblackcenter, espdprocess, 
+% below = of Lc  
+below = of Lc.south-|initL.east, anchor=north east,
+text width=18.5em
+] (endL) {
+    Eсли $L<\Lcmax$ и~$c_{i+L} = c$,
+    \hfillто~$L = L+1$;
+    
+    \medskip
+    иначе {запись} $\upair{L}{c}$ как $(b_1,  b_2)$,
+\hfill
+%     \vspace{-0.5\baselineskip}
+    \strut~$i = i+L$\hfill\strut
+    
+};
+
+
+% \node[espdblackcenter, espddata, espdmini, left = of initL] (c_init)  {$c_{i}$};
+
+% \node[espdblackcenter, espddata, espdmini, above = of init_first] (c_init)  {$c_{i}$};
+% \node[espdblackcenter, espddata, espdnarrow, above = 3ex of init_first, inner xsep=0em, text width=8.5em] (c_init)  {ѕервый символ из незакодированных: $c_{i}$};
+\node[espdblackcenter, espddata, espdnarrow, above = 3ex of initL, inner xsep=0em, text width=8.5em] (c_init)  {ѕервый символ из незакодированных: $c_{i}$};
+\coordinate (c_init_from_init_first) at (c_init.-175);
+
+
+\node[espdnarrow, espdblackcenter, espdprocess, 
+% above =  of C,
+% below = 2ex of C|-c_init_from_init_first, anchor =  center,
+above = 2ex  of C.west|-c_init_from_init_first, anchor = north west,
+text width=12.5em
+% ] (init_first) {ѕервична€ инициализаци€: $i=1$, чтение $c_1$};
+] (init_first) 
+% at (C|-initL) 
+% at (C|-c_init_from_init_first) 
+% {ѕервична€ инициал-€: $i=1$, чтение $c_1$};
+{ѕервична€ инициализаци€: $i=1$, чтение $c_1$};
+
+\node[espddatafilesize, espdblackcenter, espddatafile, right = of endL] (arch)  {јрхив};
+
+\draw[espdstreamto] (C)  -- (c_next);
+
+
+
+
+
+
+% \draw[espdstreamto] (init_first)  -- (c_init);
+% \draw[espdstreamto] (init_first)  |- (c_init_from_init_first);
+\draw[espdstreamto] (init_first.east|-c_init_from_init_first)  -- (c_init_from_init_first);
+
+
+
+
+% \draw[espdstreamto] (c_init) -| (initL);
+\draw[espdstreamto] (c_init) -- (initL);
+
+\draw[espdstreamto] (initL.south-|L) -- (L);
+\draw[espdstreamto] (initL.south-|c) -- (c);
+
+\draw[espdstreamto] (c_next) -- (endL.north-|c_next);
+\draw[espdstreamtofrom] (endL.north-|L) -- (L);
+\draw[espdstreamfrom]   (endL.north-|c) -- (c);
+
+\draw[espdstreamto] (endL)  -- (arch);
+
+
+
+
+\coordinate[left = of C] (endL_to_c_init_y);
+
+% % \draw[espdstreamto] (C)  -- (init_first);
+% \draw[espdstreamto] (C)  -- (init_first.south-|C);
+\draw[espdstreamto] (C.north-|init_first)  -- (init_first);
+
+
+\node[espdblackcenter, espddata, espdmini, right = of initL-|init_first.west, anchor=west] (i) {$i$};
+
+\coordinate (endL_to_c_init__to_i) at (endL_to_c_init_y|-i);
+\draw[espdstreamto] (init_first.south-|i)  -- (i);
+\draw[espdstreamto] (endL_to_c_init__to_i)  -- 
+% node[auto, sloped, pos=0.5, swap]{$i = i+L$}  
+(i);
+
+
+% \draw[espdstreamto] (endL) -| 
+% coordinate[pos=0.25] (arrow_1)  
+% % coordinate[pos=1] (arrow_1a)  
+% node[auto, sloped, pos=0.25, swap]{$c_{i+L}$ становитс€  $c_i$} 
+% (endL_to_c_init_y) |- 
+% coordinate[pos=0.75] (arrow_1a)  
+%  (c_init.170);
+% 
+% \coordinate[left = 1pt of arrow_1] (arrow_2);
+% \draw[espdstreamto] (arrow_1) -- (arrow_2);
+% 
+% \coordinate (arrow_1) at (endL_to_c_init_y|-initL.south);
+% \coordinate[above = 1pt of arrow_1] (arrow_2);
+% \draw[espdstreamto] (arrow_1) -- (arrow_2);
+% 
+% 
+% \coordinate[right = 1pt of arrow_1a] (arrow_2);
+% \draw[espdstreamto] (arrow_1a) -- (arrow_2);
+
+
+\draw[espdstreamto] (endL) -| 
+coordinate[pos=0.25] (arrow_1)  
+coordinate[pos=0.75] (arrow_1v1)  
+node[auto, sloped, pos=0.25, swap]{$c_{i+L}$ становитс€  $c_i$} 
+(endL_to_c_init__to_i) |- 
+coordinate[pos=0.25] (arrow_1v2)  
+coordinate[pos=0.75] (arrow_1a)  
+ (c_init.170);
+
+\coordinate[left = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+\coordinate[above = 1pt of arrow_1v1] (arrow_2);
+\draw[espdstreamto] (arrow_1v1) -- (arrow_2);
+\coordinate[above = 1pt of arrow_1v2] (arrow_2);
+\draw[espdstreamto] (arrow_1v2) -- (arrow_2);
+
+\coordinate[right = 1pt of arrow_1a] (arrow_2);
+\draw[espdstreamto] (arrow_1a) -- (arrow_2);
+
+
+
+
+
+\end{tikzpicture}
+}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

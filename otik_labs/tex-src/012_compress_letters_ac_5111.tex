@@ -1,0 +1,1638 @@
+\input{commonpath}
+\input{\SRCROOTPATH/commonpres}
+
+
+%\title{Сжатие без учёта контекста. Арифметическое (интервальное) кодирование}
+\title[Сжатие без учёта контекста. Семинар AC. Побайтовый AC. Проблемы]
+{%\textcolor{red}{Последняя лекция!}
+Семинар: арифметическое (интервальное) кодирование.
+Побайтовая запись кода.
+Случай сообщения без кода
+% .
+% \mbox{Черновики и~подробности: приведение частот}
+}
+
+\def\insertdate{\originsertdate{} --- актуальную версию можно найти на \url{https://gitlab.com/illinc/otik}
+% \textcolor{red}{%
+% \mbox{Л/р по АК (необязательная) перенесена на конец семестра;}
+% \mbox{соответствующие семинар и~лекция --- тоже}
+% }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lstset{xleftmargin=0mm}
+\lstset{language=C++}
+
+
+\def\logD{\kappa}
+% \def\ByteMax{2^k-1}
+
+\DeclareMathOperator{\lo}{lo}
+\DeclareMathOperator{\hi}{hi}
+
+% \usepackage{cancel}
+
+\begin{document}
+
+
+\maketitle
+
+
+
+
+\section{Концепт AC ($\Realset$)}
+
+
+
+\subsection{Кодирование}
+
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+% Рассматривалось сообщение 
+$C = 5111$, $n=4$, %ненормированные 
+% частоты $0300\,0100$.
+%
+$T=2$, 
+% $\nu_1=3, \nu_2=1$, 
+\begin{tabular}{|c|cc|}\hline
+$j$       &  1 &  2 \\\hline
+$\xi_j$   &  1  &  5 \\\hline
+$\nu_j$   &  3  &  1 \\\hline
+\end{tabular},
+%
+$D=3+1=4$ (степень двойки $\implies$ без приведения)
+
+
+\vfill
+
+
+ПИ $[l_i, t_i)$ делится %в~соотношении 
+$3:1$, границы 
+$\Omega_0 = l_i$,  
+$\Omega_1 = l_i + \frac{3\Delta_i}{4}$,
+$\Omega_2 = l_i + \Delta_i = t_i$, где $\Delta_i = t_i-l_i$:
+
+$
+\begin{array}{@{}l|c|cc|c|}
+i &   c_i &  l_i & t_i & \Delta_i \\\hline
+0   &   -     &   0   &   1   &   1 \\\hline
+1   &   5     &   \frac{3}{4}   &   1   &   \frac{1}{4} \\\hline
+2   &   1     &   \frac{3}{4}   &   \frac{15}{16}   &   \frac{3}{16} \\\hline
+3   &   1     &   \frac{3}{4}   &   \frac{57}{64}   &   \frac{9}{64} \\\hline
+4   &   1     &   \frac{3}{4}   &   \frac{219}{256}   &   \frac{27}{256} \\\hline
+\end{array}
+$
+
+Далее выбираем $z\in\left[\frac{3}{4}, \frac{219}{256}\right)$ с~самым коротким двоичным представлением $\implies$ $z=\frac{3}{4}=0,11_2$.
+
+Числу $z = {0,1100\ldots}_2$ соответствует битовый поток $B=110$ и, если первый бит потока записывается старшим разрядом, байт $110_2 = 6$
+(если первый младшим, то $011_2=3$; здесь не рассматриваем).
+
+\vfill
+
+В файл записываются 
+$\underbrace{0004}_n, ~ \underbrace{0300\,0100}_{\vec{\nu}}$ и~код $6$.
+
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Д-1 [декодирование, вариант 1]: чтение $z$ целиком}
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+$\underbrace{0004}_n, ~ \underbrace{0300\,0100}_{\vec{\nu}}, ~ \underbrace{6}_{\text{код}}$, 
+откуда $n=4$, 
+\begin{tabular}{|c|cc|}\hline
+$j$       &  1 &  2 \\\hline
+$\xi_j$   &  1  &  5 \\\hline
+$\nu_j$   &  3  &  1 \\\hline
+\end{tabular},
+%
+$D=4$.
+
+
+
+Пусть после прочтения всех байтов кода битовый поток выдаёт отказ:
+
+$
+\begin{array}{@{}l|c|cc|c|}
+k &   b_k &  \lambda_k & \tau_k & \delta_k    \\\hline
+0   &   -     &   0   &   1   &   1 \\\hline
+1   &   1     &   \frac{1}{2}   &   1   &   \frac{1}{2} \\\hline
+2   &   1     &   \frac{3}{4}   &   1   &   \frac{1}{4} \\\hline
+3   &   0     &   \frac{3}{4}   &   \frac{7}{8}   &   \frac{1}{8} \\\hline
+4   &   -     &   \frac{3}{4}   &   -   &   0 \\\hline
+\end{array}
+$
+битовый поток прочитан до конца, $z=\frac{3}{4}=0,11_2$.
+
+$
+\begin{array}{@{}l|c|cc|c|ccc|l}
+i   & c_i &   l_i & t_i & \Delta_i & \Omega^0_i & \Omega^1_i& \Omega^2_i  & \text{комментарий} \\\hline
+0   &   - &   0   &   1   &   1   &   0   &   \frac{3}{4} &   1     & z \in [\Omega^1_i, \Omega^2_i) \\\hline
+1   & 5   &   \frac{3}{4}   &   1   &   \frac{1}{4}     &   \frac{3}{4}   &   \frac{15}{16}&   1     & z \in [\Omega^0_i, \Omega^1_i) \\\hline
+2 & 1 &   \frac{3}{4}  &  \frac{15}{16}   &   \frac{3}{16}     &   \frac{3}{4}   &  \frac{57}{64} & \frac{15}{16}    & z \in [\Omega^0_i, \Omega^1_i) \\\hline
+3 & 1 &   \frac{3}{4}  &  \frac{57}{64}   &   \frac{9}{64}     &   \frac{3}{4}   &  \frac{219}{256} & \frac{57}{64}    & z \in [\Omega^0_i, \Omega^1_i) \\\hline
+4 & 1 &   \frac{3}{4}  &  \frac{219}{256}   &   \frac{27}{256}     &   \frac{3}{4}   &  \frac{849}{1024} & \frac{219}{256}    & i=n \\\hline
+\end{array}
+$
+
+$C = 5111$
+
+\end{adjustwidth}
+\end{frame}
+
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+Пусть после прочтения всех байтов кода битовый поток выдаёт нули:
+
+$
+\begin{array}{@{}l|c|cc|c|l|c|cc|c|ccc|l}
+k &   b_k &  \lambda_k & \tau_k & \delta_k & i   & c_i &   l_i & t_i & \Delta_i & \Omega^0_i & \Omega^1_i& \Omega^2_i  & \text{комментарий}   \\\hline
+0   &   -     &   0   &   1   &   1&&&&&&&&&  \\\hline
+1   &   1     &   \frac{1}{2}   &   1   &   \frac{1}{2} &&&&&&&&&  \\\hline
+2   &   1     &   \frac{3}{4}   &   1   &   \frac{1}{4} &&&&&&&&&  \\\hline
+3   &   0     &   \frac{3}{4}   &   \frac{7}{8}   &   \frac{1}{8}&&&&&&&&&  \\\hline
+4   &   0     &   \frac{3}{4}   &   \frac{13}{16}   &   \frac{1}{16} &&&&&&&&&\frac{13}{16}=\frac{52}{64}=\frac{208}{256}\\\hline
+5   &   0     &   \frac{3}{4}   &   \frac{25}{32}   &   \frac{1}{32} &&&&&&&&&\frac{25}{32}=\frac{50}{64}=\frac{200}{256}\\\hline
+&&&&& 0   &   - &   0   &   1   &   1   &   0   &   \frac{3}{4} &   1     &  \\\hline
+&&&&& 1   & 5   &   \frac{3}{4}   &   1   &   \frac{1}{4}     &   \frac{3}{4}   &   \frac{15}{16}&   1 & \\\hline   
+&&&&& 2 & 1 &   \frac{3}{4}  &  \frac{15}{16}   &   \frac{3}{16}     &   \frac{3}{4}   &  \frac{57}{64} & \frac{15}{16}    &  \\\hline
+&&&&& 3 & 1 &   \frac{3}{4}  &  \frac{57}{64}   &   \frac{9}{64}     &   \frac{3}{4}   &  \frac{219}{256} & \frac{57}{64}    &\\\hline
+&&&&& 4 & 1 &   \frac{3}{4}  &  \frac{219}{256}   &   \frac{27}{256}     &   \frac{3}{4}   &  \frac{849}{1024} & \frac{219}{256}    & i=n \\\hline
+\end{array}
+$
+
+$C = 5111$
+
+На каком $k$ остановиться?
+
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Д-2 [декодирование, вариант 2]: чтение $z$ побитово}
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+% \scriptsize
+% \setbeamertemplate{itemize/enumerate body begin}{\scriptsize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\scriptsize}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+% Пусть после прочтения всех байтов кода битовый поток выдаёт нули:
+
+
+$
+\begin{array}{@{}l|c|cc|c|l|c|cc|c|ccc|l}
+k &   b_k &  \lambda_k & \tau_k & \delta_k & i   & c_i &   l_i & t_i & \Delta_i & \Omega^0_i & \Omega^1_i& \Omega^2_i  & \text{комментарий}   \\\hline
+0   &   -     &   0   &   1   &   1&0   &   - &   0   &   1   &   1   &   0   &   \frac{3}{4} &   1     &  \\\hline
+1   &   1     &   \frac{1}{2}   &   1   &   \frac{1}{2} &&&&&&&&& \lambda_k \in [\Omega^0_i, \Omega^1_i), \tau_k \in [\Omega^1_i, \Omega^2_i)\\\hline
+2   &   1     &   \frac{3}{4}   &   1   &   \frac{1}{4} &&&&&&&&& [\lambda_k, \tau_k) \subseteq [\Omega^1_i, \Omega^2_i) \\\hline
+&&&&& 1   & 5   &   \frac{3}{4}   &   1   &   \frac{1}{4}     &   \frac{3}{4}   &   \frac{15}{16}&   1 & 
+\lambda_k \in [\Omega^0_i, \Omega^1_i), \tau_k \in [\Omega^1_i, \Omega^2_i)\\\hline   
+3   &   0     &   \frac{3}{4}   &   \frac{7}{8}   &   \frac{1}{8}&&&&&&&&&
+\frac{7}{8} = \frac{14}{16} \implies [\lambda_k, \tau_k) \subseteq [\Omega^0_i, \Omega^1_i) \\\hline
+&&&&& 2 & 1 &   \frac{3}{4}  &  \frac{15}{16}   &   \frac{3}{16}     &   \frac{3}{4}   &  \frac{57}{64} & \frac{15}{16}    & \frac{7}{8} = \frac{56}{64} \\\hline
+&&&&& 3 & 1 &   \frac{3}{4}  &  \frac{57}{64}   &   \frac{9}{64}     &   \frac{3}{4}   &  \frac{219}{256} & \frac{57}{64}    &\frac{7}{8} = \frac{224}{256} \\\hline
+4   &   0     &   \frac{3}{4}   &   \frac{13}{16}   &   \frac{1}{16} &&&&&&&&&\frac{13}{16}=\frac{208}{256}\\\hline
+&&&&& 4 & 1 &   \frac{3}{4}  &  \frac{219}{256}   &   \frac{27}{256}     &   \frac{3}{4}   &  \frac{849}{1024} & \frac{219}{256}    & i=n \\\hline
+\end{array}
+$
+
+% \vfill 
+
+
+$C = 5111$
+
+% \vfill 
+
+Варианты 1 и 2 "--- крайние случаи; при точных вычислениях можно комбинировать шаги по $k$ и~$i$ произвольно ($i$ "--- не раньше, чем в~варианте 2).
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\section{Целочисленный AC: параметры и~кодирование}
+
+\subsection{Выбор $N$; параметры}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+% \setlength{\leftmarginiv}{0em} 
+
+В~общем случае $N \gg 4 D^2$ (при $D=4$: $4 D^2 = 64$) и~$N\cdot D \leqslant \max(type)$; % (для $D=4$ и~рассматриваемых $N$ верно).
+
+в~частности, при $D>10$ возможно $N = 4 D^3$.
+%
+Для $D=4$ нельзя сказать $4 D^3 \gg 4 D^2$, но
+%:
+%
+% \begin{itemize}
+% 
+% \item 
+при $D = 2^{\logD}$ вычисления точнее (но никогда не абсолютно точны!) %;
+% 
+% \item при $T=2$ не $\Delta>\frac{N}{4}$, а~$\Delta>\frac{N}{2}$, то есть необходимо $N \gg 2 D^2$;
+% 
+% \end{itemize}
+%
+$\implies$
+возьмём $N = 4 D^3 = 256$.
+
+% Для сообщения $C = 5111$, 
+% \begin{tabular}{|c|ccc|}\hline
+% $j$       &  0&1 &  2 \\\hline
+% $\xi_j$   &  --&1  &  5 \\\hline
+% $\nu_j$   &  --&3  &  1 \\\hline
+% $\omega_j$& 0 & 3 & 4 \\\hline
+% \end{tabular}
+% с~$D=4$ и~делением на два ПИ (то есть в~данном случае не $\Delta>\frac{N}{4}$, а~$\Delta>\frac{N}{2}$)
+
+\hrulefill
+
+
+$N = 2^\alpha \geqslant 4 D^3$ "--- для побитовой записи со своевременным масштабированием, включая масштабирование «из средней половины» $\left[\frac{N}{4}, \frac{3N}{4}\right) \to \left[0, N\right)$ (переменная $\beta$).
+
+\begin{enumerate}
+
+\item Любое снижение точности "--- побайтовая запись, отложенное масштабирование
+$\implies$ увеличение $N$.
+
+\item
+Отказ от~$\beta %\left[\frac{N}{4}, \frac{3N}{4}\right) \to \left[0, N\right)
+$ $\implies$ 
+%невозможность точной оценки снизу ~~~ <<< код длиннее, но ДК д.б однозначно
+$\Delta \geqslant 1$ вместо $\Delta \geqslant \frac{N}{4}$
+$\implies$ невозможность оценить необходимое $N$.
+% $\implies$ не только увеличение $N$, но 
+% % и~возможность полной потери  точности.
+% % и~нестабильная дл
+
+% Сжатия может не быть, но 
+
+\textcolor{gray}
+{
+Худший случай без $\beta$ для $T>2$: 
+рабочий ПИ $[l, t) 
+= \left[\frac{N}{2}-1, \frac{N}{2}\right] 
+= \left[\frac{N}{2}-1, \frac{N}{2}+1\right)
+$ 
+из двух пикселей и~на границе 0/1 "--- 
+% и~масштабировать нельзя, и~разделить хотя бы на три части нельзя.
+невозможно ни~масштабирование, ни деление на $T$ частей.
+\\
+Возможен без $\beta$ для любых $\frac{N}{D}$ при особенно неудачном исходном тексте.
+% однозначно не можем даже без пропорциональности длин.
+}
+\end{enumerate}
+
+\hrulefill
+
+\vfill
+
+% Ещё при $T=2$ невозможно масштабирование «из средней половины» $\left[\frac{N}{4}, \frac{3N}{4}\right) \to \left[0, N\right)$, 
+% поэтому~$\beta \equiv 0$
+% и~не показывается в~таблицах ниже.
+% 
+% \vfill
+% ^^^ Возможно!!! ^^^ поэтому и выше всё-таки >> 4D^2, а не 2
+
+\begin{tabular}{|c|ccc|}\hline
+$j$       &  0&1 &  2 \\\hline
+$\xi_j$   &  --&1  &  5 \\\hline
+$\nu_j$   &  --&3  &  1 \\\hline
+$\omega_j$& 0 & 3 & 4 \\\hline
+\end{tabular}
+\begin{tabular}{l}
+$D = \omega_0 = 4$,\\
+деление ПИ $[l, t)$ длины $\Delta=t-l$ \\
+на ПИ  $[\Omega_0, \Omega_1)$ для $\xi_1=1$ и~ПИ $[\Omega_1, \Omega_2)$  для $\xi_2=5$:
+% \\
+% $\Omega_0 = l + \frac{\omega_0\cdot\Delta}{D} = l;$
+% $\Omega_1 = l + \frac{\omega_1\cdot\Delta}{D} = l + \frac{3\Delta}{4};$
+% $\Omega_2 = l + \frac{\omega_2\cdot\Delta}{D} = l + \Delta = t.$
+\end{tabular}
+
+$\Omega_0 = l + \frac{\omega_0\cdot\Delta}{D} = l;$\hfill
+$\Omega_1 = l + \frac{\omega_1\cdot\Delta}{D} = l + \frac{3\Delta}{4};$\hfill
+$\Omega_2 = l + \frac{\omega_2\cdot\Delta}{D} = l + \Delta = t;$\hfill
+округление вниз.
+
+\vfill
+
+Рассмотрим, кроме $C = 5111$, ещё $\widetilde{C} = 5111\,1115$ с~той же таблицей частот.
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Кодирование 5111, $N = 256$}
+
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+% $C = 5111$, 
+% % $n=4$, %
+% % $T=2$, 
+% \begin{tabular}{|c|ccc|}\hline
+% $j$       &  0&1 &  2 \\\hline
+% $\xi_j$   &  --&1  &  5 \\\hline
+% $\nu_j$   &  --&3  &  1 \\\hline
+% $\omega_j$& 0 & 3 & 4 \\\hline
+% \end{tabular},
+% %
+% \begin{tabular}{l}
+% $D=\omega_2=4$, $N=256;$
+% \\
+% $\frac{N}{4}=64, \frac{N}{2}=128, \frac{3N}{4}=192.$
+% \end{tabular}
+
+
+
+$C = 5111$: $\vec{\omega} = (0, 3, 4)$, $D=4$; $N=256$
+$\Big( \frac{N}{4}=64, \frac{N}{2}=128, \frac{3N}{4}=192 \Big)$:
+
+\vfill
+
+
+$
+\begin{array}{@{}l|c|c|c|c|cc|c|l|l}
+i & c_i & k & b_k & \beta  & l & t & \Delta & \text{комментарий} & z ~\text{(двоичное)}\\\hline
+0 & -   &0&-& 0&    0   &   256   &   256 &&    0,b_1 b_2 b_3 b_4 \ldots     \\\hline
+1 & 5   &&&&   192   &   256   &   64 &
+[l, t) \subseteq \left[\frac{N}{2}, N\right) \implies 1; ~~  \left[\frac{N}{2}, N\right) \to \left[0, N\right) &    0,1 b_2 b_3 b_4 \ldots 
+\\\hline
+  &     & 1 & 1& 0  & 128 & 256 & 128       &     
+  [l, t) \subseteq \left[\frac{N}{2}, N\right) \implies 1; ~~  \left[\frac{N}{2}, N\right) \to \left[0, N\right)&    0,1 1 b_3 b_4 \ldots   
+  \\\hline
+  &     & 2 & 1& 0  & 0 & 256 & 256       &   \\\hline  
+2 & 1   &&&&   0   &   192   &   192 \\\hline
+3 & 1   &&&&   0   &   144   &   144 \\\hline
+4 & 1   &&&&   0   &   108   &   108 &
+  [l, t) \subseteq \left[0, \frac{N}{2}\right) \implies 0; ~~  \left[0, \frac{N}{2}\right) \to \left[0, N\right)&    0,1 1 0 b_4 \ldots 
+  \\\hline
+  &     & 3 & 0 & 0  & 0 & 216 & 216       & i=n, ~ \text{нельзя масштабировать}  \to \text{завершение} \\\hline  
+\end{array}
+$
+
+В~выходном потоке $110$ "--- это дробная часть пикселя 0 (код пикселя $N$ "--- $110(1)$);
+
+код сообщения "--- дробная часть \emph{любой} точки, изображение которой лежит в $[l, t)$.
+
+\vfill
+
+$ 0\in  [l, t)$, поэтому код остаётся как есть: $110_2 = 6$;
+%
+в файл записываются 
+$\underbrace{0004}_n, ~ \underbrace{0300\,0100}_{\vec{\nu}}$ и~код $6$.
+
+Если $0\notin  [l, t)$: раз нельзя масштабировать, то $\frac{N}{2}\in  [l, t)$ $\implies$ к~коду добавляется одна $1$.
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Кодирование 5111\,1115, $N = 256$}
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+$\widetilde{C} = 5111\,1115$: $\vec{\omega} = (0, 3, 4)$, $D=4$; $N=256$
+$\Big( \frac{N}{4}=64, \frac{N}{2}=128, \frac{3N}{4}=192 \Big)$;
+начало как $C = 5111$:
+
+\vfill
+
+
+$
+\begin{array}{@{}l|c|c|c|c|cc|c|l}
+i & c_i & k & b_k & \beta  & l & t & \Delta & \text{комментарий} \\\hline
+% 0 & -   &0&-& 0&    0   &   256   &   256 &\\\hline
+% 1 & 5   &&&&   192   &   256   &   64 & [l, t) \subseteq \left[\frac{N}{2}, N\right) \implies 1; ~~  \left[\frac{N}{2}, N\right) \to \left[0, N\right) \\\hline
+%   &     & 1 & 1& 0  & 128 & 256 & 128       &     
+%   [l, t) \subseteq \left[\frac{N}{2}, N\right) \implies 1; ~~  \left[\frac{N}{2}, N\right) \to \left[0, N\right) \\\hline
+%   &     & 2 & 1& 0  & 0 & 256 & 256       &   \\\hline  
+% 2 & 1   &&&&   0   &   192   &   192 \\\hline
+% 3 & 1   &&&&   0   &   144   &   144 \\\hline
+4 & 1   &&&&   0   &   108   &   108 &
+%   [l, t) \subseteq \left[0, \frac{N}{2}\right) \implies 0; ~~  \left[0, \frac{N}{2}\right) \to \left[0, N\right) 
+  \\\hline
+  &     & 3 & 0 & 0  & 0 & 216 & 216       & \text{завершение для 5111, но здесь $i<n$} \\\hline  
+\hline 
+5 & 1   &&&&   0   &   81   &   81 &      \\\hline 
+  &     & 4 & 0 & 0  & 0 & 162 & 162       & \\\hline  
+6 & 1   &&&&   0   &   121   &   121 &   \frac{3\cdot 162}{4} = 121,5; ~\text{округление всегда вниз}   \\\hline 
+  &     & 5 & 0 & 0  & 0 & 242 & 242       & \\\hline  
+7 & 1   &&&&   0   &   181   &   181 &      \\\hline 
+8 & 5   &&&&   135   &   181   &   46 &      \\\hline 
+  &     & 6 & 1 & 0  & 14 & 106 & 92       & \\\hline  
+  &     & 7 & 0 & 0  & 28 & 212 & 184       & \text{завершение:} ~ i=n, ~ \text{нельзя масштабировать}\\\hline  
+\end{array}
+$
+
+\vfill
+
+В~выходном потоке $B$ уже находится код $110010$, но $z=0,110010\textcolor{gray!50}{0000\ldots}$ соответствует пикселю 0, который не лежит в~$[l, t)$.
+%
+Несуществующему (и, соответственно, не лежащему в~$[l, t)$) пикселю $N=256$ соответствует бесконечная дробь $z=0,110010(1)$.
+
+Пикселю $\frac{N}{2}=128$ соответствует $z=0,1100101$, и~$128\in [l, t)$ $\implies$ добавляем в~выходной поток ещё 1.
+
+\vfill
+
+Код $B = 110~010~1\textcolor{gray!50}{00}  = 624$; в~файл: $\underbrace{0008}_n, ~ \underbrace{0300\,0100}_{\vec{\nu}}, ~ 624$.
+\vspace*{-2ex}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Всегда ли при большом $N = 2^\alpha$ и~$D=4$ вычисления точные?}
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+% \small
+% \setbeamertemplate{itemize/enumerate body begin}{\small}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\small}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+Для любого $N$ при частотах $0300\,0100$ и~достаточно большой последовательности $1111111...$ вычисления станут неточными:
+
+\begin{itemize}
+\item на два-три шага  чтения $1$ придётся в~среднем одно масштабирование (за два $\Delta$ изменится в~$\frac{9}{16} > \frac{1}{2}$ раз, 
+\mbox{за три в~$\frac{27}{64} < \frac{1}{2}$);}
+\item шаг чтения $1$ увеличивает знаменатель в~4 раза; % (а~$\Delta$ уменьшает в~полтора);
+
+\item масштабирование уменьшает знаменатель только в~2 раза.
+\end{itemize}
+
+\hrulefill
+
+В~общем случае целочисленного AC код а) не совпадает с~концептом \mbox{и~б) может различаться:}
+\begin{itemize}
+\item при разных $N$;
+\item при разной частоте масштабирования;
+\item выполняется или нет масштабирование $\left[\frac{N}{4}, \frac{3N}{4}\right) \to \left[0, N\right)$ («из средней половины»).
+\end{itemize}
+
+\end{adjustwidth}
+\end{frame}
+
+\section{Целочисленный AC: декодирование}
+
+
+% \subsection{Декодирование 0004~0300\,0100~6, $N = 256$ $\Big( \frac{N}{4}=64, \frac{N}{2}=128, \frac{3N}{4}=192 \Big)$}
+\subsection{Д-1 0004~0300\,0100~6=110, $N = 256$ $\Big( \frac{N}{4}=64, \frac{N}{2}=128, \frac{3N}{4}=192 \Big)$}
+
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-6em}{-6em}
+\scriptsize
+
+% $
+% \begin{array}{@{}l|c|c|cc|l|c|cc|c|ccc|l}
+% k &   b_k & \delta &  \lambda & \tau & i   & c_i &   l & t & \Delta & \Omega_0 & \Omega_1& \Omega_2  & \text{комментарий}   \\\hline
+% 0   &   -  &   256   &   0   &   256    & 0   &   - &   0   &   256   &   256   &   0   &   192 &   256     &  \\\hline
+% 1   &   1  &   128   &   128  &   256               &&&&&&&&&  \\\hline
+% 2   &   1  &   64   &   192  &   256             &&&&&&&&& \text{уже можно $c_1 = 5$, но надо проверять и~$\tau$} \\\hline
+% 3   &   0  &   32   &   192   &  224             &&&&&&&&&\\\hline
+% 4   &   0  &   16   &   192   &  208     &&&&&&&&&\\\hline
+% 5   &   0  &   8    &   192   &  200      &&&&&&&&&\\\hline
+% 6   &   0  &   4    &   192   &  196      &&&&&&       &     &         &     \\\hline
+% 7   &   0  &   2    &   192   &  194      &&&&&&       &     &         &     \\\hline
+% 8   &   0  &   1    &   192   &  193      &&&&&&       &     &         & 
+%     \delta=1{:} ~ \text{если  $\lambda \in$ ПИ, то и~$[\lambda, \lambda+1)$ там же}    
+% \\\hline
+% 
+% &&&&& 1   & 5   &   192   &   256   &   64      &       &     &      &  [l, t) \subseteq \left[\frac{N}{2}, N\right) \\\hline   
+% 
+% 
+% &&  2   &   128 & 130   &&&     128 & 256   &   128   &&&&  [l, t) \subseteq \left[\frac{N}{2}, N\right) \\\hline  
+% &&  4   &   0 & 4       &&&     0 & 256   &   256   &&&&  \\\hline  
+% 9   &   0  &   2    &   0   &  2      &&&&&&       &     &         &     \\\hline
+% 10  &   0  &   1    &   0   &  1      &&&&&&       &     &         &    \\\hline
+% 
+% &&&&&&&&&&  0 & 192 & 256 & \text{сравниваем $\lambda$ с~$\Omega_j$} \\\hline
+% 
+% &&&&& 2   & 1   &   0   &   192   &   192       & 0 & 144 & 192 &   \\\hline   
+% &&&&& 3   & 1   &   0   &   144   &   144       & 0 & 108 & 144 &   \\\hline   
+% &&&&& 4   & 1   &   0   &   108   &   108       &  &  &  &  i = n\\\hline   
+% &&  2   &   0 & 2   &&&     0 & 216   &   216   &&&&  \\\hline  
+% 
+% \end{array}
+% $
+
+$
+\begin{array}{@{}l|c|c|cc|l|c|cc|c|ccc|l}
+k &   b_k & \delta &  \lambda & \tau & i   & c_i &   l & t & \Delta & \Omega_0 & \Omega_1& \Omega_2  & \text{комментарий}   \\\hline
+0   &   -  &   256   &   0   &   256    & 0   &   - &   0   &   256   &   256   &   0   &   192 &   256     &  \\\hline
+1   &   1  &   128   &   128  &   256               &&&&&&&&&  \\\hline
+2   &   1  &   64   &   192  &   256             &&&&&&&&&  \\\hline
+3   &   0  &   32   &   192   &  224             &&&&&&&&&\\\hline
+4   &   0  &   16   &   192   &  208     &&&&&&&&&\\\hline
+5   &   0  &   8    &   192   &  200      &&&&&&&&&\\\hline
+6   &   0  &   4    &   192   &  196      &&&&&&       &     &         &     \\\hline
+7   &   0  &   2    &   192   &  194      &&&&&&       &     &         &     \\\hline
+8   &   0  &   1    &   192   &  193      &&&&&&       &     &         & 
+    \delta=1{:} ~ \text{если  $\lambda \in$ ПИ, то и~$[\lambda, \lambda+1)$ там же}    
+\\\hline
+
+&&&&& 1   & 5   &   192   &   256   &   64      &       &     &      &  \\\hline   
+
+
+&&  2   &   128 & 130   &&&     128 & 256   &   128   &&&&  \\\hline  
+&&  4   &   0 & 4       &&&     0 & 256   &   256   &&&&  \\\hline  
+9   &   0  &   2    &   0   &  2      &&&&&&       &     &         &     \\\hline
+10  &   0  &   1    &   0   &  1      &&&&&&       &     &         &    \\\hline
+
+&&&&&&&&&&  0 & 192 & 256 & \text{сравниваем $\lambda$ с~$\Omega_j$} \\\hline
+
+&&&&& 2   & 1   &   0   &   192   &   192       & 0 & 144 & 192 &   \\\hline   
+&&&&& 3   & 1   &   0   &   144   &   144       & 0 & 108 & 144 &   \\\hline   
+&&&&& 4   & 1   &   0   &   108   &   108       &  &  &  &  i = n\\\hline   
+&&  2   &   0 & 2   &&&     0 & 216   &   216   &&&&  \\\hline  
+
+\end{array}
+$
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+% \begin{frame}{\insertsubsection~(продолжение)}
+% \begin{adjustwidth}{-6em}{-6em}
+% \footnotesize 
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\parskip}{0.\parskip}
+% \setlength{\leftmargini}{0em} 
+% \setlength{\leftmarginii}{0em} 
+% \setlength{\leftmarginiii}{0em} 
+% 
+% $
+% \begin{array}{@{}l|c|c|cc|l|c|cc|c|ccc|l}
+% k &   b_k & \delta &  \lambda & \tau & i   & c_i &   l & t & \Delta & \Omega_0 & \Omega_1& \Omega_2  & \text{комментарий}   \\\hline
+% 10  &   0  &   1    &   0   &  1      & 3   & 1   &   0   &   144   &   144       & 0 & 108 & 144 &   \\\hline   
+% 
+% &&&&& 4   & 1   &   0   &   108   &   108       &  &  &  &  [l, t) \subseteq \left[0, \frac{N}{2}\right), ~\text{сравнивать с~$\Omega_j$ будем позже} \\\hline   
+% &&  2   &   0 & 2   &&&     0 & 216   &   216   &&&&  \\\hline  
+% 
+% \end{array}
+% $
+% 
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+
+\subsection{Д-2 0004~0300\,0100~6, $N = 256$ $\Big( \frac{N}{4}=64, \frac{N}{2}=128, \frac{3N}{4}=192 \Big)$}
+
+
+\begin{frame}{\insertsubsection~(только начало)}
+\begin{adjustwidth}{-6em}{-6em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+$
+\begin{array}{@{}l|c|c|cc|l|c|cc|c|ccc|l}
+k &   b_k & \delta &  \lambda & \tau & i   & c_i &   l & t & \Delta & \Omega_0 & \Omega_1& \Omega_2  & \text{комментарий}   \\\hline
+0   &   -  &   256   &   0   &   256    & 0   &   - &   0   &   256   &   256   &   0   &   192 &   256     &  \\\hline
+1   &   1  &   128   &   128  &   256               &&&&&&&&&  \\\hline
+2   &   1  &   64   &   192  &   256             &&&&&&&&& [\lambda, \tau) \subseteq [\Omega_1, \Omega_2) \\\hline
+&&&&& 1   & 5   &   192   &   256   &   64      &       &     &      &  [l, t) \subseteq \left[\frac{N}{2}, N\right) \\\hline   
+
+&&  128   &   128 & 256   &&&     128 & 256   &   128   &&&&   \\\hline  
+\end{array}
+$
+\vfill
+...
+\vfill\vfill
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Д-1 0008~0300\,0100~624=110\,010\,100, $N = 256$ $\Big( \frac{N}{4}=64, \frac{N}{2}=128, \frac{3N}{4}=192 \Big)$}
+
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-6em}{-6em}
+\footnotesize
+
+
+$
+\begin{array}{@{}l|c|c|cc|l|c|cc|c|ccc|l}
+k &   b_k & \delta &  \lambda & \tau & i   & c_i &   l & t & \Delta & \Omega_0 & \Omega_1& \Omega_2  & \text{комментарий}   \\\hline
+0   &   -  &   256   &   0   &   256    & 0   &   - &   0   &   256   &   256   &   0   &   192 &   256     &  \\\hline
+1   &   1  &   128   &   128  &   256               &&&&&&&&&  \\\hline
+2   &   1  &   64   &   192  &   256             &&&&&&&&&  \\\hline
+3   &   0  &   32   &   192   &  224             &&&&&&&&&\\\hline
+4   &   0  &   16   &   192   &  208     &&&&&&&&&\\\hline
+5   &   1  &   8    &   200   &  208      &&&&&&&&&\\\hline
+6   &   0  &   4    &   200   &  204      &&&&&&       &     &         &     \\\hline
+7   &   1  &   2    &   202   &  204      &&&&&&       &     &         &     \\\hline
+8   &   0  &   1    &   202   &  203      &&&&&&       &     &         & 
+    \lambda = 202_{10} = 11001010_2 = B[1...8]
+\\\hline
+
+&&&&& 1   & 5   &   192   &   256   &   64      &       &     &      &  \\\hline   
+
+
+&&  2   &   148 & 150   &&&     128 & 256   &   128   &&&&  \\\hline  
+&&  4   &   40 & 44   &&&     0 & 256   &   256   &&&&  \\\hline  
+
+9   &   0  &   2    &   40   &  42      &&&&&&       &     &         &     \\\hline
+10  &   0  &   1    &   40   &  41      &&&&&&   0   &   192 &   256     & \\\hline
+
+
+\end{array}
+$
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\begin{frame}{\insertsubsection~(продолжение)}
+\begin{adjustwidth}{-6em}{-6em}
+\footnotesize
+
+
+$
+\begin{array}{@{}l|c|c|cc|l|c|cc|c|ccc|l}
+k &   b_k & \delta &  \lambda & \tau & i   & c_i &   l & t & \Delta & \Omega_0 & \Omega_1& \Omega_2  & \text{комментарий}   \\\hline
+
+10  &   0  &   1    &   40   &  41      &&&0&256&256&   0   &   192 &   256     & \\\hline
+
+&&&&& 2   & 1   &   0   &   192   &   192       & 0 & 144 & 192 &   \\\hline   
+&&&&& 3   & 1   &   0   &   144   &   144       & 0 & 108 & 144 &   \\\hline   
+&&&&& 4   & 1   &   0   &   108   &   108       &  &  &  &  \\\hline   
+&&  2   &   80 & 82   &&&     0 & 216   &   216   &&&&  \\\hline  
+
+11  &   0  &   1    &   80   &  81      &&&&&&      &    &        & \\\hline
+
+% 11  &   0  &   1    &   80   &  81      &&&     0 & 216   &   216       & 0 & 162 & 216 & \\\hline
+
+&&&&& 5   & 1   &   0   &   162   &   162       & 0 & 121 & 162 &   \\\hline  %121,5 
+&&&&& 6   & 1   &   0   &   121   &   121       &  &  &  &  \\\hline   
+
+&&  2   &   160 & 162   &&&     0 & 242   &   242   &&&&  \\\hline  
+12  &   0  &   1    &   160   &  161      &&&&&&     0 & 181 &  242 & \\\hline %181,5 
+
+&&&&& 7   & 1   &   0   &   181   &   181       & 0 & 135 & 181 &  \\\hline   
+&&&&& 8   & 5   &   0   &   135   &   181       &  &  &  & i=n \\\hline   
+\end{array}
+$
+
+
+\end{adjustwidth}
+\end{frame}
+
+\section{Целочисленный AC: побайтовая запись}
+
+
+
+
+\begin{frame}{\insertsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+
+\begin{itemize}
+\item В~начале Д-1 для $N=2^\alpha$ читается $\alpha$ бит до $\delta =1$.
+%
+Целое число $k$-битных байтов $\implies$ $\alpha$ делится на $k$.
+
+\vfill
+
+\item Запись кода байтами вместо битов "--- отложенное масштабирование
+
+$\implies$ $N$ должно быть больше, чем для побитовой записи.
+
+\end{itemize}
+\vfill
+
+\vspace*{-1ex}
+\hrulefill
+
+\vfill
+\begin{enumerate}
+
+\item Для чтения/записи кода 3-битными байта рассмотрим $N=2^9 = 512$, 
+
+тогда все пиксели (в~том числе $l$ и~$t$) имеют координаты из $[0, 512)$ "--- $\frac{\alpha}{k}=\frac{9}{3}=3$-байтовые.
+
+Все числа запишем \termin{в~восьмеричной системе} (цифра=трёхбитный байт): все пиксели $\frac{\alpha}{k}=3$-значные.
+\vfill
+
+\item При масштабировании записывается целый \termin{байт}, а~длины $\Delta$ и~$\delta$ увеличиваются не в~два, а~в~$2^k$ раз \textcolor{gray}{(для трёхбитного байта "--- в~восемь раз):}
+
+\begin{itemize}
+\item ПИ $[0, N)$ делится не на две половины (бит 0 и бит 1), а~на $S=2^k$ частей \textcolor{gray}{(для $k=3$ на восемь):}
+
+для $0 \leqslant b < S$ границы байта $b$: $\left[\frac{b\cdot N}{S}, \frac{(b+1)\cdot N}{S} \right)$ 
+\textcolor{gray}{$\Big[b00, (b+1)00\Big) = \Big[b00, b77\Big]$}
+
+\item все пиксели, принадлежащие  ПИ $\left[\frac{b\cdot N}{S}, \frac{(b+1)\cdot N}{S} \right)$, имеют одинаковый старший байт $b$ (старший из $\frac{\alpha}{k}$ значащих, а~не в~целом типе);
+
+\item %если 
+$[l, t) \subseteq \left[\frac{b\cdot N}{2^k}, \frac{(b+1)\cdot N}{2^k} \right)$
+% , в~выходной поток записывается байт $b$, а
+%
+\hfill$\implies$\hfill
+%
+запись байта $b$  и~
+$\left\{
+\begin{array}{l@{~=~}l@{\textcolor{gray}{~=~}}l}
+l_{\text{новое}} & 2^k\cdot(l-\frac{b\cdot N}{2^k})    & \textcolor{gray}{10_8\cdot(l-b00),}\\
+t_{\text{новое}} & 2^k\cdot(t-\frac{b\cdot N}{2^k})    & \textcolor{gray}{10_8\cdot(t-b00).}\\
+\end{array}
+\right.
+$
+
+\end{itemize}
+
+
+
+% \item Всего $k$-битных значений может быть $2^k$   $\implies$  ПИ $[0, N)$ делится не на две половины (бит 0 и бит 1), а~на $2^k$ частей 
+% (для трёхбитного байта "--- на восемь).
+% \vfill
+% 
+% \item В~каждой из $2^k$ частей старший байт значений пикселей одинаков (для деления на восемь частей по~трёхбитным байтам "--- 0, 1, 2, 3, 4, 5, 6, 7).
+% \vfill
+% 
+% \item При масштабировании записывается целый \termin{байт}, а~длины $\Delta$ и~$\delta$ увеличиваются не в~два, а~в~$2^k$ раз (для трёхбитного байта "--- в~восемь раз).
+% 
+% % Запись байта с~масштабированием:
+% % \begin{itemize}
+% % \item выполняются, когда $l$ и~$t$ попадут в~одну и~ту же из  $2^k$ частей (в~одну и~ту же восьмую долю);
+% % \item то есть когда у~$l$ и~$h=t-1$ будет одинаковый старший байт (из $\frac{\alpha}{k}$, а~не в~целом типе): $\hi(l) = \hi(h)$;
+% % \item и~этот старший байт идёт в~код;
+% % \item масштабирование увеличивает $\Delta$ и~$\delta$ не в~два, а~в~$2^k$ раз (для трёхбитного байта "--- в~восемь раз);
+% % \item аналога масштабированию $\left[\frac{N}{4}, \frac{3N}{4}\right) \to \left[0, N\right)$, 
+% % поэтому~$\beta$ не используется.
+% % \end{itemize}
+\vfill
+\item Из статей: аналога $\left[\frac{N}{4}, \frac{3N}{4}\right) \to \left[0, N\right)$ нет, 
+поэтому~$\beta$ не используется 
+(аналог можно придумать, но побитовое со всем возможным масштабированием всё равно точнее; реализация без $\beta$ "--- быстрее).
+
+\end{enumerate}
+% \vfill
+% 
+% \vspace*{-1ex}
+% \hrulefill
+% 
+% \vfill
+
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+% \subsection{Масштабирование (трёхбитные байты $\Leftrightarrow$ запись в~восьмеричной СС), $\frac{\alpha}{k}=3$ байта}
+% \subsection{Масштабирование битовыми операциями на ПИ и~отрезках}
+\subsection{Масштабирование битовыми операциями}
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+% \begin{enumerate}
+
+% \item Масштабирование битовыми операциями на ПИ и~отрезках:
+\begin{itemize}
+\item Масштабирование арифметическими операциями выполняется единообразно:
+
+$\exists b{:} ~~ \frac{b\cdot N}{2^k} \leqslant l $ и~$t \leqslant \frac{(b+1)\cdot N}{2^k}$
+\hfill$\implies$\hfill
+запись байта $b$  и
+$\left\{
+\begin{array}{l@{~=~}l@{\textcolor{gray}{~=~}}l}
+l_{\text{новое}} & 2^k\cdot(l-\frac{b\cdot N}{2^k})    & \textcolor{gray}{10_8\cdot(l-b00),}\\
+t_{\text{новое}} & 2^k\cdot(t-\frac{b\cdot N}{2^k})    & \textcolor{gray}{10_8\cdot(t-b00);}\\
+\end{array}
+\right.
+$
+
+% \vfill
+% \item пусть 
+% % $\alpha$ бит "--- полный размер целочисленного 
+% % типа $l$ и~$h$ 
+% $\frac{\alpha}{k}=\sizeof(l)$,
+% тогда: а) невозможно $t=N$: либо $t=0$ вместо него, либо  тогда пересчёт )
+
+% \vfill
+
+\item для $l% < t \leqslant \frac{(b+1)\cdot N}{2^k}
+$ это побитовый сдвиг влево на байт 
+% + обнуление всего, кроме младших $$
+\textcolor{gray}{($l = b x_1 x_2 ~\to~ l_{\text{новое}} = x_1 x_2 0$)}
+в~рамках $\alpha$ бит;
+
+
+% \vfill
+
+\item если $t < \frac{(b+1)\cdot N}{2^k}$, то для $t$ это тоже сдвиг
+\textcolor{gray}{($t = b y_1 y_2 ~\to~ t_{\text{новое}} = y_1 y_2 0$)} в~рамках $\alpha$ бит;
+
+но если $t = \frac{(b+1)\cdot N}{2^k} \textcolor{gray}{~= (b+1)00}$, то 
+$t_{\text{новое}} = N$
+\textcolor{gray}{$= 1000$
+вместо $000$;
+}
+% \vfill
+
+
+% \item в~итоге для реализации сдвигами на ПИ рассматриваем два случая:
+% 
+% а) если $\hi(l) = \hi(t) = b$ $\implies$ запись $b$ и~$\left\{
+% \begin{array}{l@{~=~}l}
+% l_{\text{новое}} & (l \mathbin{\mathrm{shl}} k) \And (N-1),\\
+% t_{\text{новое}} & (t \mathbin{\mathrm{shl}} k) \And (N-1);\\
+% \end{array}
+% \right.
+% $
+% ~
+% \textcolor{gray}{\rlap{$N-1=2^\alpha-1 = 00...00\underbrace{11...11}_{\alpha~\text{бит}}$}}
+% 
+% б) если $\hi(l) = b$~и~$t = (b+1)00$ $\implies$ запись $b$ и~$\left\{
+% \begin{array}{l@{~=~}l}
+% l_{\text{новое}} & (l \mathbin{\mathrm{shl}} k) \And (N-1),\\
+% t_{\text{новое}} & N; %\textcolor{gray}{~= 100...00;}\\
+% \end{array}
+% \right.
+% $
+% \vfill
+% 
+% расчёт новых $l$ и~$t$ в~случаях (а) и~(б) можно объединить: $l_{\text{новое}} = (l \mathbin{\mathrm{shl}} k) \And (N-1)$ всегда;
+% 
+% пусть
+% $
+% t_{\text{нн}} = (t \mathbin{\mathrm{shl}} k) \And (N-1)
+% $, 
+% тогда
+% \rlap{$
+% t_{\text{новое}} = \left\{
+% \begin{array}{ll}
+% t_{\text{нн}}, & t_{\text{нн}} \neq 0\\
+% N,  &  t_{\text{нн}} = 0\\
+% \end{array}
+% \right.
+% % \right\}
+% ~~
+% = t_{\text{нн}} + N\cdot(t_{\text{нн}} = 0).
+% $}
+
+
+таким образом, 
+$
+t_{\text{новое}} = 
+\left\{
+\begin{array}{ll}
+(t \mathbin{\mathrm{shl}} k) {\And} (N-1), & t < \frac{(b+1)\cdot N}{2^k},\\
+N, & t = \frac{(b+1)\cdot N}{2^k} \Leftrightarrow (t \mathbin{\mathrm{shl}} k){\And}(N-1) = 0;
+\end{array}
+\right.
+$
+
+% расчёт новых $l$ и~$t$ в~случаях (а) и~(б) можно объединить: $l_{\text{новое}} = (l \mathbin{\mathrm{shl}} k) \And (N-1)$ всегда;
+
+пусть
+$
+t_{\text{нн}} = (t \mathbin{\mathrm{shl}} k) \And (N-1)
+$, 
+тогда
+\rlap{$
+t_{\text{новое}} = \left\{
+\begin{array}{ll}
+t_{\text{нн}}, & t_{\text{нн}} \neq 0\\
+N,  &  t_{\text{нн}} = 0\\
+\end{array}
+\right.
+% \right\}
+~~
+= t_{\text{нн}} + N\cdot(t_{\text{нн}} = 0).
+$}
+
+\vfill
+
+\item в~итоге для реализации битовыми операциями на ПИ:
+
+для $b=\hi(l)$ верно $t \leqslant \frac{(b+1)\cdot N}{2^k}$
+$\implies$
+запись $b$  и
+\rlap{%
+$\left\{
+\begin{array}{l@{~=~}l}
+l_{\text{новое}} & (l \mathbin{\mathrm{shl}} k) \And (N-1),\\
+t_{\text{новое}} & t_{\text{нн}} + N\cdot(t_{\text{нн}} = 0)
+, ~\text{где}~t_{\text{нн}} = (t \mathbin{\mathrm{shl}} k) \And (N-1);
+\\
+\end{array}
+\right.
+$}
+
+\vfill
+
+
+\item для реализации на отрезках можно обнаружить попадание в~одну из $2^k$ частей как
+% \textcolor{gray}{(в~осьмушку):}
+$\hi(l) = \hi(h) = b$;
+ 
+$h_{\text{новое}}=t_{\text{новое}}-1 ~~=~~ t_{\text{нн}} + N\cdot(t_{\text{нн}} = 0) -1,$
+~
+где
+~
+$
+t_{\text{нн}} = \Big((h+1) \mathbin{\mathrm{shl}} k\Big) \And (N-1).
+$
+
+
+% % при расчёте $h_{\text{новое}}$ тоже надо учитывать случай $h = \frac{(b+1)\cdot N}{2^k}-1$:
+% % 
+% % % и~отличать %корректное 
+% % % \rlap{$h_{\text{новое}}=-1 ~\to~ h_{\text{новое}}=N-1$}
+% % % \\
+% % % после масштабирования (норма) от $h_{\text{новое}}=-1$ после чтения $c_i$ и~дробления $[l, h]$ (авост):
+% 
+% % пусть
+% также
+% $
+% t_{\text{н}} = \Big((h+1) \mathbin{\mathrm{shl}} k\Big) \And (N-1)
+% $, тогда
+% \rlap{$
+% h_{\text{новое}}  
+% % =\left\{
+% % % \begin{array}{ll@{~\Leftrightarrow~}l}
+% % % t_{\text{н}} -1  ,& h < \frac{(b+1)\cdot N}{2^k}-1& t_{\text{н}} \neq 0\\
+% % % N-1,  & h = \frac{(b+1)\cdot N}{2^k}-1 & t_{\text{н}} = 0\\
+% % % \end{array}
+% % \begin{array}{ll}
+% % t_{\text{н}} -1, & t_{\text{н}} \neq 0\\
+% % N-1,  &  t_{\text{н}} = 0\\
+% % \end{array}
+% % \right.
+% % % \right\}
+% % ~~
+% = t_{\text{н}} + N\cdot(t_{\text{н}} = 0) -1.
+% $}
+% 
+% 
+% % Недостаточно сравнить $h_{\text{новое}}$ с~$-1$, так как это может быть и~при~$l=h=000$.
+
+
+\end{itemize}
+ 
+% \item для ПИ $[l, t) \subseteq [200, 300)$ 
+% % у~$l$ всегда старший байт $2$, 
+% всегда $\hi(l) = 2$,
+% но $t$ может быть $300$
+% $\implies$
+% случай $t = (b+1)00$ надо рассматривать отдельно;
+
+% \item Запись байта с~масштабированием выполняется, когда $l$ и~$t$ попадут в~одну и~ту же из  $2^k$ частей (в~одну и~ту же восьмую долю).
+% \vfill
+% \item Восьмые доли имеют вид $\Big[ b00, (b+1)00 \Big)$, где $b\in \{0, 1, 2, 3, 4, 5, 6, 7 \}$,
+% например, \rlap{$[200, 300) = [200, 277]$:}
+% 
+% \begin{itemize}
+% \item все пиксели, принадлежащие этому ПИ, имеют одинаковый старший  (из $\frac{\alpha}{k}$, а~не в~целом типе) байт $b$
+% (для $z \in [200, 300)$ это байт $b=2$);
+% % "--- байт $b$ записывается в~выходной поток при масштабировании;
+% 
+% \vfill
+% \item для ПИ $[l, t) \subseteq [200, 300)$ 
+% % у~$l$ всегда старший байт $2$, 
+% всегда $\hi(l) = 2$,
+% но $t$ может быть $300$
+% $\implies$
+% случай $t = (b+1)00$ надо рассматривать отдельно;
+% 
+% \vfill
+% \item поэтому побайтовый АС проще  на отрезках:  $ [l, h] \subseteq [200, 300) ~ \Leftrightarrow ~ \hi(l) = \hi(h) = 2$.
+% \vfill
+% 
+% 
+% \end{itemize}
+% 
+% % \hrulefill
+% % 
+% % Если побайтовый АС реализуется на ПИ, то случай $t = (b+1)00$ надо рассматривать отдельно:
+% 
+% 
+% \item Если для ПИ либо~$\hi(l) = \hi(t) = b$, либо $\hi(l) = b$~и~$t = (b+1)00$ $\Big/$
+% для отрезков $\hi(l) = \hi(h) = b$:
+% \begin{itemize}
+% \item в~выходной поток записывается байт $b$;
+% 
+% \item
+% % $\left\{
+% % \begin{array}{l@{~=~}l@{~=~}l}
+% % l_{\text{новое}} & 2^k\cdot(l-b00)    & 8\cdot(l-b) ~\text{для $k=3$},\\
+% % t_{\text{новое}} & 2^k\cdot(t-b)    & 8\cdot(t-b),\\
+% % h_{\text{новое}} & t_{\text{новое}}-1 =2^k\cdot(t-b)-1 = 2^k\cdot(h+1-b)-1      &8\cdot(h+1-b)-1.\\
+% % \end{array}
+% % \right.
+% % $
+% 
+% а~из $l$ и~$t/h$ убирается%, а~младшая $\times 2^k$
+% :
+% $\left\{
+% \begin{array}{l@{~=~}l}
+% l_{\text{новое}} & l \mathbin{\mathrm{shl}} k,\\
+% t_{\text{новое}} & t \mathbin{\mathrm{shl}} k,\\
+% h_{\text{новое}} & t_{\text{новое}}-1 =(t \mathbin{\mathrm{shl}} k)-1 = \Big((h+1) \mathbin{\mathrm{shl}} k\Big)-1 .\\
+% \end{array}
+% \right.
+% $
+% 
+% \end{itemize}
+% 
+% % \item Формулы масштабирования одинаковы 
+% 
+% 
+% % \vfill
+% % 
+% % 
+% % \item 
+% % Запись байта с~масштабированием:
+% % \begin{itemize}
+% % \item то есть когда у~$l$ и~$h=t-1$ будет одинаковый старший байт (из $\frac{\alpha}{k}$, а~не в~целом типе): $\hi(l) = \hi(h)$;
+% % \item и~этот старший байт идёт в~код;
+% % % \item масштабирование увеличивает $\Delta$ и~$\delta$ не в~два, а~в~$2^k$ раз (для трёхбитного байта "--- в~восемь раз);
+% % \end{itemize}
+
+
+% \end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newcommand{\cb}[1]{\textcolor{red}{#1}}
+\newcommand{\pb}[1]{\textcolor{blue}{#1}}
+\newcommand{\gr}[1]{\textcolor{gray!50}{#1}}
+
+
+\subsection{Кодирование 5111\,1115, $N = 512_{10}=1000_8$}
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-6em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+$\widetilde{C} = 5111\,1115$: $\vec{\omega} = (0, 3, 4)$, $D=4$; $N=1000_8$:
+
+\vfill
+
+
+$
+\begin{array}{@{}l|c|c|c|ccc|c||cc|c}
+i & c_i & k & b_k &   l (8) & t (8) & h=t-1 (8) & \Delta (8) & l (10) & t (10) & \Delta (10)\\\hline
+0 & - &       0&-&     000 & 1000 & 777     &   1000 &                          0 & 512 & 512    \\\hline
+
+1 & 5 &        & &     l+\frac{3\Delta}{4}=600 & 1000 & 777     &   200 &       384 & 512 & 128 \\\hline
+2 & 1 &        & &     600 & l+\frac{3\Delta}{4}=740 & 737     &   140 &        384 & 480 &  96 \\\hline
+3 & 1 &        & &     600 & l+\frac{3\Delta}{4}=710 & 707     &   110 &        384 & 456 &  72 \\\hline
+4 & 1 &        & &     \cb6\pb{00} & l+\frac{3\Delta}{4}=\cb6\pb{66} & 665     &    66 &        384 & 438 &  54 \\\hline
+
+  &   &      1 &\cb6&     (l-\cb600)\cdot10_8=\pb{00}0 & (t-\cb600)\cdot10_8=\pb{66}0 & 657     &    660 &        0 & 432 & 432  \\\hline
+  
+5 & 1 &        & &     000 & l+\frac{3\Delta}{4}=504 & 503     &   504 &        0 & 324 &  324 \\\hline
+6 & 1 &        & &     000 & l+\frac{3\Delta}{4}=363 & 362     &   363 &        0 & 243 &  243 \\\hline
+7 & 1 &        & &     000 & l+\frac{3\Delta}{4}=266 & 265     &   266 &        0 & 182 &  182 \\\hline
+8 & 5 &        & &     l+\frac{3\Delta}{4}=\cb2\pb{10} & \cb2\pb{66} & 265     &   56 &        136& 182 & 46 \\\hline
+
+  &   &      2 &\cb2&     \pb{10}0 & \pb{66}0 & 657     &    560 &         64 & 432 & 368  \\\hline
+
+\end{array}
+$
+
+$i=n$, масштабировать не можем, но кода $62$ недостаточно (так как $l \neq 000$): к~нему необходимо добавить один из байтов 
+$1, 2, 3, 4, 5, 6$
+(значения $b$, для которых $b00$ лежит в~$[l, t)$).
+% (если бы было $l > 100$, то только $2, 3, 4, 5, 6$)
+
+Как правило, это $\hi(l)+1$, здесь 2 $\implies$ код $622$.
+
+В~общем случае не совпадает ни с~концептом, ни с~побитовыми: вычисления менее точны $\implies$ длиннее.
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Д-1 0008~0300\,0100~622, $N = 512_{10}=1000_8$ }
+
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-6em}{-6em}
+\footnotesize
+
+
+$
+\begin{array}{@{}l|c|c|cc|l|c|ccc|c|ccc|l}
+k &   b_k & \delta (8) &  \lambda (8) & \tau (8) & i   & c_i &   l (8) &\Omega_1=l+\frac{3\Delta}{4} (8)& t (8) & \Delta  (8)  \\\hline
+0   &   -  &   1000   &   0   &   1000    & 0   &   - &   0   & 600 &   1000   &   1000   & \\\hline
+
+1 & 6   & 100 & 600 & 700     &&&&&&  \\\hline
+2 & 2   & 10 & 620 & 630     &&&&&&  \\\hline
+3 & 2   & 1 & 622 & 623     &&&&&&  \\\hline
+
+&&&&& 1 & 5         & 600 & 740 & 1000 & 200 &  \\\hline
+&&&&& 2 & 1         & 600 & 710 & 740 & 140 &  \\\hline
+&&&&& 3 & 1         & 600 & 666 & 710 & 110 &  \\\hline
+&&&&& 4 & 1         & 6\pb{00} & \gr{650} & 6\pb{66} & 66 &  \\\hline 
+
+&& 10 & 220 & 230 &&&    \pb{00}0 & 504 & \pb{66}0 & 660 \\\hline
+4 & 0   & 1 & 220 & 221     &&&&&&  \\\hline
+
+&&&&& 5 & 1         & 000 & 363  & 504 & 504 &  \\\hline 
+&&&&& 6 & 1         & 000 & 266  & 363 & 363 &  \\\hline 
+&&&&& 7 & 1         & 000 & 210  & 266 & 266 &  \\\hline 
+&&&&& 8 & 5         & 210 &      & 266 & 56 &  \\\hline 
+
+
+
+\end{array}
+$
+
+
+$\Omega_j$, как и~ранее, не масштабируются, а~пересчитываются из отмасштабированных $l$ и~$t$ ($650\to504$, а~не 500).
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+\subsection{Д-2 0008~0300\,0100~622, $N = 512_{10}=1000_8$ }
+
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-6em}{-6em}
+\footnotesize
+
+
+$
+\begin{array}{@{}l|c|c|cc|l|c|ccc|c|ccc|l}
+k &   b_k & \delta (8) &  \lambda (8) & \tau (8) & i   & c_i &   l (8) &\Omega_1=l+\frac{3\Delta}{4} (8)& t (8) & \Delta  (8)  \\\hline
+0   &   -  &   1000   &   0   &   1000    & 0   &   - &   0   & 600 &   1000   &   1000   & \\\hline
+
+1 & 6   & 100 & 600 & 700     &&&&&&  \\\hline
+
+&&&&& 1 & 5         & 600 & 740 & 1000 & 200 &  \\\hline
+&&&&& 2 & 1         & 600 & 710 & 740 & 140 &  \\\hline
+&&&&& 3 & 1         & 600 & 666 & 710 & 110 &  \\\hline
+
+2 & 2   & 10 & 620 & 630     &&&&&&  \\\hline
+
+&&&&& 4 & 1         & 6\pb{00} & \gr{650} & 6\pb{66} & 66 &  \\\hline 
+
+&& 100 & 200 & 300 &&&    \pb{00}0 & 504 & \pb{66}0 & 660 \\\hline
+
+&&&&& 5 & 1         & 000 & 363  & 504 & 504 &  \\\hline 
+&&&&& 6 & 1         & 000 & 266  & 363 & 363 &  \\\hline 
+
+3 & 2   & 10 & 220 & 230     &&&&&&  \\\hline
+
+&&&&& 7 & 1         & 000 & 210  & 266 & 266 &  \\\hline 
+
+4 & 0   & 1 & 220 & 221     &&&&&&  \\\hline
+
+&&&&& 8 & 5         & 210 &      & 266 & 56 &  \\\hline 
+
+\end{array}
+$
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+\section{Подбор плохого случая для цел.\,AC с~побайтовой записью}
+
+
+
+\subsection{Выбор частот и~$N = 2^{12}=4096_{10}=10000_8$}
+
+
+% \subsection{Подбор плохого случая, $N = 512_{10}=1000_8$}
+
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-7em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{1em} 
+\setlength{\leftmarginiii}{0em} 
+
+Плохой случай "--- сообщение $m$ с~$I(m) > 0$ (то есть $p(m) > 0 ~\Leftrightarrow~$
+%  не включает символов с~нулевыми частотами
+без $c$: $\nu(c)=0$%
+), которое не имеет кода.
+
+При кодировании  на каком-то шаге началу такого $m$ (возможно, всему $m$) соответствует ПИ нулевой длины;
+значит, на предыдущем шаге был ПИ длины $\Delta < D$, а~масштабирование было невозможно.
+
+\begin{enumerate}
+\item Такого не будет при $T=2$ (в~частности, $3:1$):
+\begin{itemize}
+\item ПИ $[l, l+2)$ длины 2 можно разделить на два ПИ ненулевой длины: $[l, l+1)$ и~$[l+1, l+2)$,
+причём
+при $\nu_1 \geqslant \nu_2$ деление именно такое: 
+$\Omega_1-l 
+= \left\lfloor \frac{\omega_1\cdot 2}{D} \right\rfloor
+= \left\lfloor \frac{\nu_1\cdot 2}{\nu_1 + \nu_2} \right\rfloor 
+\geqslant   \left\lfloor \frac{\nu_1\cdot 2}{\nu_1 + \nu_1} \right\rfloor 
+= 
+1$,
+но $\Omega_1-l 
+<  \left\lfloor \frac{\nu_1\cdot 2}{\nu_1 + 0} \right\rfloor 
+= 2$;
+
+\item ПИ $[l, l+1)$ длины 1 гарантированно попадает внутрь ПИ байта и~масштабируется до приемлемой длины.
+\end{itemize}
+
+\item Сообщений без кода  не будет при частотах $2:1:1$ "--- в~числителе степени двойки; $l$ и~$t$ либо точно совпадают с~границами байтов (масштабирование до приемлемой длины), 
+либо достаточно далеко.
+\end{enumerate}
+
+\hrulefill
+
+При $D=4$ возможны только $3:1$, $2:2$ %(код фиксированной ширины) 
+и~$2:1:1$ "--- сообщений без кода быть не может.
+%
+При $D=8$, вероятно, может, но короткий пример подобрать не удалось.
+%
+Рассмотрим $D=16$ и~максимально нечётные частоты:
+
+$
+\begin{array}{|c|ccccccccc|}\hline
+j       &  0 &1  &2   &3   &4   &5   &6   &7   &8    \\\hline
+\xi_j   &  - &0  &1   &2   &3   &4   &5   &6   &7   \\\hline
+\nu_j   &  - &7  &3   &1   &1   &1   &1   &1   &1   \\\hline
+\omega_j&  0 &7  &10_{10} = 12_8  &11_{10} = 13_8  &12_{10}=14_8  &13_{10}=15_8  &14_{10}=16_8  &15_{10}=17_8  &16_{10}=20_8 = D \\\hline
+\end{array}
+$
+
+возьмём $N = 2^{12}=4096_{10}=10000_8$.
+
+% 
+% $\nu(0):\nu(1):\nu(2):
+%                 \nu(3):\nu(4):\nu(5):\nu(6):\nu(7) 
+% =    7: 3:  1:  1:  1:  1:  1:  1$, то есть 
+% $\vec{\omega}
+% =(0, 7, 10, 11, 12, 13, 14, 15, 16)_{10}
+% =(0, 7, 12, 13, 14, 15, 16, 17, 20)_{8}
+% $, 
+% $D=16_{10}=20_8$ и~также $N = 2^{12}=10000_8$
+
+% Пусть ненулевые частоты $\nu(2):\nu(3):\nu(6) = 3:3:2$, то есть $\vec{\omega}=(0, 3, 6, 8)$, $D=8$ и~также $N = 2^{12}=10000_8$
+% 
+% 
+% $
+% \begin{array}{@{}l|c|c|c|cc|c|l}
+% i & c_i & k & b_k &   l (8) & t (8)  & \Delta (8) & \\\hline
+% 0 & - &       0&-&     0000 & 10000     &   10000 &      \\\hline
+% 
+% 1 & 3 &        & &     l+\frac{3\Delta}{8}=3000 & l+\frac{6\Delta}{8} = 6000    &   3000 & \\\hline
+% 2 & 3 &        & &     l+\frac{3\Delta}{8}=4100 & l+\frac{6\Delta}{8} = 5200    &   1100 & \text{далее выбираем $c_i$ так, чтобы $l < 5000 < t$} \\\hline
+% 3 & 6 &        & &     l+\frac{6\Delta}{8}=4760 & 5200    &   220 & \\\hline
+% 4 & 2 &        & &     4760 & l+\frac{3\Delta}{8}=5046    &   66  & \\\hline
+% 5 & 2 &        & &     4760 & l+\frac{3\Delta}{8}=5004    &   24  & \\\hline
+% 6 & 6 &        & &     l+\frac{6\Delta}{8}=4777 & 5004    &   5 & \\\hline
+% 
+% 
+% % 1 & 3 &        & &     l+\frac{4\Delta}{8}=4000 & l+\frac{7\Delta}{8} = 7000    &   3000 & \\\hline
+% % 2 & 3 &        & &     l+\frac{4\Delta}{8}=5400 & l+\frac{7\Delta}{8} = 6500    &   1100 & \text{далее выбираем $c_i$ так, чтобы $l < 6000 < t$} \\\hline
+% % 3 & 2 &        & &     5400                     & l+\frac{4\Delta}{8} = 6040    &   440 & \\\hline
+% % 4 & 6 &        & &        5774                  & 6040    &   44 & \\\hline
+% % 5 & 2 &        & &     5774                     & l+\frac{4\Delta}{8} = 6016    &   22 & \\\hline
+% % 5 & 1 &        & &     5774                     & l+\frac{4\Delta}{8} = 6005    &   11 & \\\hline
+% 
+% % 1 & 2 &        & &     0000 & l+\frac{4\Delta}{8}= 4000   &   4000 & \\\hline
+% % 2 & 2 &        & &     0000 & l+\frac{4\Delta}{8}= 2000   &   2000 & \\\hline
+% % 3 & 3 &        & &     \frac{4\Delta}{8}=1000 & \frac{7\Delta}{8} = 1600    &   3000 & \\\hline
+% 
+% 
+% % 1 & 3 &        & &     \frac{4\Delta}{8}=4000 & \frac{7\Delta}{8} = 7000    &   3000 & \\\hline
+% % 2 & 2 &        & &     600 & 700      &   100 &  \\\hline
+% % 3 & 2 &        & &     600 & 700      &   100 &  \\\hline
+% 
+% \end{array}
+% $
+
+% Для алфавита из $T=2$ символов авост из-за отсутствия $\beta$ не 
+% Пусть ненулевые частоты $\nu(2):\nu(3):\nu(6) = 4:3:1$, то есть $\vec{\omega}=(0, 4, 7, 8)$, 
+
+% $
+% \begin{array}{@{}l|c|c|c|cc|c||cc|c|l}
+% i & c_i & k & b_k &   l (8) & t (8)  & \Delta (8) & l (10) & t (10) & \Delta (10)\\\hline
+% 0 & - &       0&-&     000 & 1000     &   1000 &                          0 & 512 & 512    \\\hline
+% 
+% 1 & 5 &        & &     600 & 1000      &   200 &       384 & 512 & 128 \\\hline
+% 2 & 1 &        & &     600 & 740      &   140 &        384 & 480 &  96 \\\hline
+% 3 & 1 &        & &     600 & 710      &   110 &        384 & 456 &  72  & \text{далее выбираем $c_i$ так, чтобы $l\leqslant 700 < t$} \\\hline
+% 4 & 5 &        & &     666 & 710      &   22 &        &  & \\\hline
+% 5 & 1 &        & &     666 & 703      &   15 &        &  &  \\\hline
+% 6 & 5 &        & &     677 & 703      &   4  &        &  &  \\\hline
+% 7 & 1 &        & &     677 & 702      &   3  &        &  &  \\\hline
+% 8 & 1 &        & &     677 & 701      &   2  &        &  &   & \text{ещё не можем записать ни одного байта}\\\hline
+% 9 & 1 &        & &     677 & 700      &   1  &        &  &  & \text{} \\\hline
+% 10a & 1 &        & &     700 & 700      &   0  &        &  & &\text{авост, если $n > 10$; да и~при $n=10$ сомнительно} \\\hline
+% 10b & 1 &        & &     700 & 700      &   0  &        &  & &\text{авост, если $n > 10$; да и~при $n=10$ сомнительно} \\\hline
+% 11 & 1 &        & &      &       &   0  &        &  & & \\\hline
+% 
+% \end{array}
+% $
+% 
+% Если сообщение начинается с~байтов $5115151151...$ (и~продолжается чем угодно), закодировать его побайтовой записью с~$N = 512_{10}=1000_8$ и~без аналога~$\beta$ невозможно.
+% 
+% \vfill
+% 
+% Плохое продолжение найдётся для любого $N$, любого $D$, любого начала сообщения и~почти любого набора частот (кроме случая $T=2^x$ и~равных частот).
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Короткие сообщения без кода (восьмеричное представление чисел!)}
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-7em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+
+$
+\begin{array}{|c||c|c|c|c|c|c|c|c|c|}\hline
+\xi_j   &  - &0  &1   &2   &3   &4   &5   &6   &7   \\\hline
+\omega_j&  0 &7_{10} = 7_8  &10_{10} = 12_8  &11_{10} = 13_8  &12_{10}=14_8  &13_{10}=15_8  &14_{10}=16_8  &15_{10}=17_8  &16_{10}=20_8 = D \\\hline
+\end{array}
+$
+
+$\begin{array}{@{}l|c|c|c|cc|c|l}
+i & c_i & k & b_k &   l (8) & t (8)  & \Delta (8) & \\\hline
+0 & - &       0&-&     0000 & 10000     &   10000 &      \\\hline
+
+1 & 1 &        & &     l+\frac{7\Delta}{20_8}=3400 & l+\frac{12_8\Delta}{20_8} = 5000    &   1400 & \\\hline
+2 & 0 &        & &     3400                         & l+\frac{7\Delta}{20_8} =  4120    &   520 &\text{далее выбираем $c_i$ так, чтобы $l < 4000 < t$}  \\\hline
+
+3 & 5 &        & &     l+\frac{14_8\Delta}{20_8}=3774 & l+\frac{15_8\Delta}{20_8} = 4021   &   25 & \\\hline
+4 & 0 &        & &     3774 & l+\frac{7\Delta}{20_8} =  4005  &   11 &  \Delta < D{:} ~ \vec{\Omega}-l = ( 0, 3, 5, 6, 6, 7, 7, 10, 11 )\\\hline
+\end{array}$
+
+Так как $l < 4000 < t$, а~аналога $\beta$ нет "--- масштабирование невозможно \rlap{(невозможно записать ни одного байта).}
+
+% Так как $\Delta < D$ и~много $\nu_j = 1$, н
+На следующем шаге уже не все символы имеют код "--- в~$\vec{\Omega}-l %= ( 0, 3, 5, 6, 6, 7, 7, 10, 11 )
+$ есть повторы, $\Omega_2 = \Omega_3 = l+6$ \rlap{и~$\Omega_4 = \Omega_5 = l+7$:}
+
+
+$\begin{array}{@{}l|c|c|c|cc|c|l}
+i & c_i & k & b_k &   l (8) & t (8)  & \Delta (8) & \\\hline
+4 & 0 &        & &     3774 & 4005  &   11 & \vec{\Omega}-l = (   0, 3, 5, 6, 6, 7, 7, 10, 11 )\\\hline
+5_3 & 3 &       & &    l+\frac{13_8\Delta}{20_8} = 3774+6 = 4002 & l+\frac{14_8\Delta}{20_8}=3774+6 = 4002  &   0 & \text{нет  кода, авост}  \\\hline
+\hline
+5_5 & 5 &       & &    l+\frac{13_8\Delta}{20_8} = 3774+7 = 4003 & l+\frac{14_8\Delta}{20_8}=3774+7 = 4003  &   0 & \text{нет кода, авост}  \\\hline
+
+\end{array}$
+
+Таким образом, все сообщения, которые имеют частоты $7311\,1111$ и~начинаются с~$10503$ или с~$10505$ (см.\,эту страницу)
+или с~$105010$, $105012$, $105013$, $105014$, $105015$, $105016$ (см.\,следующую страницу) не получат кода.
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Выход из наихудшего случая (или его отсутствие)}
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-7em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+Символы $0, 1, 2, 4, 6$ и~$7$ пока закодировать можно:
+
+$\begin{array}{@{}l|c|c|c|cc|c|l}
+4 & 0 &        & &     3774 & 4005  &   11 &  \Delta < D{:} ~\vec{\Omega}-l = (  0, 3, 5, 6, 6, 7, 7, 10, 11 ) \\\hline
+5_0 & 0 &       & &     3774 & 3774+3 =3777 &   3 &  \Delta \ll D, ~\text{но можем записать байт}\\\hline
+  &    &      1&3&     7740 & 7770  &   30 &  \\\hline
+  &    &      2&7&     7400 & 7700  &   300 &  \\\hline
+  &    &      3&7&     4000 & 7000  &   3000 & \text{точность потеряна, но из «ямы» выбрались} \\\hline
+% ... \\\hline
+\hline
+5_1 & 1 &        & &     3774+3 =3777 & 3774+5 = 4001  &   2 &   
+\begin{array}{@{}l}
+\text{наихудший случай: не можем масштабировать и}\\
+\vec{\Omega} = (  0, 0, 1, 1, 1, 1, 1, 1, 2 ){:} ~\text{ещё не авост, }\\
+% \\
+% \text{на следующем шаге почти всегда авост:}\\
+% \text{сможем записать только $1$ или $7$}\\
+\text{но на следующем шаге сможем записать}\\ \text{только $1$ или $7$% (причём с~макс. потерей точности)
+}\\
+\end{array}\\\hline
+\hline
+
+5_2 & 2 &       & &     3774+6 = 4002 & 3774+7 = 4003  &   1 &   \\\hline
+% \vec{\Omega} = (  0, 0, 0, 0, 0, 0, 0, 0, 1 ){:} ~\text{ещё не авост, }\\
+% \text{но на следующем шаге сможем только $7$ %(с~максимальной потерей точности)
+% }\\ <<< масштабирование !!!
+  &    &      1&4&     0020 & 0030  &   10 &  \\\hline
+  &    &      2&0&     0200 & 0300  &   100 &  \\\hline
+  &    &      3&0&     2000 & 3000  &   1000 &  \\\hline
+  &    &      4&2&     0000 & 10000  &   10000 & \text{точность потеряна, но из «ямы» выбрались} \\\hline
+\end{array}$
+
+% и~т.\,д.
+
+
+
+Все сообщения, которые имеют частоты $7311\,1111$ и~начинаются с~$10503$ или с~$10505$ (см.\,пред.\,страницу)
+или с~$105010$, $105012$, $105013$, $105014$, $105015$, $105016$ (см.\,эту страницу) не получат кода.
+
+Некоторые (возможно, не все) сообщения, которые имеют частоты $7311\,1111$ и~начинаются с~$10500$, с~$105011$, $105017$, $10502$
+получат код (но существенно длиннее $I(m)$ из-за потери точности).
+
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Что делать?}
+\begin{frame}{\insertsubsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize 
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{2em} 
+
+\begin{enumerate}
+\item Плохое (не имеющее кода) сообщение $m$ найдётся для любого $N$, любого $D>4$ %, любого начала сообщения 
+и~почти любого набора частот.
+%
+Необходимо проверять $\Delta$ и~корректно обрабатывать авост.
+
+\vfill
+
+\item Можно всё-таки ввести аналог $\beta$, чтобы не допускать $\Delta < D$.
+
+\vfill
+
+\item Сообщение $m$, которое не имеет кода для одной связки $\vec{\nu} + N$, может иметь код для немного другой 
+
+$\implies$
+%
+если есть несколько реализаций целочисленного AC с~побайтовой записью \textcolor{gray}{(которым присвоены разные коды алгоритма),} отличающихся:
+\begin{itemize}
+\item подбором $N$;
+\item значением $D_{\text{жел}}$;
+\item способом перенормировки частот из хранящихся в~файле $\vec{u}$ ($\max(u_j) = 255$) к~требуемым $\vec{\nu}$ ($\sum \nu_j \approx D_{\text{жел}}$)
+$\implies$ могут получиться немного другие  $\vec{\nu}$ и/или другое итоговое $D$;
+\item порядком сортировки по умолчанию (выше при $\vec{\Omega}-l = (  0, 3, 5, 6, 6, 7, 7, 10, 11 )$ часть символов с~частотой $1$ получила код, часть нет);
+\end{itemize}
+то  можно подобрать для сообщения $m$ подходящий (без авоста) цел.\,AC с~побайтовой записью.
+
+\end{enumerate}
+
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+\end{document}

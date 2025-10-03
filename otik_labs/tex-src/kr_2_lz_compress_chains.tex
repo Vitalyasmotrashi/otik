@@ -1,0 +1,92 @@
+\input{commonpath}
+\input{\SRCROOTPATH/commonpres}
+
+\title{КР2: сжатие с~учётом контекста}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Can be used only in preamble.
+\DeclareMathOperator{\lo}{lo}
+\DeclareMathOperator{\hi}{hi}
+
+
+\begin{document}
+
+
+\begin{frame}{\inserttitle}
+\begin{adjustwidth}{-4.5em}{-4.5em}
+\footnotesize
+% \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% \lstset{xleftmargin=1em,numbers=none}
+% \lstset{lineskip=0.5ex}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0em}
+\setlength{\leftmarginii}{1em}
+\setlength{\leftmarginiii}{1em}
+% \setlength{\leftmarginiv}{1em}
+\setlength{\parskip}{0.\parskip}
+
+Команде из 4 студентов необходимо реализовать по одному коду (задаются преподавателем) из всех трёх семейств: RLE (кроме наивного), LZ77, LZ78;
+% \\
+\textbf{из 3 студентов "--- два кода из разных семейств;}
+ из 1-2 "--- один код.
+% 
+Для заданного сообщения $m$ и~каждого кода $code$ рассчитать:
+
+
+\begin{enumerate}
+\item длину сообщения $|m|$ в~символах;
+
+\item для каждого кода $code$ "--- код сообщения $code(m)$ 
+и~длину кода сообщения $|code(m)|$ в~символах (для алгоритмов с~битовым выходным потоком может быть нецелой;
+для алгоритмов семейства LZ78 оценивать по минимуму: $|P|$ растёт по одному биту от нуля).
+
+\end{enumerate}
+
+\vfill
+
+Для каждого кода: выбрать детали кодирования, не заданные преподавателем; указать выбранное и~следствия из него, в~частности:
+\begin{enumerate}
+\item %для алгоритмов семейства
+ RLE:
+формат записи сжатой цепочки $\{L, c\}$, $L_{\min}^{\text{сж}}$, $L_{\max}^{\text{сж}}$ +
+\begin{itemize}
+\item RLE с~флаг-битом сж/несж: + запись несжатой цепочки, $L_{\min}^{\text{несж}}$, $L_{\max}^{\text{несж}}$;
+\item RLE с~односимвольным префиксом: + префикс $p$; запись $p$, $pp$ и~$ppp$;
+\end{itemize}
+
+% % \begin{enumerate}
+% % \item длину 
+% % \end{enumerate}
+% \item RLE с~флаг-битом сжатая/несжатая цепочка: формат записи; 
+% $L_{\min}^{\text{сж}}$, $L_{\min}^{\text{несж}}$,
+% $L_{\max}^{\text{сж}}$, $L_{\max}^{\text{несж}}$;
+
+
+\item  LZ77: формат ссылки $\{S, L\}$ (не только поля и~их порядок, но~и~разрядность, если символ состоит из [частей] разных полей "--- как), 
+$S_{\min}$, $S_{\max}$, $L_{\min}$, $L_{\max}$ для ссылки;
+\begin{itemize}
+\item LZ77 с~флаг-битом ссылка/символ или ссылка/цепочка: + группируются ли флаг-биты во флаг-байты, запись несж. символа или цепочки;
+
+\item LZ77 с~флаг-битом ссылка/цепочка: + запись несж. цепочки, \rlap{$L_{\min}^{\text{несж}}$, $L_{\max}^{\text{несж}}$;}
+\item LZ77 с~односимвольным префиксом: + префикс $p$, запись символа $p$ \rlap{в~исх.\,тексте;}
+
+\end{itemize}
+
+\item длину кода наилучшего случая ($00...00$) длины  $|m|$, для RLE и~LZ77 + наихудшего длины  $|m|$.
+
+\end{enumerate}
+
+
+\termin{
+Команда сдаёт одну работу, %и~все её участники получают одну оценку.
+%
+% В
+% все листы подписываются, 
+аналогично КР1.
+}
+\end{adjustwidth}
+\end{frame}
+
+\end{document}

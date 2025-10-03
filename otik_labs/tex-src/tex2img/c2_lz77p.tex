@@ -1,0 +1,317 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+
+\usepackage{ifthen}
+\usepackage{xstring}
+% \newcommand{\ci}[1]{\tikzmath{integer \inext; \inext = #1+1;}\StrMid{Katie}{#1}{\inext}}
+
+% \newcommand{\CC}{012340123456789012345678901234540123ABCDEFFFFFFF0123}
+% \newcommand{\clen}{\StrLen{\CC}}
+
+\newcommand{\ci}[1]{\StrMid{012340123456789012345678901234540123ABCDEFFFFFFF0123EFCD456789AB}{#1}{#1}}
+\newcommand{\clen}{64}
+
+
+\newcommand{\smax}{15}
+\newcommand{\lmin}{4}
+\newcommand{\lmax}{15}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+\tikzmath{integer \lminnext; \lminnext = \lmin+1;}
+
+\sffamily
+
+\pagestyle{empty}
+
+\tikzset{node distance = 1ex and 0.3em}
+\tikzset{start chain=charline going right}
+\tikzstyle{cchar}      = [outer xsep = 0em, inner xsep = 0em, outer ysep = 0ex, inner ysep = 0.5ex]
+\tikzstyle{ichar}      = [cchar, scale = 0.6]
+
+\tikzstyle{etactive} = [red]
+\tikzstyle{etzzzzzz} = [red!20!white]
+\tikzstyle{ssactive} = [blue]
+\tikzstyle{sszzzzzz} = [blue!30!white]
+
+\tikzstyle{lstyle}      = [etactive]
+\tikzstyle{sstyle}      = [ssactive]
+
+
+% \tikzstyle{eprvee} = [blue!50!red]
+
+% \resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+\node[on chain=charline] (ctitle) {$C=$};
+
+\foreach \i in {1,...,\clen}
+{
+    \node[on chain=charline, cchar] (c\i) {\hex{\ci{\i}}};
+    \node[above = 0ex of c\i, ichar] (i\i) {$\i$};
+
+}
+
+
+\end{tikzpicture}
+% }
+
+
+\clearpage
+
+\begin{tikzpicture}\scriptsize
+
+
+
+\foreach \i in {1,...,\smax}
+{
+    \node[on chain=charline, cchar] (c\i) {\hex{\ci{\i}}};
+    \node[above = 0ex of c\i, ichar] (i\i) {$\i$};
+
+}
+
+
+\end{tikzpicture}
+
+\tikzmath{integer \i; \i = \smax+1;}
+
+\clearpage
+
+
+\begin{tikzpicture}\scriptsize
+
+
+
+\foreach \idx in {\smax,...,1}
+{
+    \tikzmath{integer \j; \j = \i-\idx;}
+    \node[on chain=charline, cchar] (c\idx) {\hex{\ci{\j}}};
+    \node[above = 0ex of c\idx, ichar] (i\j) {$\j$};
+    \node[below = 0ex of c\idx, ichar, sstyle] (s\idx) {$\idx$};
+
+}
+
+\draw[decorate,decoration={brace,mirror,raise=0.6ex}, sstyle] (s\smax.west)--(s1.east) node[pos=0.5, auto, swap, outer sep = 1ex] {окно размера $w=S_{\max}$};
+
+
+
+% \foreach \idx in {1,...,\lmin}
+% {
+%     \tikzmath{integer \j; \j = \i+\idx-1;}
+%     \node[on chain=charline, cchar, etactive] (c\idx) {\hex{\ci{\j}}};
+%     \node[above = 0ex of c\idx, scale = 0.6] (i\j) {$\j$};
+%     \node[below = 0ex of c\idx, scale = 0.6, lstyle] (l\idx) {$\idx$};
+% }
+% 
+% \tikzmath{integer \llast; \llast = \lmin+1;}
+% 
+% \foreach \idx in {\llast,...,\lmax}
+% {
+%     \tikzmath{integer \j; \j = \i+\idx-1;}
+%     \node[on chain=charline, cchar, etzzzzzz] (c\idx) {\hex{\ci{\j}}};
+%     \node[above = 0ex of c\idx, scale = 0.6] (i\j) {$\j$};
+%     \node[below = 0ex of c\idx, scale = 0.6, lstyle] (l\idx) {$\idx$};
+% }
+
+\foreach \idx in {1,...,\lmax}
+{
+    \ifthenelse{\idx<\lminnext}{\tikzstyle{cstyle} = [etactive]}{\tikzstyle{cstyle} = [etzzzzzz]}
+    
+    \tikzmath{integer \j; \j = \i+\idx-1;}
+    \node[on chain=charline, cchar, cstyle] (c\idx) {\hex{\ci{\j}}};
+    \node[above = 0ex of c\idx, ichar] (i\j) {$\j$};
+    \node[below = 0ex of c\idx, ichar, lstyle] (l\idx) {$\idx$};
+}
+
+% \draw[decorate,decoration={brace,mirror,raise=0.6ex}, etactive] (l1.west)--(l\lmin.east) node[pos=0.5, auto, swap, outer sep = 1ex] {эталон для поиска};
+\draw[decorate,decoration={brace,mirror,raise=0.6ex}, etactive] (l1.west)--(l\lmin.east) node[pos=0.5, auto, swap, outer sep = 1ex, anchor=165] {эталон $E_{\min}$ длины $L_{\min}$};
+
+% \node[rotate=90, anchor=west, above = 0ex of i\i.north, scale = 0.6, ] (ieq) {$=$};
+
+%   \node [above = 0ex of i\i, scale = 0.6] {
+%     \begin{tikzpicture}
+%       \node [rotate=90] (ieq) {$=$};   
+%     \end{tikzpicture}
+%   };
+  
+  
+\node[above = 0ex of i\i.north, ichar] (ieq) {~\rotatebox{90}{$=$}};
+\node[above = 0ex of ieq, ichar] {$i$};
+
+
+\end{tikzpicture}
+
+% \tikzmath{integer \s, \l, \lplus; \s = 15; \l=\lmin; \lplus=\l+1;}
+
+\foreach \l in {4, 5}
+{
+    \tikzmath{integer \s, \lplus; \s = 15; \lplus=\l+1;}
+
+    \clearpage
+
+    \begin{tikzpicture}\scriptsize
+
+
+    \foreach \idx in {\smax,...,1}
+    {
+        \tikzmath{integer \j; \j = \i-\idx;}
+        \tikzmath{integer \lidx; \lidx = -\idx+\s+1; if \lidx<=0 then {\lidx = \lplus;}; }
+        
+        \ifthenelse{\lidx<\lplus}{\tikzstyle{cstyle} = [sstyle]}{\tikzstyle{cstyle} = []}
+        
+        \node[on chain=charline, cchar, cstyle] (c\idx) {\hex{\ci{\j}}};
+        \node[above = 0ex of c\idx, ichar] (i\j) {$\j$};
+        \node[below = 0ex of c\idx, ichar, sstyle] (s\idx) {$\idx$};
+
+    }
+
+    \foreach \idx in {1,...,\lmax}
+    {
+        \ifthenelse{\idx<\lplus}{\tikzstyle{cstyle} = [etactive]}{\tikzstyle{cstyle} = [etzzzzzz]}
+        
+        \tikzmath{integer \j; \j = \i+\idx-1;}
+        \node[on chain=charline, cchar, cstyle] (c\idx) {\hex{\ci{\j}}};
+        \node[above = 0ex of c\idx, ichar] (i\j) {$\j$};
+        \node[below = 0ex of c\idx, ichar, lstyle] (l\idx) {$\idx$};
+    }
+
+
+    \end{tikzpicture}
+
+}
+
+
+
+\clearpage
+
+
+
+\begin{tikzpicture}\scriptsize
+
+\tikzmath{integer \s, \l, \lplus; \s = 15; \l=6; \lplus=\l+1;}
+
+
+\foreach \idx in {\smax,...,1}
+{
+    \tikzmath{integer \j; \j = \i-\idx;}
+    \node[on chain=charline, cchar] (c\idx) {\hex{\ci{\j}}};
+    \node[above = 0ex of c\idx, ichar] (i\j) {$\j$};
+    \node[below = 0ex of c\idx, ichar, sstyle] (s\idx) {$\idx$};
+
+}
+
+\draw[decorate,decoration={brace,mirror,raise=0.6ex}, sstyle] (s14.west)--(s1.east) node[pos=0.5, auto, swap, outer sep = 1ex] {остаток окна};
+
+\foreach \idx in {1,...,\lmax}
+{
+    \ifthenelse{\idx<\lplus}{\tikzstyle{cstyle} = [etactive]}{\tikzstyle{cstyle} = [etzzzzzz]}
+    
+    \tikzmath{integer \j; \j = \i+\idx-1;}
+    \node[on chain=charline, cchar, cstyle] (c\idx) {\hex{\ci{\j}}};
+    \node[above = 0ex of c\idx, ichar] (i\j) {$\j$};
+    \node[below = 0ex of c\idx, ichar, lstyle] (l\idx) {$\idx$};
+}
+
+\draw[decorate,decoration={brace,mirror,raise=0.6ex}, etactive] (l1.west)--(l6.east) node[pos=0.5, auto, swap, outer sep = 1ex, anchor=160] {эталон $E_{L+1}$ длины $L+1$};
+
+
+\end{tikzpicture}
+
+
+% \foreach \l in {6, 7, ..., 15}
+\foreach \l in {6, 7, 15}
+{
+    \tikzmath{integer \s, \lplus; \s = 10; \lplus=\l+1;}
+
+    \clearpage
+
+    \begin{tikzpicture}\scriptsize
+
+    \foreach \idx in {1,...,30}
+    {
+        \tikzmath{integer \eidx, \eactidx; \eidx = \idx-\i+1; \eactidx = \eidx; if \eactidx>\l then {\eactidx = -1;};  }
+        \tikzmath{integer \sidx, \sactidx; \sidx = \i-\idx;   \sactidx = \sidx; if \sactidx<\s then {\sactidx = -1;};}
+        \tikzmath{integer \lidx, \lactidx; \lidx = \s-\sidx+1; if \lidx>\lmax then {\lidx = -1;}; \lactidx = \lidx; if \lactidx>\l then {\lactidx = -1;};  }
+        
+        \tikzstyle{estyle} = [etzzzzzz]
+        \tikzstyle{sstyle} = [sszzzzzz]
+        \tikzstyle{lstyle} = [etzzzzzz]
+        \tikzstyle{cstyle} = []
+        
+        \ifthenelse{\eactidx>0}{\tikzstyle{estyle} = [etactive]; \tikzstyle{cstyle} = [etactive]}{}
+        \ifthenelse{\sactidx>0}{\tikzstyle{sstyle} = [ssactive];}{}
+        \ifthenelse{\lactidx>0}{\tikzstyle{lstyle} = [etactive]; 
+%             \ifthenelse{\eactidx>0}{\tikzstyle{cstyle} = [eprvee]}{\tikzstyle{cstyle} = [ssactive]}        
+        }{}
+            
+%         \node[on chain=charline, cchar, cstyle] (c\idx) {\hex{\ci{\idx}}};
+        \node[on chain=charline, cchar] (c\idx) {\hex{\ci{\idx}}};
+%         \node[above = 1.5ex of c\idx, ichar] (i\idx) {$\idx$};
+    
+        \ifthenelse{\eidx>0}
+        {
+        \node[below = 0ex of c\idx, ichar, estyle] (e\idx) {$\eidx$};
+        }
+        {        
+        \node[below = 0ex of c\idx, ichar, sstyle] (s\idx) {$\sidx$};
+        }
+        
+        \ifthenelse{\lidx>0}
+        {
+        \node[above = 0ex of c\idx, ichar, lstyle] (l\idx) {$\lidx$};
+        }{}
+
+    }
+        
+    \tikzmath{integer \il; \il = \i+\l-1; }
+%     \draw[decorate,decoration={brace,mirror,raise=0.6ex}, green] (c\i.west)--(c\il.east);
+%     \draw[decorate,decoration={brace,mirror,raise=3ex}, etactive] (c\i.west)--(c\il.east);
+    \draw[decorate,decoration={brace,mirror,raise=0.6ex}, etactive] (c\i.west)--(c\il.east);
+
+    \tikzmath{integer \is, \isl; \is = \i-\s; \isl = \is+\l-1; }
+%     \draw[decorate,decoration={brace,raise=0.6ex}, green] (c\is.west)--(c\isl.east);
+%     \draw[decorate,decoration={brace,raise=3ex}, etactive] (c\is.west)--(c\isl.east);
+    \draw[decorate,decoration={brace,raise=0.6ex}, etactive] (c\is.west)--(c\isl.east);
+
+    \end{tikzpicture}
+
+}
+
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

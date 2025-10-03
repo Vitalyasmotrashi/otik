@@ -1,0 +1,805 @@
+\tikzmath{
+  int \N;
+  \N=1024;
+  int \fq, \b, \divsr, \i, \im, \clast;
+  \b{0} = 0;
+  \clast = 0;
+  \divsr = 1;
+  let \c{1} = О;
+}
+
+
+\newcommand{\tabletail}{
+2 & \c{2} & \b{1} + \fq{2}&=& \b{2} \\
+3 & \c{3} & \b{2} + \fq{3}&=& \b{3} \\
+4 & \c{4} & \b{3} + \fq{4}&=& \b{4} \\
+}
+
+\newcommand{\initencodesilent}[4][\N]
+{
+% #2 не используется!
+
+    \tikzmath{
+    int \N;
+    \N=#1;
+    \Nh = \N / 2;
+    \Nq = \N / 4;  
+    \intxdistance = \linewidth / (\N - 1);
+    %
+    int \fq, \b, \divsr, \i, \im, \clast;
+    \b{0} = 0;
+    \i = 1;
+    for \f in {#4}{
+        \fq{\i} = \f;
+    %     \b{\i} = \b{\i-1} + \fq{\i};
+        \im = \i-1;
+        \b{\i} = \b{\im} + \fq{\i};
+        \i = \i+1;
+    };
+    \clast = \i-1;
+    \divsr = \b{\clast};
+    %     
+    %   let \c{1} = О;
+    %   let \c{2} = П;
+    %   let \c{3} = Р;
+    %   let \c{4} = Т; 
+    %   \i = 1; не работает
+    %   for \f in {0,П,Р,Т}{
+    %     let \c{\i} = \f;
+    %     \i = \i+1;
+    %   };
+    #3
+    }
+
+}
+
+\newcommand{\initencodesection}[4][\N]
+{
+\section{Кодирование: «#2»}
+
+\initencodesilent[#1]{#2}{#3}{#4}
+
+    \tikzmath{
+    int \N;
+    \N=#1;
+    \Nh = \N / 2;
+    \Nq = \N / 4;  
+    \intxdistance = \linewidth / (\N - 1);
+    %
+    int \fq, \b, \divsr, \i, \im, \clast;
+    \b{0} = 0;
+    \i = 1;
+    for \f in {#4}{
+        \fq{\i} = \f;
+    %     \b{\i} = \b{\i-1} + \fq{\i};
+        \im = \i-1;
+        \b{\i} = \b{\im} + \fq{\i};
+        \i = \i+1;
+    };
+    \clast = \i-1;
+    \divsr = \b{\clast};
+    %     
+    %   let \c{1} = О;
+    %   let \c{2} = П;
+    %   let \c{3} = Р;
+    %   let \c{4} = Т; 
+    %   \i = 1; не работает
+    %   for \f in {0,П,Р,Т}{
+    %     let \c{\i} = \f;
+    %     \i = \i+1;
+    %   };
+    #3
+    }
+
+Частоты:  
+  \c{1}%
+  \tikzmath{
+    int \i;
+    for \i in {2,...,\clast}{
+      print{:\c{\i}};
+    };
+  }
+  $= \fq{1}
+  \tikzmath{
+    int \i;
+    for \i in {2,...,\clast}{
+      print{{:}\fq{\i}};
+    };
+  }
+  $.
+
+Границы интервалов: %($b[c]$):
+
+\begin{center}
+\begin{tabular}{l|c|l@{~}l@{}r}
+%{tabularx}{\linewidth}{L|C|Llr}
+% $j$ & $c_j$ &&& $b[c_j]$ \\\hline
+$j$ & $\xi_j$ &&& $\omega_j$ \\\hline
+
+0 & &&& 0 \\
+1 & \c{1} &&& \b{1} \\
+% 2 & п & 4+3&=& 7 \\
+% 3 & р & 7+2&=& 9 \\
+% 4 & т & 9+2&=& 11 \\
+%   \tikzmath{
+%     for \i in {2,...,\clast}{
+%     \im = \i-1;
+%       { \i & \c{\i} & \b{\im} + \fq{\i}&=& \b{\i} \\};
+%     };
+%   }
+% \tikzmath{\i=2;\im=\i-1;}\i & \c{\i} & \b{\im} + \fq{\i}&=& \b{\i} \\
+% \tikzmath{\i=3;\im=\i-1;}\i & \c{\i} & \b{\im} + \fq{\i}&=& \b{\i} \\
+% \tikzmath{\i=4;\im=\i-1;}\i & \c{\i} & \b{\im} + \fq{\i}&=& \b{\i} \\
+\tabletail
+\end{tabular}%\end{tabularx}
+\end{center}
+
+% Делитель равен $\b{\clast}$.
+% 
+% Рассмотрим {\N} точки.
+
+$C = \text{#2}, D = \b{\clast}$, $N = \N$
+
+
+\bigskip
+
+} % \initencodesection
+
+
+\newcommand{\inserttail}
+{
+После кодирования всех символов выбираем 
+точку 
+% из полученного интервала %$[\l,\h]$ не сохраняются
+% и~дополняем код соответствующим значением.
+% 
+% Выбираем 
+$\frac{N}{2}=\Nh ~ (0,5_{10} = 0,1_2)$.
+% Её код "--- бит $\newbit$.
+
+% Получаем код $\finalcode$.
+
+% % Данная точка ($0,\printbits000000000...$) 
+% Любая одиночная точка
+% кодирует бесконечно длинное сообщение, поэтому необходимо сохранить исходную длину ($\msglen$ символов).
+
+Получаем код $B = \finalcode$; длина исходного сообщения $\msglen$ символов.
+
+}
+
+
+
+
+
+
+\tikzmath{
+  int \Nh, \Nq;
+  \Nh = \N / 2;
+  \Nq = \N / 4;
+  %
+  real \intxdistance;
+  \intxdistance = \linewidth / (\N - 1);
+  %
+  int \l, \h, \t;
+  \l = 0;
+  \h = \N-1;
+  \t=\N; % не участвует в вычислениях; только для отображения!
+}  
+
+\tikzmath{
+  int \lbin, \hbin, \tbin;
+  \lbin = 0;
+  \hbin = \N-1;
+  \tbin=\N; % не участвует в вычислениях; только для отображения!
+  %
+  int \lsym, \hsym, \tsym;
+  \lsym = 0;
+  \hsym = \N-1;
+  \tbin=\N; % не участвует в вычислениях; только для отображения!
+  %
+  int \symcount;
+  \symcount = 0;
+  %
+  int \decodenextsymindex;
+  \decodenextsymindex = 0;
+}
+
+
+
+\tikzset{x=\linewidth, y=22mm, trim left}
+
+
+\tikzstyle{tickline}=[]
+
+
+\newcommand{\yticklevel}{0}
+\tikzset{
+  every picture/.append style={
+    execute at begin picture={\renewcommand{\yticklevel}{0}}
+  }
+}
+
+\newcommand{\yleveldelta}{-1}
+\newcommand{\moveyticklevel}[1][\yleveldelta]{
+    \tikzmath{
+      \oldyticklevel=\yticklevel;
+      \newyticklevel=\oldyticklevel + #1;
+%       \yticklevel=\newyticklevel;
+    }
+    \renewcommand{\yticklevel}{\newyticklevel}
+}
+
+
+\newcommand{\coordxtick}[1]{
+  \draw[tickline] ($(0,0.1)+#1$) -- ($(0,-0.1)+#1$);
+}
+
+
+\tikzstyle{thinline}=[gray]
+\tikzstyle{redline}=[red]
+\tikzstyle{thickredline}=[draw, red!50!yellow,line width=5pt,line cap=butt, blend mode=multiply]
+\tikzstyle{workdecode}=[thickredline, green!50!yellow,line width=9pt]
+
+
+\tikzstyle{binline}=[blue]
+\tikzstyle{symline}=[red]
+\tikzstyle{codenode}=[red, anchor=west]
+  \tikzstyle{scaleline}=[yellow!50!red,-latex', blend mode=multiply]
+
+  
+\colorlet{decodegreen}{green!50!black}
+  
+  
+% \def\pointminimumwidth{2mm}
+\tikzstyle{pointnodestyle}=[circle %, minimum width=\pointminimumwidth
+]
+\tikzstyle{workpointstyle}=[pointnodestyle, draw=black]
+\tikzstyle{emptypointstyle}=[workpointstyle, fill=none]
+\tikzstyle{bluepointstyle}=[workpointstyle, fill=blue]
+\tikzstyle{greenpointstyle}=[workpointstyle, fill=decodegreen]
+\tikzstyle{redpointstyle}=[workpointstyle, fill=red]
+
+\tikzstyle{bigredpointstyle}=[redpointstyle, inner sep = 2mm]
+\tikzstyle{bigemptypointstyle}=[bigredpointstyle, fill=none]
+
+% \tikzstyle{workcirclestyle}=[draw=black]
+% \tikzstyle{emptyfillstyle}=[workcirclestyle, fill=none]
+% \tikzstyle{bluefillstyle}=[workcirclestyle, fill=blue]
+% \tikzstyle{greenfillstyle}=[workcirclestyle, fill=decodegreen]
+% \tikzstyle{redfillstyle}=[workcirclestyle, fill=red]
+
+\tikzstyle{workcirclestyle}=[draw=black]
+\tikzstyle{emptyfillstyle}=[draw=gray!50!white]
+\tikzstyle{bluefillstyle}=[draw=blue]
+\tikzstyle{greenfillstyle}=[draw=decodegreen]
+\tikzstyle{redfillstyle}=[draw=red]
+
+
+\def\binlinesinangle{-20}
+% \def\tickarcfontscale{1}
+\def\tickarcfontscale{0.6}
+\def\fontscale{1}
+\def\ticksymbolcontrol{0.3}
+\def\xtickfinal{1}
+
+\newcommand{\binlines}[2][0.5]{
+  \begin{pgfonlayer}{background}
+   \coordinate (oldtick) at (0,\yticklevel);    
+  
+%   \foreach \inangle/\fontscale in {-20/1} 
+  {
+    \foreach \lbl in {#2} {
+%       \coordinate (newtick) at ($(oldtick) + #1*(1,0)$);
+      \coordinate (newtick) at ($(oldtick) + #1*(\xtickfinal,0)$);
+    
+      \path[draw,binline] (oldtick)  to[out=\binlinesinangle,in=180-\binlinesinangle] node[binline] [sloped,below,scale=\tickarcfontscale] {$\lbl$} (newtick);
+      \coordinate (oldtick) at (newtick);   
+    }
+  }
+  \end{pgfonlayer}
+}
+
+
+% \def\msgxmargin{0.01}
+% \def\codepos{0.5}
+
+
+
+\def\msgxmargin{-4}
+\def\codepos{0.5}
+\tikzstyle{codenode}=[anchor=west,scale=0.8]
+% \def\scalecodepos{0.7}
+\def\scalecodepos{0.5}
+\def\subdivcodepos{0.5}
+
+
+
+\newcommand{\codelabelbetween}[4][\codepos]{
+%   \node[codenode] at (${1- \codepos}*(0,#3) + \codepos*(0,#4) + (\msgxmargin,0)$) {#2};
+  \node[codenode] at (${1- #1}*(0,#3) + #1*(0,#4) + (\msgxmargin,0)$) (lastcode) {#2};
+}
+\newcommand{\codelabel}[3][\codepos]{\codelabelbetween[#1]{#2}{\yticklevel}{#3}}
+\newcommand{\autocodelabel}[2][\codepos]{\codelabelbetween[#1]{#2}{\oldyticklevel}{\newyticklevel}}
+\newcommand{\codelabelat}[3][]{\codelabelbetween[1]{#2}{\yticklevel}{#3}}
+
+\newcommand{\halfscalevalues}[2][]{
+%   \tikzmath{
+%     int \newl, \newh, \n;
+%     real \hscale;
+%     \hscale = #2;
+%     \n = \xtickfinal;
+%     \newl = (\l - #2 * \xtickfinal) * 2;
+%     \newh = (\h - #2 * \xtickfinal) * 2 + 1;
+%     %
+%     \l = \newl;
+%     \h = \newh;
+%   } 
+}
+\newcommand{\halfscale}[3][]{
+  \moveyticklevel
+  
+  \tikzmath{
+    \oldxlow=#2 * \xtickfinal;
+    \oldxhigh=\oldxlow + 0.5 * \xtickfinal;
+  }  
+  \draw[scaleline] (\oldxlow, \oldyticklevel) -- (0, \newyticklevel);
+%   \draw[scaleline] (\oldxhigh, \oldyticklevel) -- (1, \newyticklevel);
+  \draw[scaleline] (\oldxhigh, \oldyticklevel) -- (\xtickfinal, \newyticklevel);
+  \ifthenelse{\isempty{#1}}{}{
+    \foreach \x in {#1} {
+      \draw[scaleline] (\x, \oldyticklevel) -- ($2*(\x,0) - 2*(\oldxlow,0) + (0, \newyticklevel)$);
+    }
+  }
+  
+  \begin{pgfonlayer}{background}
+    \fill[yellow,%opacity=0.1,
+    path fading = south, blend mode=multiply] (\oldxlow, \oldyticklevel) -- (0, \newyticklevel) -- (\xtickfinal, \newyticklevel) -- (\oldxhigh, \oldyticklevel);
+  \end{pgfonlayer}
+  
+  \halfscalevalues{#2}
+  \autocodelabel{#3}
+}
+
+
+
+\tikzstyle{pointnodestyle}=[circle, inner sep=0.5mm] %64
+% \tikzstyle{pointnodestyle}=[circle, inner sep=0.25mm]
+
+
+
+
+
+
+  
+\tikzmath{  
+  let \scalestartmath{0} = ; 
+  let \scalestartmath{0.25} = - \frac{N}{4}; 
+  let \scalestartmath{0.5} = - \frac{N}{2}; 
+  let \scalestartval{0} = ; 
+  let \scalestartval{0.25} = - \Nq; 
+  let \scalestartval{0.5} = - \Nh; 
+  %
+  int \bitstofollow, \bitscount;
+  \bitstofollow = 0;
+  \bitscount = 0;
+}
+
+\tikzset{x=\intxdistance, trim left}
+\def\xtickfinal{\N}
+
+
+% \edef\history{ }
+% \newcommand{\historyAdd}[1]{\edef\history{\history{}#1 }}
+% \newcommand{\historyAddEcho}[1]{#1\historyAdd{#1}}
+
+
+\renewcommand{\halfscalevalues}[2][]{
+  \tikzmath{
+    int \newl, \newh;
+    real \hscalestart;
+    \hscalestart = #2;
+    int \newbit, \invbit;
+    if (\hscalestart>0.249)*(\hscalestart<0.251) then 
+    { 
+      \bitstofollow = \bitstofollow + 1;
+    } 
+    else  
+    {
+      if \hscalestart>0.499 then 
+      { 
+	\newbit = 1; 
+      } 
+      else 
+      {       
+	\newbit = 0;
+      };  
+      %\historyAdd{\newbit}
+      \bitscount = \bitscount + 1;
+      \bits{\bitscount} = \newbit;
+      %
+      \invbit = 1-\newbit;
+      if \bitstofollow>0 then 
+      {
+	for \i in {1,...,\bitstofollow}{
+% 	  \historyAdd{\invbit}
+	  \bitscount = \bitscount + 1;
+	  \bits{\bitscount} = \invbit;
+	};
+	\bitstofollow = 0;
+      };      
+    };
+    %
+    \newl = (\l - \hscalestart * \xtickfinal) * 2;
+    \newh = (\h - \hscalestart * \xtickfinal) * 2 + 1;
+    %
+    \oldl = \l;
+    \oldh = \h;
+    %
+    \l = \newl;
+    \h = \newh;
+  } 
+}
+
+\def\oldbits{}
+\newcommand{\printbits}[1][]{
+  \oldbits
+    \ifthenelse{\equal{\bitscount}{0}}{}{
+      \foreach \i in {1,...,\bitscount}{\bits{\i}}
+    }
+    \ifthenelse{\equal{\bitstofollow}{0}}{}{
+      \foreach \i in {1,...,\bitstofollow}{?}    
+    }
+}
+
+% \let\inthpointstyles{0/\l-1/emptypointstyle, \l/\h/bluepointstyle, \h+1/\N-1/emptypointstyle}
+% \N, \l, \h
+\newcommand{\inthpointsbystyles}[2][]{
+  \draw (0,\yticklevel) -- (\N,\yticklevel);
+  \coordxtick{(0,\yticklevel)}
+  \coordxtick{(\xtickfinal,\yticklevel)}
+  
+  \tikzmath{
+    \begn = 0;
+    \startscale = 0.5;
+    coordinate \dx,\startcoord;
+    \dx = (1,0);
+    \startcoord = (\begn,\yticklevel) + \startscale*(\dx); %+ 0.5*(\dx)
+  }   
+  \foreach \axstart/\axend/\pointstyle in {#2}
+  {
+    \tikzmath{
+      int \xstart, \xend, \ainvisible;
+      \xstart = \axstart;
+      \xend = \axend;
+      %
+      \ainvisible = 0;
+      if \xend <= \xstart then
+      {
+	\ainvisible = 1;
+      };
+    }
+    \ifthenelse{\equal{\ainvisible}{0}}{
+%       \foreach \x in {\xstart,...,\xend}{
+% 	  %\node[\pointstyle, #1] at ($(\startcoord) + \x*(\dx)$) (x\x) {};
+% 	  \draw[\pointstyle] ($(\startcoord) + \x*(\dx)$)  circle [x radius=0.3mm, y radius=0.5mm];
+%       };   
+      \draw[\pointstyle, ultra thick] ($(\startcoord) + \xstart*(\dx)$) -- ($(\startcoord) + \xend*(\dx)$);
+    }{}
+  }; % \foreach \axstart/\axend/\pointstyle
+}
+% \newcommand{\inthpoints}{\inthpointsbystyles{0/\l-1/emptypointstyle, \l/\h/bluepointstyle, \h+1/\N-1/emptypointstyle}}
+\newcommand{\inthpoints}{\inthpointsbystyles{0/\l-1/emptyfillstyle, \l/\h/bluefillstyle, \h+1/\N-1/emptyfillstyle}}
+
+\newcommand{\drawalphsubdiv}[1][above]{
+  \tikzmath{
+    \decodenextsymindex = 0;
+    int \i, \im;
+%     real \oldx, \newx; 
+    int \oldx, \newx;
+    coordinate \startcoord, \endcoord;
+    \oldx = \l;
+    \startcoord = (\l,\yticklevel);
+    for \i in {1,...,\clast}{
+      \im = \i-1;
+%       \newx = (\l + \b{\i}) / \divsr;
+%       \newx = floor( \N * (\l + \b{\i}) / \divsr ); %/ \N;
+%      \newl = \l + \b{\im} * (\h - \l  + 1) / \divsr; % oldx не меняется; надо было «;» после print
+     \newx = \l + \b{\i} * (\h - \l  + 1) / \divsr;
+      %
+      if (\oldx <= \lbin) && (\hbin < \newx) then
+      {
+	\decodenextsymindex = \i;
+      };
+      %
+      \endcoord = (\newx,\yticklevel);
+      print{    
+	\draw[symline] (\startcoord)     .. controls ($0.5*(\startcoord) + 0.5*(\endcoord) + (0,\ticksymbolcontrol)$)  
+	  .. node [symline, sloped, scale=\tickarcfontscale, #1] {\c{\i}} %\oldx~\lbin~\hbin~\newx
+	(\endcoord);
+	\coordxtick{(\startcoord)}
+	\coordxtick{(\endcoord)}
+      };
+      \oldx = \newx;
+      \startcoord = (\endcoord);
+    };
+  }
+}
+
+\newcommand{\calcalphsubdiv}[2][]{
+% l[i] = l[i-1] + b[j-1]*(h[i-1] - l[i-1] + 1)/delitel;
+% h[i] = l[i-1] +  b[j]*(h[i-1] - l[i-1] + 1)/delitel - 1;
+%  h-l = (b[j] -  b[j-1])*(h[i-1] - l[i-1] + 1)/delitel - 1
+  \tikzmath{
+    \i = #2;
+    \im = \i-1;
+    int \newl, \newh, \oldl, \oldh;
+    \newl = \l + \b{\im} * (\h - \l  + 1) / \divsr;
+    \newh = \l + \b{\i}  * (\h - \l  + 1) / \divsr - 1;
+    %
+    \oldl = \l;
+    \oldh = \h;
+    %
+    \l = \newl;
+    \h = \newh;
+  }
+}
+
+
+
+
+% \newcommand\intinit[3][0]{
+%   \small
+%   \tikzmath{	% значения между слайдами не сохраняются
+%     \i = 0;
+%     for \bordervalue in {#2}{
+%       \bordervalues{\i} = \bordervalue;
+%       \i = \i+1;
+%     };
+%     \l = \bordervalues{0};
+%     \h = \bordervalues{1};
+%     \bitstofollow = #1;
+%   }  
+%   \def\oldbits{#3}
+%   \codelabelat{$[\l,\h]$}{0.3}
+% }
+
+% !отображение
+\newcommand\intshortlabel{\tikzmath{\t=\h+1;}\ensuremath{
+% [\l,\h], 
+[\l,\t), 
+\beta=\bitstofollow
+}}
+\newcommand\intsubdivlabel[1][]{\tikzmath{\t=\oldh+1;}\ensuremath{
+\left\{\begin{array}{lllll}
+%     l &\to& l + \frac{b_\im (h - l  + 1)}{b_{last}}       &=& \oldl + \frac{\b{\im} (\oldh - \oldl  + 1)}{\divsr} \\
+%     h &\to& l + \frac{b_{\i}  (h - l  + 1)}{b_{last}} - 1 &=& \oldl + \frac{\b{\i}  (\oldh - \oldl  + 1)}{\divsr} - 1 \\
+    l &\to& l + \frac{\omega_\im (t - l)}{D}       &=& \oldl + \frac{\b{\im} (\t - \oldl)}{\divsr} \\
+    t &\to& l + \frac{\omega_{\i}  (t - l)}{D} &=& \oldl + \frac{\b{\i}  (\t - \oldl)}{\divsr} \\
+\end{array}
+\right.
+\tikzmath{\t=\h+1;}
+\to [\l,\t), \beta=\bitstofollow
+}}
+% \newcommand\intscalelabel[1][]{\ensuremath{
+% \left\{\begin{array}{lllll}
+%     l &\to& 2(l\scalestartmath{\hscalestart})     &=& 2(\oldl\scalestartval{\hscalestart})  \\
+%     h &\to& 2(h\scalestartmath{\hscalestart}) + 1 &=& 2(\oldh\scalestartval{\hscalestart})+ 1 \\
+% \end{array}
+% \right.
+% \to [\l,\h], \beta=\bitstofollow
+% }}
+
+% !отображение
+\def\intinit #1 [#2,#3], #4 
+{
+%   \small
+%   \footnotesize
+  \tikzmath{	% значения между слайдами не сохраняются
+    \l = #2;
+    \h = #3;
+    \bitstofollow = #1;
+  }  
+  \def\oldbits{#4}
+%   \codelabelat{$[\l,\h],~B=\printbits$}{0.3}
+  \tikzmath{\t=\h+1;}\codelabelat{$[\l,\t),~B=\printbits$}{0.3}
+  
+  \inthpoints
+}
+
+% !отображение (B)
+\newcommand{\intsubdiv}[2][\intshortlabel]{
+  \drawalphsubdiv
+  \calcalphsubdiv{#2}
+  
+  \moveyticklevel
+  \foreach \x in {\l,\h+1} {
+    \draw[scaleline] (\x, \oldyticklevel) -- (\x, \newyticklevel);
+  }
+  \def\codepos{\subdivcodepos}
+  \autocodelabel{$#1,~B=\printbits$}
+  \node[codenode, left = 0mm of lastcode]  {\textbf{\c{#2}}};
+  
+  \inthpoints
+  
+  \normalizelen
+  \normalizelen
+  \normalizelen
+  \normalizelen
+  \normalizelen
+  \normalizelen
+  \normalizelen
+  
+}
+\newcommand{\makenormalizelabels}{
+  \tikzmath{
+%   \intscale[\intscalelabel]{0.5}{01,10}
+%   \intscale[\intscalelabel]{0.5}{0,1}
+%   \intscale{0.25}{00,01,10,11}
+%   \intscale[\intscalelabel]{0}{0,1}
+%   \intscale{0.25}{00,01,10,11}
+%   \intscale{0.25}{010,011,100,101}
+%   \intscale{0.25}{0110,0111,1000,1001}
+%   \intscale{0.25}{01110,01111,10000,10001}
+%  
+    int \labellen;
+    \labellen = \isquarterscale + \bitstofollow + 1;
+    if 1 == \labellen then 
+    { 
+      let \normlabels{0} = ;
+      let \normlabels{1} = 0;
+      let \normlabels{2} = 1;
+      let \normlabels{3} = ;
+    } 
+    else  
+    {
+      if 2 == \labellen then 
+      { 
+	let \normlabels{0} = 00;
+	let \normlabels{1} = 01;
+	let \normlabels{2} = 10;
+	let \normlabels{3} = 11;
+      } 
+      else 
+      {       
+	if 3 == \labellen then 
+	{ 
+	  let \normlabels{0} = 010;
+	  let \normlabels{1} = 011;
+	  let \normlabels{2} = 100;
+	  let \normlabels{3} = 101;
+	} 
+	else 
+	{       
+	  if 4 == \labellen then 
+	  { 
+	    let \normlabels{0} = 0110;
+	    let \normlabels{1} = 0111;
+	    let \normlabels{2} = 1000;
+	    let \normlabels{3} = 1001;
+	  } 
+	  else 
+	  {       
+	      if 5 == \labellen then 
+	      { 
+		let \normlabels{0} = 01110;
+		let \normlabels{1} = 01111;
+		let \normlabels{2} = 10000;
+		let \normlabels{3} = 10001;
+	      } 
+	      else 
+	      {       
+		let \normlabels{0} = ;
+		let \normlabels{1} = ;
+		let \normlabels{2} = ;
+		let \normlabels{3} = ;
+	      };  
+	  };  
+	};  
+      };  
+    };
+  }
+}
+
+\newcommand{\normalizelen}{
+
+  \tikzmath{
+    real \hscalestart;
+    \hscalestart = 1;
+    if \h < \Nh then 
+    { 
+      \hscalestart = 0;
+      \isquarterscale = 0;
+    } 
+    else  
+    {
+      if \l>=\Nh then 
+      { 
+	\hscalestart = 0.5;
+	\isquarterscale = 0;
+      } 
+      else 
+      {       
+	if (\l>=\Nq) && (\h < 3*\Nq) then 
+	{ 
+	  \hscalestart = 0.25;
+	  \isquarterscale = 1;
+	}; 
+      };  
+    };
+  } 
+  
+  \makenormalizelabels
+  \ifthenelse{\equal{\hscalestart}{1}}{
+  }{
+    \ifthenelse{\equal{\isquarterscale}{0}}{
+      \def\binlinesinangle{-13}
+      \intscale{\hscalestart}{\normlabels{1},\normlabels{2}}
+    }{
+      \def\binlinesinangle{-20}
+      \intscale{\hscalestart}{\normlabels{0},\normlabels{1},\normlabels{2},\normlabels{3}}
+% % %     \normalize
+    }
+  }
+}
+
+
+\newcommand{\intscale}[3][\intshortlabel]{
+  \tikzmath{
+    real \hscalestart, \binsubdivlen;
+    \hscalestart = #2;
+    if (\hscalestart>0.249)*(\hscalestart<0.251) then 
+    { 
+      \binsubdivlen = 0.25;
+    } 
+    else  
+    {
+      \binsubdivlen = 0.5;
+    };
+  } % \tikzmath
+
+  \binlines[\binsubdivlen]{#3}
+  
+  \def\codepos{\scalecodepos}
+  \halfscale[\l,\h+1]{\hscalestart}{$#1,~B=\printbits$}
+  
+  \inthpoints
+  
+}
+
+
+\newcommand{\finalbit}[2][$B=\printbits$]{
+  \tikzmath{
+    \newbit = #2;
+    \x = \newbit*\Nh;
+    let \finalpointstyle = bigemptypointstyle;
+    %
+    if (\l <= \x) && (\x < \h) then 
+    { 
+      let \finalpointstyle = bigredpointstyle;
+      \bitscount = \bitscount + 1;
+      \bits{\bitscount} = \newbit;
+      %
+%       \invbit = 1-\newbit;
+%       if \bitstofollow>0 then 
+%       {
+% 	for \i in {1,...,\bitstofollow}{
+% % 	  \historyAdd{\invbit}
+% 	  \bitscount = \bitscount + 1;
+% 	  \bits{\bitscount} = \invbit;
+% 	};
+	\bitstofollow = 0;
+%       }; %  if \bitstofollow>0 then    
+    };
+  } % \tikzmath
+  
+  \node[\finalpointstyle] at (\x,\yticklevel) {};
+  
+  \moveyticklevel
+  \def\codepos{\subdivcodepos}
+  \autocodelabel{#1}
+}
+
+
+
+
+

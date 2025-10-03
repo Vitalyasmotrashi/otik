@@ -1,0 +1,650 @@
+\input{commonpath}
+\input{\SRCROOTPATH/commonpres}
+
+% \title{Сжатие информации с~учётом контекста \mbox{(отдельный словарь --- дерево/таблица)} --- семейство LZ78}
+
+\title{Сжатие с~учётом контекста.
+\mbox{Словарные методы} с~отдельным словарём \mbox{(дерево/таблица)} --- \mbox{семейство LZ78}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+
+\maketitle
+
+
+\newcommand{\nondecdigit}[1]{\lapbox[\digitwidth]{0.06\digitwidth}{\ensuremath{\mathrm{\resizebox*{1.12\digitwidth}{\digitheight}{#1}}}}}
+\newcommand{\digitA}{\nondecdigit{A}}
+\newcommand{\digitB}{\nondecdigit{B}}
+\newcommand{\digitC}{\nondecdigit{C}}
+\newcommand{\digitD}{\nondecdigit{D}}
+\newcommand{\digitE}{\nondecdigit{E}}
+\newcommand{\digitF}{\nondecdigit{F}}
+
+\colorlet{clCode}{red}
+\newcommand{\cm}[1]{\textcolor{red}{#1}}
+\newcommand{\ctm}[1]{\textcolor{violet}{#1}}
+\newcommand{\um}[1]{\textcolor{green!70!black}{#1}}
+
+
+\tikzstyle{tnode}	= [circle, minimum height=1.2ex, draw=black,inner sep=0pt, outer sep=0pt]
+
+\subsection{Алфавит и~сообщение}
+\begin{frame}{\insertsubsection}
+
+В~норме для кодов семейства LZ78, как и~для любого кода, алфавит "--- набор байтов, исходный текст "--- 
+% некоторый двоичный файл.
+последовательность байтов.
+% При этом для адекватной демонстрации алгоритма в~сообщении желательно использовать все симво
+
+% Так как дерево будет громоздким даже для 
+
+Рассмотрим сообщение «Обороноспособность» (18 символов всего, 8~разных)
+% \begin{enumerate}
+% \item 
+в~8-символьном алфавите из 3-битных байтов (в~сообщении встречаются все 8~возможных символов):
+% \item в~16-символьном алфавите из 4-битных байтов (в~сообщении встречается только часть из~16 возможных символов). 
+% \end{enumerate}
+
+
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}\hline
+значение  &  0&  1   &2   &3   &4   &5   &6   &7   \\\hline
+глиф &  б  &н  &о &п &р &с &т &ь  \\\hline
+\end{tabular}
+
+
+\end{frame}
+
+
+% LZ78 и LZ2 — синонимы
+% http://patft1.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=%2Fnetahtml%2FPTO%2Fsearch-bool.html&r=1&f=G&l=50&co1=AND&d=PTXT&s1=5532693.PN.&OS=PN/5532693&RS=PN/5532693
+\section{Код Зива--Лемпеля, LZ78/LZ2 (концепция)}
+\subsection{Понятие}
+\begin{frame}{\insertsection}
+\footnotesize
+% \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% \lstset{xleftmargin=1em,numbers=none}
+% \lstset{lineskip=0.5ex}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{1ex}}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize\setlistspacing{2}{0ex}}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+
+\setlength{\digitwidth}{\widthof{$0$}}
+\setlength{\digitheight}{\heightof{$0$}}
+
+1978 г., Якоб Зив (Jacob Ziv) и Абрахам Лемпель (Abraham Lempel):
+
+\begin{enumerate}
+
+\item Скользящее окно не используем "---
+% только упреждающий буфер.
+кодируем в~один проход вперёд
+$\Longrightarrow$ высокая скорость кодирования-декодирования.
+
+% \item Закодированные данные хранятся в~дереве.
+\item Словарь = дерево, узел "--- номер и~символ $(n, c)$, \\корень "--- $(0, \text{пустая строка})$, слово читается от корня.
+\item Вначале словарь пуст (только корень).
+\item На каждом шаге 
+\begin{itemize}
+\item к~словарю добавляется узел (лист);
+\item в~выходной поток "--- номер родителя и~символ нового листа $(P, c)$.
+\end{itemize}
+\item Когда кончается ёмкость номера листа, дерево:
+\begin{itemize}
+\item либо уничтожается и~растится заново;
+\item либо ветви уничтожаются выборочно (сложно);
+\item либо фиксируется и~не растёт (нет прикорневого узла $\Longrightarrow$ сбои);
+\item либо \termin{увеличивается разрядность номера.}
+% , и~далее в~выходной поток записываются только старые листья.
+\end{itemize}
+
+% \item Если $|n|=|c|$, то в~нх.\,сл. "--- увеличение объёма в~2~раза:\\ 
+% LZ78 создавался для малоцветных изображений (gif)
+
+\item При необходимости вх-й поток дополняется (либо конец обр-ся особо).
+\end{enumerate}
+\vspace{-1\baselineskip}
+\end{frame}
+
+\subsection{«Обороноспособность» (18, 8~разных)}
+\begin{frame}{\insertsubsection}
+
+\setbeamerfont{itemize/enumerate body}{size=\footnotesize}
+\setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\footnotesize
+\setlength{\parskip}{0\parskip}
+
+\begin{enumerate}
+
+\item Вначале словарь = корень (пустая строка), \mbox{$n=1$ (№ добавляемого узла, с~1),} $i=0$ (№ символа во~вх.\,потоке,~с~0).
+
+% \item Если  символа входного потока $c$ нет в~дочерних узлах корня
+% \begin{itemize}
+% \item добавляем дочерний узел;
+% \item в~выходной поток пишем $(0, c)$; 0 "--- узел словаря.
+% \end{itemize}
+% \item Если  символ "--- дочерний корня, проверяем следующий.
+\item $P=0$ (текущий узел "--- корень), $c_i$ (текущий символ входного потока);
+
+\item Если   $c_i$   "--- дочерний $P$, $P=c_i$ и~читаем $c_{i+1}$ (${+}{+}i$)
+\item Если   $c_i$ нет в~дочерних узлах $P$:
+\begin{itemize}
+\item добавляем $P$ дочерний узел $(n, c_i)$, ${+}{+}n$ и~читаем $c_{i+1}$ (${+}{+}i$);
+\item в~выходной поток пишем $(P, c_i)$.
+\end{itemize}
+
+\end{enumerate}
+
+% \termin{обороноспособность}
+% \strut\hfill
+\begin{tabular}{@{}l>{\color{clCode}}ll@{}}
+% №&выход\\
+1&(0,о)&о\\
+2&(0,б)&б\\
+3&(1,р)&ор\\
+4&(1,н)&он\\
+5&(1,с)&ос\\
+6&(0,п)&п\\
+7&(5,о)&осо\\
+8&(2,н)&бн\\
+9&(5,т)&ост\\
+10&(0,ь)&ь\\
+\end{tabular}
+\hfill
+% \includegraphics[width=\linewidth,height=0.5\slideheight,keepaspectratio,valign=c]{lz78}\centering
+\begin{tikzpicture}[
+start chain=nlvl going right, 
+every label/.style={scale=0.7,inner sep=1pt},
+%	 	y and x
+node distance=5ex and 2em,
+label distance=0pt,
+baseline=(current bounding box.center),
+]
+
+\foreach \c/\n
+in {р/3,н/4,с/5,н/8}
+{
+  \node[tnode, on chain=nlvl, label=60:$\n$] (n\n) {\c\strut};
+}
+% 
+% \foreach \c/\n/\parent
+% in {с/19/13,н/18/8,о/17/14}
+% {
+%   \node[tnode, label=60:$\n$, below=of n\parent] (n\n) {\c\strut};
+%   \draw (n\parent) -- (n\n);
+% }
+
+\foreach \c/\n/\child in {о/1/4,б/2/8}
+{
+  \node[tnode, label=60:$\n$, on chain=nlvl, above=of n\child] (n\n) {\c\strut};
+  \draw (n\child) -- (n\n);
+}
+\foreach \child in {3,5}
+{
+  \draw (n\child) -- (n1);
+}
+\foreach \c/\n in {п/6,ь/10}
+{
+  \node[tnode, on chain=nlvl, label=60:$\n$] (n\n) {\c\strut};
+}
+
+% \node[circle, minimum height=0pt, fill, draw, label=60:$0$, above= 8ex of $0.5*(n2)+0.5*(n6)$, inner sep=1pt, outer sep=0pt] (n0) {};
+\node[circle, minimum height=0pt, fill, draw, label=60:$0$, above= 5.8ex of n2.north, inner sep=1pt, outer sep=0pt] (n0) {};
+\foreach \child in {1,2,6,10}
+{
+  \draw (n\child) -- (n0);
+}
+
+  \node[tnode, label=30:$7$, below=of $0.5*(n4)+0.5*(n5)$] (n7) {о\strut};
+  \node[tnode, label=60:$9$, below=of $0.5*(n5)+0.5*(n8)$] (n9) {т\strut};
+\foreach \child in {7,9}
+{
+  \draw (n\child) -- (n5);
+}
+
+\node at (n9-|n10)  {$10$ пар};
+\end{tikzpicture}
+% \hfill\strut
+
+\end{frame}
+
+
+\subsection{Минимально возможная длина кода}
+\begin{frame}{\insertsection{} --- \insertsubsection}
+\begin{adjustwidth}{-5.5em}{-5.5em}
+
+\setbeamerfont{itemize/enumerate body}{size=\footnotesize}
+\setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\footnotesize
+\setlength{\parskip}{0\parskip}
+
+В~коде сообщения $n_{\max} = 10$ пар $(P, c)$:
+\begin{itemize}
+\item разрядность $|c|$ символа постоянна и~равна разрядности символа в~исходном тексте;
+% рассмотрим: а)~$|c|=3$ бита; б) $|c|=4$ бита;
+
+\item разрядность $|P|$ номера узла-родителя не равна $|c|$:
+\begin{itemize}
+\item может быть постоянной: $|P| \geqslant \log_2 (n_{\max}-1)$, здесь $|P| \geqslant 4$ бита, обычно $|P|>>|c|$;
+\item может быть разной для разных пар: \termin{минимальная длина} кода достигается при побитовом увеличении $|P|$ 
+(тогда поток пар  $(P, c)$ "--- битовый, а~не байтовый).
+
+\end{itemize}
+\end{itemize}
+
+
+Рассчитаем эту \termin{минимальную длину $|code|$}.
+
+\vfill
+
+\begin{tabularx}{1\linewidth}{@{}lL@{}}
+\begin{tabular}{@{}ll@{~}l@{}}
+№&Возможные $P$&$\min(|P|)$, бит\\
+1 &только 0 &0 (не сохр.)\\
+2 &0 или 1  &1\\
+3 &0, 1, 2   &2\\
+4 &0, 1, 2, 3&2\\
+5 &0, 1, ... 4& 3\\
+6 &0, 1, ... 5&3\\
+7 &0, 1, ... 6&3\\
+8 &0, 1, ... 7&3\\
+9 &0, 1, ... 8&4\\
+10&0, 1, ... 9&4\\
+\end{tabular}
+&
+% Исходная длина (в~символах) сообщения «обороноспособность» "--- 18 символов.
+% \medskip
+%
+\vspace*{-5\baselineskip}
+Суммарная длина (в~символах) полей $c$ во всех 10 парах постоянна и~равна 10~символов (байтов).
+% \medskip
+
+Минимальная суммарная длина (в~битах) полей $P$ во всех 10 парах:
+$|P|_{\sum} = 1 + 2\cdot2 + 3\cdot4 + 4\cdot2 = 25$ бит.
+\medskip
+
+Минимальная общая длина $|code|$ (в~символах=байтах) кода 
+%
+% а) 
+при $|c| = 3$ (3-битный байт): $|code| = 10 + \frac{25}{3} = 10 + 8 + \frac{1}{3} \cong 19$;
+
+% б) $|c| = 4$ (4-битный байт): $|code| = 10 + \frac{25}{4} = 10 + 6 + \frac{1}{4} \cong 17$;
+
+(для записи «лишнего» бита необходим целый байт).
+\medskip
+
+Длина исходного текста "--- 18 символов=байтов.
+
+\end{tabularx}
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+% \begin{frame}{\insertsection{} --- \insertsubsection}
+% В~общем случае $\displaystyle P_{\sum} = \sum_{i=1}^{m-1} i \cdot 2^{i-1} + r \cdot 2^{m-1}$ бит,  где
+% %
+% $m = \lfloor \log_2(P_{\max}) \rfloor$ "--- разрядность, необходимая для наибольшего $P$ (здесь $m=4$)
+% 
+% 
+% \end{frame}
+
+
+
+
+\section{Код Зива--Лемпеля--Велча, LZW}
+% \subsection{Понятие}
+\begin{frame}{\insertsection}
+\begin{adjustwidth}{-5em}{-5em}
+
+\setbeamerfont{itemize/enumerate body}{size=\footnotesize}
+\setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\leftmarginiii}{1em}
+\footnotesize
+\setlength{\parskip}{0\parskip}
+
+1984 г., Терри Велч (Terry Welch) по концепции LZ78:
+
+\begin{enumerate}
+
+\item Вначале словарь = первый уровень (все одиночные символы, $2^k$ штук для $k$-битного \mbox{символа=байта).}
+Тогда корень можно не нумеровать (прикорневые нумеруем с~нуля).
+
+% \vfill
+% \item Номер шага кодирования/декодирования "--- 
+
+\vfill
+\item Кодирование: при добавлении узлу $P$ дочернего узла с~номером $m$ и~символом $c_i$%(новое слово $c_{i-r}c_{i-r+1}...c_i$)
+:
+\begin{itemize}
+\item оставляем $c_i$ во входном потоке ($c_i$ "--- последний текущего слова и~первый следующего);
+\item в~выходной поток пишем $P$.
+\end{itemize}
+
+\vfill
+
+\item Декодирование: 
+%номер шага $m$ = номер добавляемого узла.
+%
+перед любым шагом, кроме первого, последний узел (с~номером $m-1$) "--- пустой (с~неизвестным символом $c_j$);
+%
+читаем $P \in \{0, 1, ..., m-1\}$ $\implies$ пишем в~выходной поток слово = ветвь $P$ и~одновременно заполняем пустой узел:
+\begin{itemize}
+\item символ $c_{j}$, соответствующий первому (прикорневому $\implies$ всегда заполненному) узлу ветви $P$ пишем и~в~выходной поток, и~в~пустой узел $m-1$ (первый слова = последний предыдущего);
+% $\implies$ 
+% теперь все узлы заполнены;
+% нет пустых;
+\item {} [теперь нет пустых узлов] прочие символы ветви $P$, включая сам $P$ "--- только в выходной поток;
+% "--- тепер
+\item добавляем узлу $P$ пустой (с~неизвестным $c_i$) дочерний с~номером $m$.
+% \mbox{(и~$m \to m+1$ для следующего шага).}
+\end{itemize}
+
+% \vfill
+
+Первый шаг ($m=2^k$) отдельно: $P \in \{0, 1, ..., 2^k-1\}$, пустого нет.
+
+
+\vfill
+
+\item $|m|>>|c|$, во многих реализациях увеличивается по битам.
+
+\item Дерево часто разворачивается в~таблицу.
+
+\item Вх-й поток всегда дополняется как минимум одним незначащим \rlap{символом.}
+
+\end{enumerate}
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \subsection{Кодирование и~декодирование LZW}
+% \begin{frame}{\insertsubsection}
+% 
+% Кодирование (в~словаре )
+% \begin{enumerate}
+% \end{enumerate}
+% 
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+\subsection{«Обороноспособность» (18, алфавит из~8)}
+\begin{frame}{\insertsubsection}
+
+\setbeamerfont{itemize/enumerate body}{size=\footnotesize}
+\setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\footnotesize
+% \setlength{\parskip}{0\parskip}
+
+\begin{tikzpicture}[
+start chain=nlvl going right, 
+every label/.style={scale=0.7,inner sep=1pt},
+%	 	y and x
+node distance=4ex and 1.5em,
+label distance=0pt
+]
+
+% вторая линия, потому что она самая длинная
+\foreach \c/\n%/\x/\y 
+in {о/9,о/13,б/8,р/10,н/12,с/14,о/16,о/11,п/15,т/20,ь/21}
+{
+  \node[tnode, on chain=nlvl, label=60:$\n$] (n\n) {\c\strut};
+}
+
+% третья линия, дырявая
+\foreach \c/\n/\parent
+in {с/19/13,н/18/8,о/17/14}
+{
+  \node[tnode, label=60:$\n$, below=of n\parent] (n\n) {\c\strut};
+  \draw (n\parent) -- (n\n);
+}
+
+% те из первой линии, которые строго над
+\foreach \c/\n/\child
+in {б/0/9,н/1/13,п/3/16,р/4/11,т/6/21}
+{
+  \node[tnode, label=60:$\n$, on chain=nlvl, above=of n\child] (n\n) {\c\strut};
+  \draw (n\child) -- (n\n);
+}
+\node[tnode, on chain=nlvl, label=60:$7$] (n7) {ь\strut};
+
+% те из первой линии, которые над серединой
+
+\coordinate (rootox) at ($0.5*(n10)+0.5*(n12)$);
+\coordinate (rootsx) at ($0.5*(n15)+0.5*(n20)$);
+
+\foreach \c/\n/\xcoord
+in {о/2/rootox,с/5/rootsx}
+{
+  \node[tnode, label=60:$\n$] (n\n) at (\xcoord|-n0) {\c\strut};
+}
+
+\foreach \child in {8,10,12,14}
+{
+  \draw (n\child) -- (n2);
+}
+
+\foreach \child in {15,20}
+{
+  \draw (n\child) -- (n5);
+}
+
+% добавленный символ б — нельзя внести ь в третий цикл, это б должно быть в первом!
+% или так, заодно перекрасим
+\foreach \c/\n/\parent
+in {б/22/7}
+{
+  \node[tnode, label=60:$\n$, below=of n\parent, gray] (n\n) {\c\strut};
+  \draw[gray] (n\parent) -- (n\n);
+}
+
+
+\end{tikzpicture}
+
+
+\begin{tabular}{@{}lll>{\color{clCode}}l@{}}
+8&(2, б)&об&2\\
+9&(0, о)&бо&0\\
+10&(2, р)&ор&2\\
+11&(4, о)&ро&4\\
+12&(2, н)&он&2\\
+13&(1, о)&но&1\\
+14&(2, с)&ос&2\\
+15&(5, п)&сп&5\\
+\end{tabular}
+\hfill
+\begin{tabular}{@{}lll>{\color{clCode}}l@{}}
+16&(3, о)&по&3\\
+17&(14, о)&осо&14\\
+18&(8, н)&обн&8\\
+19&(13, с)&нос&13\\
+20&(5, т)&ст&5\\
+21&(6, ь)&ть&6\\
+22&(7, б)&ь\textcolor{gray}{б}&7\\
+\multicolumn{4}{@{}l@{}}{15 значений}\\
+\end{tabular}
+\hfill
+\strut
+
+\end{frame}
+
+
+
+
+\subsection{Минимально возможная длина кода}
+\begin{frame}{\insertsection{} --- \insertsubsection}
+\begin{adjustwidth}{-5.5em}{-5.5em}
+
+\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+% \footnotesize
+{
+\setlength{\parskip}{0\parskip}
+
+В~коде сообщения $m_{\max}-m_{\min}+1 = 22-8+1 = 15$ значений $P$; \mbox{рассчитаем \termin{минимально возможную} их~длину:}
+\begin{itemize}
+\item 1 размером 3 бита ($m=8$: $P \in \{0, 1, ... 7\}$);
+\item 8 размером 4 бита (от $m=9$: $P \in \{0, 1, ... 7, 8\}$ до $m=16$: $P \in \{0, 1, ... 15 \}$);
+\item 6 размером 5 бит (от $m=17$: $P \in \{0, 1, ... 16\}$ до $m=22$: $P \in \{0, 1, ... 22\}$); 
+потенциально 5 бит хватило бы на 16 значений (до $m=32$: $P \in \{0, 1, ... 31\}$), но~сообщение закончилось раньше.
+
+\end{itemize}
+
+}
+
+Суммарная длина (в~битах) $3 + 4\cdot 8 + 5 \cdot 6 = 65$ бит.
+
+Символ=байт при таком дереве может занимать только 3 бита (алфавит из 8 символов).
+
+Суммарная длина (в~символах) $\frac{65}{3} = 21\frac{2}{3} \cong 22$ байта.
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+% \subsection{Декодирование (замечания)}
+% \begin{frame}{\insertsubsection}
+% \setbeamerfont{itemize/enumerate body}{size=\footnotesize}
+% \setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{3ex}
+% \footnotesize
+% \setlength{\parskip}{0\parskip}
+% 
+% \begin{enumerate}
+% 
+% % \item При декодировании на первом по счёту $i=N+1$-м шаге входной номер $P_i$ не превышает $N$ (знаем подстроку).
+% 
+% \item При декодировании на $i$-м шаге (входной номер $P_i$) в~выходной поток добавляется строка $C_{i}$, соответствующая узлу $P_i$ (то есть на один символ короче, чем была на $i$-м шаге при кодировании), 
+% 
+% а~в~дереве словаря от~самого $P_i$ должен отрасти дочерний узел с~номером~$i$ и~неизвестным символом~$c_i$.
+% 
+% \item Символ~$c_i$ узла $i$ становится известным только на шаге $i+1$ \mbox{($c_i$ "--- это первый символ подстроки $C_{i+1}$ шага $i+1$),} 
+% 
+% поэтому на практике узел $i$ добавляется в~словарь на шаге $i+1$.
+% 
+% 
+% 
+% \item Если на $i+1$ шаге получаем ссылку на ещё не добавленный узел $P_{i+1} = i$, то всё равно $c_i$ "--- это первый символ подстроки $C_{i+1}$,
+% % так что её последний символ $c_i$ совпадает с~первым $c_0$: $C_{i+1} = a x x \ldots x a$.
+% 
+% % А
+% а~первый символ $C_{i+1}$ мы знаем даже при $P_{i+1} = i$ \\(как и~все до предпоследнего включительно% "--- при $P_{i+1} = i$ они соответствуют $P_i$
+% )!
+% 
+% При $P_{i+1} = i$ последний символ строки $C_{i+1}$ совпадает с~первым: $C_{i+1} = a x x \ldots x a$.
+% % $C_{i+1} = a x_1 x_2 \ldots x_s a$
+% % (два шага: $C_{i}C_{i+1} = a x_1 x_2 \ldots x_s a x_1 x_2 \ldots x_s a$)
+% 
+% 
+% \end{enumerate}
+% 
+% \end{frame}
+
+\subsection{Декодирование (обороноспособность)}
+\begin{frame}{\insertsubsection}
+
+
+\begin{tikzpicture}[
+start chain=nlvl going right, 
+every label/.style={scale=0.7,inner sep=1pt},
+%	 	y and x
+node distance=4ex and 1.5em,
+label distance=0pt
+]
+
+\foreach \c/\n%/\x/\y 
+in {б/0,н/1,о/2,п/3,р/4,с/5,т/6,ь/7}
+{
+  \node[tnode, on chain=nlvl, label=60:$\n$] (n\n) {\c\strut};
+}
+
+
+\end{tikzpicture}
+
+
+\begin{tabular}{@{}>{\color{clCode}}llll@{}}
+2&о&  &\\
+0&б& 8&(2, б)\\
+2&о&9 &(0, о)\\
+4&р&10&(2, р)\\
+2&о&11&(4, о)\\
+1&н&12&(2, н)\\
+2&о&13&(0, о)\\
+5&с&14&(2, с)\\
+\end{tabular}
+\hfill
+\begin{tabular}{@{}>{\color{clCode}}llll@{}}
+ 3&п &15&(5, с)\\
+14&ос&16&(3, о)\\
+ 8&об&17&(14, о)\\
+13&но&18&(8, н)\\
+ 5& с&19&(13, с)\\
+ 6&т &20&(5, т)\\
+ 7&ь &21&(6, ь)\\
+\end{tabular}
+\hfill
+\strut
+
+
+\end{frame}
+
+
+% \subsection{Декодирование (?)}
+% \begin{frame}{\insertsubsection}
+% 
+% \end{frame}
+
+
+\section{Задачи для лекции}
+\begin{frame}{\insertsection}
+
+Закодируйте/декодируйте различными алгоритмами семейства LZ78 (концептом и~LZW) сообщение
+
+$m = 
+7770\,0000\,0123\,4567~\,7770\,7770\,0000\,0000
+$
+
+Сравните длину кода с~кодом семейства LZ77 с~односимвольным префиксом.
+
+\end{frame}
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}
+% \frametitle{Литература}
+% 
+% \begin{itemize}
+% \item Вентцель Е.\,С. Теория вероятностей: Учеб. для вузов. — 6-е изд. стер. — М.: Высш. шк., 1999.— 576 c. 
+% 
+% \item Пахомов\,С. Сравнение 64-битных архиваторов WinRAR 4.2, WinZip 17.0 и 7-Zip 9.30
+% 
+% \end{itemize}
+% \end{frame}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makethanks
+\end{document}

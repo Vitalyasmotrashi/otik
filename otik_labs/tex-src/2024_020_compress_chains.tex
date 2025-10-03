@@ -1,0 +1,3764 @@
+\input{commonpath}
+\input{\SRCROOTPATH/commonpres}
+\def\IMGPATH{\SRCROOTPATH/img/}
+
+% \title{Сжатие информации с~учётом контекста.
+% \mbox{Словарные методы, где словарём} является \mbox{несжатый текст} --- \mbox{семейство LZ77}}
+
+\title{Сжатие с~учётом контекста.
+\mbox{Метод кодирования длин повторений} \mbox{(Run Length Encoding, RLE).}
+\mbox{Словарные методы, где словарём} является \mbox{несжатый текст} --- \mbox{семейство LZ77}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% https://mf.grsu.by/UchProc/livak/po/comprsite/theory_contents.html#%D0%A1%D0%BE%D0%B4%D0%B5%D1%80%D0%B6%D0%B0%D0%BD%D0%B8%D0%B5
+
+% статья 77
+% https://www2.cs.duke.edu/courses/spring03/cps296.5/papers/ziv_lempel_1977_universal_algorithm.pdf
+
+% LZSS
+% https://link.springer.com/chapter/10.1007/978-3-642-82456-2_8
+
+% Can be used only in preamble.
+\DeclareMathOperator{\lo}{lo}
+\DeclareMathOperator{\hi}{hi}
+
+
+\begin{document}
+\maketitle
+\input{\SRCROOTPATH/pres-sections/symbyte.tex}
+
+
+% \subsection{Размер байта -- 4 бита}
+% \begin{frame}{\insertsubsection}
+% \footnotesize
+% \setlength{\parskip}{0.5\parskip}
+% 
+% Для компактной иллюстрации ограничений алгоритмов примем, что~для устройства «доска» байт (символ кодирования) составляет не~8~бит "---октет 
+% % или две тетрады, или~две~16-ричные цифры, 
+% (как для Intel x86/amd64), и~не 6 бит {(%две триады, или две восьмеричные цифры, 
+% как для IBM 7030 Stretch),} 
+% \mbox{а~4 бита} "--- %двоичную 
+% тетраду, или одну 16-ричную цифру:
+% 
+% $\hex{0} = 0000 = 0$ ~~~~~~ $\hex{8} = 1000 = 8$\\
+% $\hex{1} = 0001 = 1$ ~~~~~~ $\hex{9} = 1001 = 9$\\
+% $\hex{2} = 0010 = 2$ ~~~~~~ $\hex{A} = 1010 = 10$\\
+% $\hex{3} = 0011 = 3$ ~~~~~~ $\hex{B} = 1011 = 11$\\
+% $\hex{4} = 0100 = 4$ ~~~~~~ $\hex{C} = 1100 = 12$\\
+% $\hex{5} = 0101 = 5$ ~~~~~~ $\hex{D} = 1101 = 13$\\
+% $\hex{6} = 0110 = 6$ ~~~~~~ $\hex{E} = 1110 = 14$\\
+% $\hex{7} = 0111 = 7$ ~~~~~~ $\hex{F} = 1111 = 15$
+% % $\hex{8} = 1000 = 8$\\
+% % $\hex{9} = 1001 = 9$\\
+% 
+% Символьная таблица (аналог ASCII) даётся отдельно в~каждом примере, либо отсутствует.
+% 
+% \end{frame}
+
+\subsection{Размер байта -- 3 бита}
+\begin{frame}{\insertsubsection}
+\footnotesize
+\setlength{\parskip}{0.5\parskip}
+
+Для компактной иллюстрации ограничений алгоритмов примем, что~для устройства «доска» байт (символ кодирования) составляет не~8~бит "---октет 
+% или две тетрады, или~две~16-ричные цифры, 
+(как для Intel x86/amd64), и~не 6 бит {(%две триады, или две восьмеричные цифры, 
+как для IBM 7030 Stretch),} 
+\mbox{а~3 бита} "--- %двоичную 
+триаду, или одну 8-ричную цифру:
+
+${0} = 000 $ \\
+${1} = 001 $ \\
+${2} = 010 $ \\
+${3} = 011 $ \\
+${4} = 100 $ \\
+${5} = 101 $ \\
+${6} = 110 $ \\
+${7} = 111 $ 
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+\newcommand{\nondecdigit}[1]{\lapbox[\digitwidth]{0.06\digitwidth}{\ensuremath{\mathrm{\resizebox*{1.12\digitwidth}{\digitheight}{#1}}}}}
+\newcommand{\digitA}{\nondecdigit{A}}
+\newcommand{\digitB}{\nondecdigit{B}}
+\newcommand{\digitC}{\nondecdigit{C}}
+\newcommand{\digitD}{\nondecdigit{D}}
+\newcommand{\digitE}{\nondecdigit{E}}
+\newcommand{\digitF}{\nondecdigit{F}}
+
+\colorlet{clCode}{red}
+\newcommand{\ct}[1]{\textcolor{blue}{#1}}
+\newcommand{\cm}[1]{\textcolor{red}{#1}}
+\newcommand{\ctm}[1]{\textcolor{violet}{#1}}
+\newcommand{\um}[1]{\textcolor{green!70!black}{#1}}
+
+
+\tikzstyle{tnode}	= [circle, minimum height=1.2ex, draw=black,inner sep=0pt, outer sep=0pt]
+
+  
+% \subsection{Источник с~памятью (при сжатии необходимо учитывать контекст)}
+% 
+% 
+% % \subsection{Источник данных с~памятью}
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-4.5em}{-4.5em}
+% \footnotesize
+% % \small
+% \setlength{\parskip}{0.5\parskip} 
+% 
+% % % Вероят­ность порождения элемента определяется предысторией источника
+% % Вероят­ность определяется предысторией источника
+% % $\to$ при сжатии необходимо учитывать контекст символа.
+% 
+% % % \subsection{Модели источника данных}
+% % \begin{description}[Сж]
+% % 
+% % \item[Источ­ник Маркова ($N$-го порядка)] "--- состояние на $i$-м шаге зависит от состояний на $N$ предыдущих шагах: $i-1, i-2,..., i-N$.
+% % 
+% % \item[Аналоговый сигнал]"--- источник количественных данных Маркова 1-го порядка.
+% % 
+% % \end{description}
+% \setlength{\leftmargini}{0ex}
+% % \begin{itemize}
+% % 
+% % \item Аналоговый сигнал с~малым количеством состояний (например, чёрно-белый рисунок) "---
+% % сжимаются цепочки из одинаковых символов.
+% % 
+% % \item Словарные методы "--- сжимаются не отдельные символы, а~устойчивые их сочетания "--- слова
+% % \end{itemize}
+% % \end{enumerate}
+% \vspace{-0.2\baselineskip}
+% \begin{description}[Сж]
+% \item[источ­ник Маркова ($N$-го порядка)] "--- состояние на $i$-м шаге зависит от состояний на $N$ предыдущих шагах: $i-1, i-2,..., i-N$
+% $\to$  сжимаются не отдельные символы, {а~устойчивые сочетания} "--- слова: \mbox{методы (семейства кодов) Зива"--~Лемпеля  (LZ77, LZ78);}
+% 
+% \item[аналоговый сигнал]"--- источник количественных данных Маркова 1-го порядка
+% % 
+% $\to$ метод кодирования длин повторений (Run Length Encoding, RLE).
+% 
+% \end{description}
+% % 
+% % При расчёте количества информации источника 
+% % % с~памятью вероятности символов непостоянны (также учитываем контекст) 
+% % Маркова $N$-го порядка вероятности %на $i$-й позиции 
+% % зависят от предыдущих $N$ символов (непостоянны).
+% 
+% Для %задания 
+% конкретного стационарного источника Маркова $N$-го порядка:
+% % \\
+% вероятности %на $i$-й позиции 
+% зависят от~предыдущих $N$ символов %(непостоянны)
+% $\implies$ 
+% % нужно $T^{N+1} + T$ условных + безусловных вероятностей, 
+%  $T^{N+1}$ 
+% %  условных вероятностей, 
+% частот,
+% \mbox{где $T = |A|$ "--- размер алфавита ($T = 2^k$).}
+% % Если вероятности первых $N$ символов файла не считать равными "--- то вообще $T^{N+1} + T^N + \ldots + T$.
+% 
+% Ни один код сжатия с~контекстом не хранит 
+% % вероятности $\implies$ не является оптимальным для источника Маркова с~этими вероятностями $\implies$ длина кода не оценивается 
+% % % по частотам сочетаний в~файле.
+% % как $I_{\text{Маркова}}(\text{файла})$ по частотам сочетаний в~файле.
+% частоты сочетаний в~файле $c_1 \ldots c_n$ и \termin{не является оптимальным для стационарного источника Маркова с~этими конкретными частотами;}
+% \\
+% % $I_{\text{стационарного Маркова $N$-го порядка с~частотами из $c_1 \ldots c_n$}}(c_1 \ldots c_n)$ "--- не оценка $|code(c_1 \ldots c_n)|$.
+% $I_{\text{М$N$}}(c_1 \ldots c_n)$ "--- не оценка $|code(c_1 \ldots c_n)|$.
+% 
+% % % % % $\implies$ длина кода $|code(c_1 \ldots c_n)|$ не оценивается 
+% % % % % как $I_{\text{Маркова с~$p(y|x)$}}(c_1 \ldots c_n)$;
+% % % % 
+% % % % Методы строятся для \termin{нестационарного} «источника Маркова $N$-го порядка вообще»; 
+% % % % частоты неявно вшиты в~код.
+% 
+% \setlength{\leftmargini}{0em} 
+% \setlength{\leftmarginii}{0em} 
+% 
+% \begin{itemize}
+% \item RLE "--- для некоторого класса аналоговых сигналов (не любого сигнала, но и~не конкретного);
+% \item LZ78 "--- для широкого класса  стационарных источников Маркова (но тоже не любого);
+% \item LZ77 "--- для аналогичного класса \termin{нестационарных} источников Маркова.
+% \end{itemize}
+% 
+% 
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+\newcommand{\uset}[1]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+#1
+\end{array}\right\}
+}}
+
+
+
+
+
+\subsection{Методы кодирования, коды и~алгоритмы с~учётом контекста}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-4.5em}{-4.5em}
+\small
+\setbeamertemplate{itemize/enumerate body begin}{\small\setlistspacing{1}{0.5ex}}
+\setbeamertemplate{itemize/enumerate subbody begin}{\small}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\parskip}{0.3\parskip} 
+
+
+Далее рассматриваются \termin{методы сжатия с~учётом контекста:} RLE, LZ77 и~LZ78.
+
+\begin{enumerate}
+\item Оптимальный код источника Маркова, где $|code(c_1 \ldots c_n)| \to I(c_1 \ldots c_n)$
+% (аналог Хаффмана)
+% \hfill
+% \rlap{(блочный AC с~усл.\,вер.)}
+\rlap{(Хф/AC с~усл.\,вер.)}
+
+% не используется на практике, 
+% не описан как метод сжатия:
+не используется как метод сжатия:
+% так как %для его декодирования 
+% нужны все условные вероятности,
+даже для  1 порядка %это 
+нужны %более чем 
+$256^2 = 65536$ частот.
+
+\vfill
+
+\item Если метод Хаффмана однозначно лучше
+% не хуже и~иногда метода
+ Шеннона"--~Фано и~тем более Шеннона, %аналогичной \rlap{реализации,}
+
+то для сжатия с~учётом контекста \termin{нет однозначно лучшего метода.}
+
+% Есть файлы, для которых идеально подходит RLE.
+% Есть "--- подходящие для LZ78. Есть те, что 
+
+\vfill
+
+\item Для заданного метода "--- много кодов, \termin{нет однозначно лучшей реализации.}
+
+\vfill
+
+Есть файлы, которые «наивный» RLE сжимает лучше и~быстрее всего.
+
+% 
+% \vfill
+% 
+% \hrulefill
+
+\vfill
+
+\item Среди схожих реализаций одного метода однозначно \termin{худшей} (но обычно более наглядной)
+является та, где часть значений недопустима.
+% 
+«Наивный» RLE $(L, c)$ хуже, чем $(L-1, c)$.
+
+
+\vfill
+
+
+% \item Для любого кода LZ77 кодирование принципиально \termin{неоднозначно} (разные алгоритмы $\implies$ разные длины и~скорости).
+% Декодирование любого кода LZ77 однозначно.
+% 
+% \vfill
+% 
+% 
+% \item Для сложных реализаций любого метода кодирование тоже неоднозначно.
+
+\item Для
+сложных кодов RLE и~\termin{любого кода LZ77} \rlap{\termin{кодирование принципиально неоднозначно}}
+
+(разные алгоритмы $\implies$ разные длины и~скорости).
+\mbox{Декодирование "--- однозначно.}
+
+
+
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+% \section{Семейство RLE (Run Length Encoding)}
+% \section{Run Length Encoding, RLE (аналоговый сигнал)}
+% http://habrahabr.ru/post/141827/
+
+% \subsection{Концепция RLE}
+\subsection{Семейство RLE (Run Length Encoding) --- концепция}
+\begin{frame}{\insertsubsection}
+
+% \begin{frame}{\insertsection}
+
+\begin{adjustwidth}{-5em}{-5em}
+
+\footnotesize
+% % \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% % \lstset{xleftmargin=1em,numbers=none}
+% % \lstset{lineskip=0.5ex}
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+% 
+% \setlength{\digitwidth}{\widthof{$0$}}
+% \setlength{\digitheight}{\heightof{$0$}}
+% 
+% \smallskip
+
+Модель источника данных "--- Маркова первого порядка (аналоговый сигнал)%: вероятность символа зависит от предыдущего символа
+, при этом:
+$$\forall a \neq b{:} ~ 
+\left\{
+\begin{array}{l}
+p(a|a) = p(b|b) = r,\\
+p(a|b) = p(b|a) = s,\\
+\end{array}
+\right.
+r \gg (T-1)s
+, ~~
+\text{где $T$ "--- размер алфавита.}
+$$
+\vfill
+
+Run Length Encoding (RLE): 
+%вместо кодирования данных кодируются длины участков, на которых данные сохраняют неизменное значение. 
+%
+$\mathrm{AAAAAAAABCCCC} \to 8 \times\mathrm{A}, ~ 1\times\mathrm{B}, ~ 4\times\mathrm{C}$
+\vfill
+
+Повторение символа $c$ подряд $L$ раз ($L\times c$) "--- цепочку длины $L$, $L_{\min} \leqslant L \leqslant L_{\max}$ 
+"--- будем записывать как пару $\uset{L \\ c}$ (сжатая цепочка):\setlength{\parskip}{0.\parskip}
+\begin{itemize}
+\item цепочки  длины более $L_{\max}$ символов "--- делятся на несколько;
+\item последовательности символов, где ни один не повторяется  $L_{\min}$ раз подряд "--- несжатый текст.
+\end{itemize}
+% Если $c$ и~$L$ одного размера "--- это имеет смысл (приводит к~сжатию цепочки) только при $L_{\min} > 2$ ($L_{\min}\geqslant 3$).
+
+
+ RLE "--- не код, а~\termin{семейство кодов,} основанных на одном принципе сжатия и~похожих моделях источника.
+
+\end{adjustwidth}
+\end{frame}
+
+% \begingroup
+\newcommand{\Lf}[1]{\textcolor{red}{#1}}
+\newcommand{\cf}[1]{\textcolor{blue}{#1}}
+% \newcommand{\ff}[1]{\textcolor{green}{#1}}
+% \newcommand{\pf}[1]{\textcolor{green!50!black}{#1}}
+% \newcommand{\ff}[1]{\textcolor{yellow!70!red}{#1}}
+\newcommand{\ff}[1]{\textcolor{yellow!60!red}{#1}}
+% \newcommand{\ff}[1]{\textcolor{yellow!50!green}{#1}}
+\newcommand{\pf}[1]{\textcolor{green!70!black}{#1}}
+
+\newcommand{\upair}[2]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+\Lf{#1}\\ \cf{#2}
+\end{array}\right\}
+}}
+
+
+% \subsection{Семейство RLE}
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-5em}{-5em}
+% \footnotesize
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\parskip}{0\parskip}
+% 
+% 
+% 
+% RLE "--- не код, а~\termin{семейство кодов,} основанных на одной модели источника и~одном принципе сжатия.
+% 
+% \vfill
+% 
+% Отдельный код из семейства RLE отличается:
+% \vfill
+% 
+% \begin{enumerate}
+% \item способом отделения сжатых цепочек от несжатого текста («наивный»/флаг-бит/префикс);
+% 
+% \vfill
+% 
+% \item порядком $(L, c) / (c, L)$ для тех случаев, где порядок не определён способом отделения;
+% \vfill
+% 
+% \item использованием для $L$ кода со смещением:
+% \begin{itemize}
+% \item можно не использовать вообще (понятнее в~книге и~при ручном разборе дампа);
+% \item можно использовать {максимальное смещение, как 
+% % в~примерах на этих слайдах;
+% везде ниже} (код короче);
+% 
+% \item можно использовать смещение меньше максимального 
+% \\
+% (в~частности, для флаг-бита записывать в~виде $L-1$ как $L^{\text{несж}}$, так и~$L^{\text{сж}}$);
+% \end{itemize}
+% что приводит к~различным $L_{\max}$  $\implies$ различному разбиению на цепочки;
+% 
+% % \vfill
+% % 
+% % \item 
+% % и~другими деталями реализации;
+% 
+% \end{enumerate}
+% \vfill
+% и~другими деталями реализации;
+% 
+% \vfill
+% 
+% 
+% так что в~семейство RLE входит более 16 разных кодов с~разной эффективностью.
+% % \mbox{и~немного разными базовыми моделями.}
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+
+% \subsection{Общие положения для примеров ниже}
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-5em}{-5em}
+% % \footnotesize
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% % \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\parskip}{0\parskip}
+% 
+% Иначе сделать можно, но либо не влезет на слайд ($k>3$), либо вредно, %либо бесполезно.
+% \\
+% \textcolor{gray}{либо (смещение/без) альтернативная реализация проще описанной и~выводится из неё.}
+% \vfill
+% 
+% \begin{enumerate}
+% \item Символ первичного алфавита = байт по определению, $|c| = 1~\text{байт} = k~\text{бит}$.
+% 
+% % В~общем случае в~исходном тексте может вс
+% 
+% \vfill
+% 
+% \item Рассматриваем на примере $k=3$ (%трёхбитные байты $\implies$ 
+% алфавит из 8 символов $\{0, 1, 2, 3, 4, 5, 6, 7 \}$).
+% 
+% \vfill
+% 
+% \item %Для битового  выходного потока (что неудобно) разрядность $L$ может быть любой;\\
+% Рассматриваем только байтовый выходной поток.
+% % (каждая запись "--- целое число байтов).
+% % Битовый выходной поток (произвольную разрядность записей) не рассматриваем
+% % ;
+% % для байтового выходного потока
+% % % ($k$-битный байт, $|c| = k$) 
+% % % "--- \mbox{либо $|L| = |c| = k$,} либо $|L| = 2|c| = 2k$ и~т.\,д.
+% % каждая запись занимает либо  один байт, либо два и~т.\,д.
+% % \vfill
+% 
+% % Два байта "--- длинн
+% 
+% % Ниже везде: \begin{itemize}
+% % \item поток байтовый;
+% % \item 
+% Считаем, что
+% \termin{запись, хранящая $L$} 
+% % и, возможно, служебные данные 
+% (для флаг-битов "--- $L$ и~ещё флаг-бит)
+% занимает \termin{ровно один байт,} $k$ бит.
+% % \end{itemize}
+% \vfill
+% 
+% \item 
+% % Так как везде $L_{\min} \geqslant 1$, везде возможно использовать для $L$ код со смещением
+% % $\implies$ эта~возможность заявляется явно только для первого, «наивного» случая.
+% % 
+% Везде \termin{для $L$ используется код со смещением, \mbox{то есть говорим $L$, но записываем $L-\Delta$}.}
+% 
+% Явно возможность использования/неиспользования кода со смещением заявляется только для первого, «наивного» случая;
+% потом подразумевается.
+% 
+% \textcolor{gray}{Для $k=8$ относительная выгода смещения меньше, чем для $k=3$, но есть.}
+% 
+% \end{enumerate}
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+
+
+
+
+% \section{RLE: способы отделения сжатых цепочек от несжатого текста}
+
+% \section{RLE: подсемейства «наивный RLE» [RLE-н] и~«RLE с~флаг-битом» [RLE-фб]}
+\section{RLE: подсемейство «наивный RLE» [RLE-н]}
+
+\subsection{Способы отделения сжатых цепочек от несжатого текста; %подсемейство «наивный RLE» --- 
+RLE-н-$\Delta$}
+\begin{frame}[fragile]{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+
+\begin{enumerate}
+
+\item Несжатого текста нет: $L_{\min} = 1$ («наивная» реализация RLE).
+%
+Для наивного RLE:
+\begin{itemize}
+\item порядок записи $L$ и~$c$ может быть любым: $\uset{L \\ c} \sim (L-\Delta, c)$ или $(c, L-\Delta)$;
+\item так как $L \geqslant L_{\min} = 1$, можно записывать $L$ кодом со смещением: 
+\mbox{$\uset{L \\ c} \sim (L-1, c)$, ~ $(c, L-1)$ ~ [макс.\,смещ.: $\Delta=1$]; ~ $(L, c)$ или $(c, L)$ [без смещения: $\Delta=0$].}
+% \item разрядность $L$ может быть любой (битовый поток). 
+\end{itemize}
+
+\vfill
+Рассматриваем $|L|=|c|=k$ бит, код с~максимальным смещением и~порядок $(L-1, c)$:\\
+$0 \leqslant L-1 \leqslant 2^k-1$
+% ~~$\Longleftrightarrow$~~
+\hfill$\implies$\hfill
+$1 \leqslant L \leqslant 2^k$
+% ~~$\Longleftrightarrow$~~
+\hfill$\implies$\hfill
+$L_{\max} = 2^k$; \hfill для трёхбитного байта ($k=3$) $L_{\max} = 8$.
+
+\vfill
+
+
+$m = 7777\,7000\,0000\,0000\,0123\,4567\,0011\,2233\,4455\,6677 $ (40 трёхбитных байтов)
+
+\renewcommand{\uset}[1]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+\color{red}#1
+\end{array}\right\}
+}}
+
+$\to 
+\scriptsize%\setlength{\arraycolsep}{4pt}
+\upair{L=5 }{ c=7} 
+\upair{L=8 }{ c=0} 
+\upair{L=4 }{ c=0}
+\upair{L=1 }{ c=1}
+\upair{L=1 }{ c=2}
+...
+\upair{L=1 }{ c=7}
+\upair{L=2 }{ c=0}
+\upair{L=2 }{ c=1}
+\upair{L=2 }{ c=2}
+...
+\upair{L=2 }{ c=7}
+$
+
+$
+code(m) = \Lf{4}\cf7\Lf{7}\cf0\,\Lf{3}\cf0\Lf{0}\cf1\,\Lf{0}\cf2\Lf{0}\cf3\,\Lf{0}\cf4\Lf{0}\cf5\,\Lf0\cf6\Lf0\cf7\,
+\Lf1\cf0\Lf1\cf1\,\Lf1\cf2\Lf1\cf3\,\Lf1\cf4\Lf1\cf5\,\Lf1\cf6\Lf1\cf7$ 
+(36 трёхбитных байтов)
+
+
+\vfill
+
+\item Несжатый текст тоже группируется в~цепочки, различение "--- флаг-биты (RLE с~флаг-битом).
+\vfill
+
+\item Несжатый текст записывается как есть, сжатые цепочки предваряются односимвольным префиксом (RLE с~префиксом).
+
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+% \endgroup
+
+% \section{Подсемейства «RLE с~флаг-битом» и~«RLE с~односимвольным префиксом»}
+
+
+\subsection{Схема данных кодирования «наивной» реализацией метода RLE}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_n}
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Схема данных декодирования «наивной» реализации метода RLE}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_n_decode}
+\end{adjustwidth}
+\end{frame}
+
+
+\section{RLE: подсемейство «RLE с~флаг-битом» [RLE-фб]}
+
+\def\flg{\ensuremath{\theta}}
+
+\subsection{RLE с~флаг-битом (несжатый текст тоже группируется в~цепочки), тезисы}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\setlength{\parskip}{0\parskip}
+\setlength{\leftmargini}{0em}
+\setlength{\leftmarginii}{0em}
+% \setlength{\leftmarginiii}{1em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+
+% \setbeamertemplate{itemize/enumerate body begin}{\normalsize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\normalsize}
+
+Наивный RLE особенно плох на фрагментах типа \hex{0123...}: один байт невыгодно записывать двумя.
+
+\vfill
+
+Зададимся $L_{\min}^{\text{сж}}$ таким, что 
+$L\geqslant 
+L_{\min}^{\text{сж}}
+$ повторяющихся байтов выгодно записывать  двумя байтами;
+% "--- 
+% сжатая цепочка $\upair{L}{c}$; %, далее длина сжатой цепочки 
+\vfill
+
+такие последовательности байтов, где ни один не повторяется хотя бы  $L_{\min}^{\text{сж}}$ подряд, тоже дополняем служебным байтом 
+с~общей длиной $L$  "--- 
+несжатая цепочка $\uset{L \\ c_1...c_L}$,  
+%
+где $L\geqslant1$ включительно
+\rlap{($L_{\min}^{\text{несж}} = 1$).}
+% : файлы \hex{1}, \hex{\cf{000...000}1\cf{222...222}}.
+\vfill
+
+
+
+\begin{itemize}
+% \item $L_{\min}^{\text{несж}} = 1$ по определению.
+% \vfill
+% % 
+% % \item флаг-бит $\flg$ сж/несж может быть $0/1$ или $1/0$; ниже рассматривается $1/0$;
+% % \vfill
+% % \item $|L\cup\flg|=|c|=k$ бит:
+
+\item 
+Для различения сжатых и~несжатых цепочек (два вида) достаточно одного бита $\flg$ "--- флаг-бита.
+Флаг-бит $\flg$ и~длина~цепочки $L$ упаковываются в~один байт ($k$ бит): 
+
+\vfill
+\begin{enumerate}
+\item 
+% на $L$ остаётся $k-1$ бит: 
+% $0 \leqslant L-L_{\min} \leqslant 2^{k-1}-1$
+% ~$\implies$~
+% $L_{\max} = 2^{k-1} + L_{\min} -1$ (для сж. и~несж. может различаться; $L_{\min}^{\text{несж}} = 1 ~\implies~ L_{\max}^{\text{несж}} = 2^{k-1}$)%
+% ;
+
+1 бит на $\flg$ (значения $0$ и $1$) и~$k-1$ бит на $L$ ($0 \leqslant L-\Delta \leqslant 2^{k-1}-1$);
+
+\vfill
+\item длина кода сжатой цепочки {$\upair{L}{c}$}: $|L\cup\flg| + |c| = 2$ байта, \\
+длина кода несжатой 
+% \smash{$\uset{L \\ c_1...c_L}$}
+%\\
+% приходящаяся на один символ $\frac{|L\cup\flg| + L\cdot|c|}{L}  = 1+\frac{1}{L}$ байтов
+% \\
+% $\implies$ 
+% % % 
+% % % $L_{\min}^{\text{сж}} > 1$
+% % % чтобы сжатие было 
+% % %для некоторых сочетаний 
+% % иногда лучше $L_{\min}^{\text{сж}} = 2$,
+% % иногда 3;
+% $\inf(L_{\min}^{\text{сж}}) \in\{ 2, 3\}$ (для разных файлов);
+% % $L_{\min}^{\text{сж}} > 2$; 
+% ниже $L_{\min}^{\text{сж}} = 3$ 
+% $\implies$ 
+% $L_{\max}^{\text{сж}} = %2^{k-1} + L_{\min}^{\text{сж}} -1 = 
+% 2^{k-1}+2$;
+$\uset{L \\ c_1...c_L}$: $|L\cup\flg| + |c_1...c_L| = 1+L$ байтов.
+\end{enumerate}
+\vfill
+
+\item Длина кода несжатой цепочки непостоянна $\implies$ байт %с~флагом и~$L$ 
+$L\cup\flg$
+в~начале. % кода цепочки.
+\end{itemize}
+
+
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Схема данных кодирования  RLE с~флаг-битом сжатая/несжатая цепочка}
+\begin{frame}[plain]{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+\includegraphics[width=0.9\linewidth]{\IMGPATH/data_rle_flagbit}\centering
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Схема данных декодирования  RLE с~флаг-битом сжатая/несжатая цепочка}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_flagbit_decode}
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{RLE с~флаг-битом --- варианты RLE-фб$L_{\min}^{\text{сж}}$-$\Delta_{\text{сж}}\Delta_{\text{несж}}$}
+\begin{frame}{\insertsubsection{}}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0em}
+\setlength{\leftmarginii}{0em}
+\setlength{\leftmarginiii}{1em}
+\setlength{\parskip}{0\parskip}
+
+
+\begin{enumerate}
+
+\item Флаг-бит $\flg$ сж/несж может быть $0/1$ или $1/0$ "--- не влияет на длину кода.
+
+\vfill
+
+\item Положение бита $\flg$ в~байте $L\cup\flg$ "--- не влияет на длину кода;
+обычно  $\flg$ "--- старший: 
+\rlap{удобнее читать дамп.}
+% значения смещённого $L$ с~$\flg=0$ дампе читаются без преобразований.
+% , для чтения~$\flg=1$ можно использовать вычитание, которое выполнять «в~уме» проще, чем деление.
+
+\vfill
+
+\item Выбор $L_{\min}^{\text{сж}}$ "--- между 2 и~3:
+% длина кода, приходящаяся на один символ 
+% для 
+% несжатой цепочки \smash{$\uset{L \\ c_1...c_L}$} $\frac{|L\cup\flg| + L\cdot|c|}{L}  = 1+\frac{1}{L}$ байтов, 
+% для сжатой {$\upair{L}{c}$}: 
+% $\frac{2}{L}$ байтов.
+\begin{itemize}
+\item однократное вхождение символа всегда невыгодно записывать двумя символами $\implies$ 
+$L_{\min}^{\text{сж}} > 1$;
+\item трёхкратное "--- всегда выгодно $\implies$ $L_{\min}^{\text{сж}} \leqslant 3$.
+\end{itemize}
+Иногда выгоднее 2 (файл \hex{001122}), иногда "--- 3 (файл \hex{0112}); узнать без кодирования невозможно.
+
+\vfill
+% Максимальные значения длины цепочки 
+$L_{\max}^{\text{сж}}$ и~$L_{\max}^{\text{несж}}$ не выбираются, а~\termin{рассчитываются} 
+на основе разрядности $k-1$ смещённого $L$ и~%величин смещения 
+\rlap{$\Delta_{\text{сж}}$ и~$\Delta_{\text{несж}}$:}
+\\
+$L_{\max} = 2^{k-1}-1 + \Delta$
+~
+($\Delta_{\text{сж}} \neq \Delta_{\text{несж}}  \implies L_{\max}^{\text{сж}} \neq L_{\max}^{\text{несж}}$).
+
+\vfill
+
+\item Код со смещением для $L$:
+\begin{itemize}
+\item без смещ. ($\Delta_{\text{сж}} = \Delta_{\text{несж}} = 0$)
+% "--- не используются кодовые позиции 
+% 0 для любых цепочек, 
+% 1 (и~2 "--- при $L_{\min}^{\text{сж}} =3$) для сжатых
+$\implies$ 
+меньше $L_{\max}$
+$\implies$ самый длинный код для выбранного $L_{\min}^{\text{сж}}$;
+
+\item минимальное \textcolor{gray}{<ненулевое>} смещение: $L-1$ как для сжатых, так и~для несжатых ($\Delta_{\text{сж}} = \Delta_{\text{несж}} = 1$);
+% $\implies$ код короче, чем ;
+
+\item максимальное смещение: записывать $L-L_{\min}$ (разные для сжатых и~несжатых цепочек: $\Delta_{\text{сж}} =L_{\min}^{\text{сж}}$, $\Delta_{\text{несж}} = 1$) $\implies$ самый короткий код для выбранного $L_{\min}^{\text{сж}}$;
+
+\item \textcolor{gray}{смещения между макс. и мин. допустимы, но не~дают выигрыша ни в~длине, ни в~читаемости \rlap{дампа.}}
+\end{itemize}
+
+\vfill
+
+Относительная величина проигрыша $\Delta_{\text{сж}} = \Delta_{\text{несж}} = 0$ относительно 
+$\Delta_{\text{сж}} = L_{\min}^{\text{сж}}$ и~$\Delta_{\text{несж}} = L_{\min}^{\text{несж}} = 1$
+меньше для $k=8$ (октета),  чем для $k=3$.
+Но проигрыш \emph{есть;} и~%для любого $k$ 
+найдутся файлы, где он проявится.
+
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\subsection{RLE с~флаг-битом --- варианты (продолжение) и~выбор RLE-фб3-31}
+\begin{frame}{\insertsubsection{}}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0em}
+\setlength{\leftmarginii}{0em}
+\setlength{\leftmarginiii}{1em}
+\setlength{\parskip}{0\parskip}
+
+Экзотические варианты кодирования: выбор $L_{\min}^{\text{сж}} >3$ (в частности, $4$),
+или запись в~$k-1$ бит длины не %просто смещённой длины 
+$L-\Delta$, а, например, $\frac{L}{2}$ (рассматривать только чётные $L$, а~«лишний» байт добавлять к несжатой цепочке "--- технически \termin{возможны.}
+
+\vfill
+
+\termin{Почти для любого «безумного» кода найдётся файл, для которого именно этот код будет лучшим!}
+\\
+И~только код без смещения $L$ = код с~неиспользуемыми кодовыми позициями = код с~заведомой избыточностью всегда не лучше (и на некоторых файлах хуже) 
+%проигрывает по длине кода аналогу 
+аналога без избыточности.
+
+\vfill
+
+Но  \emph{все} варианты RLE с~флаг-битом рассмотреть в~рамках лекций невозможно "--- слишком много.
+
+
+\hrulefill
+
+Ниже используются:
+\begin{enumerate}
+
+\item флаг-бит $\flg$ сж/несж "--- $1/0$;
+
+\item в~$k$-битном байте $|L\cup\flg|$
+% $|L\cup\flg|=|c|=k$ бит:
+флаг $\flg$ "--- старший бит байта $L\cup\flg$, 
+$L-L_{\min}$  в~$(k-1)$ младших; $k=3$;
+
+\item $L_{\min}^{\text{сж}} = 3$;
+
+
+\item Макс.\,смещение:
+$\left\{
+\begin{array}{@{}c@{\to}l@{~~}l@{}}
+\upair{L^{\text{сж}}}{c} & \Big( (\ff{\flg=1}, \Lf{L^{\text{сж}}-3}), \cf{c} \Big), 
+& 3 \leqslant L^{\text{сж}} \leqslant 2^{k-1} + 2 \\
+\uset{\Lf{L^{\text{несж}}} \\ c_1...c_L} & \Big( (\ff{\flg=0}, \Lf{L^{\text{несж}}-1}), c_1...c_L \Big),
+& 1 \leqslant L^{\text{несж}} \leqslant 2^{k-1} \\
+\end{array}
+\right.
+$
+
+
+
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\newcommand{\uutriple}[3]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+\ff{#1} \\ \Lf{#2}\\ {#3}
+\end{array}\right\}
+}}
+\newcommand{\uctriple}[3]{\uutriple{#1}{#2}{\cf{#3}}}
+
+\newcommand{\uubittriple}[3]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+\ff{#1}\Lf{#2}\\ {#3}
+\end{array}\right\}
+}}
+\newcommand{\ucbittriple}[3]{\uubittriple{#1}{#2}{\cf{#3}}}
+
+\newcommand{\outriple}[3]{\ensuremath{%
+\Big((\ff{#1}, \Lf{#2}), {#3}\Big)
+}}
+\newcommand{\octriple}[3]{\outriple{#1}{#2}{\cf{#3}}}
+
+\newcommand{\oubittriple}[3]{\ensuremath{%
+\left(
+\ff{#1}\Lf{#2}, {#3}
+\right)
+}}
+\newcommand{\ocbittriple}[3]{\oubittriple{#1}{#2}{\cf{#3}}}
+
+
+
+
+\subsection{RLE с~флаг-битом, кодирование с~выбранными параметрами}
+\begin{frame}{\insertsubsection{} }
+\begin{adjustwidth}{-5em}{-5em}
+% \setlength{\parskip}{0.8\parskip}
+\setlength{\parskip}{0\parskip}
+% \footnotesize
+\small
+
+$\left\{
+\begin{array}{@{}c@{\to}l@{~~}l@{}}
+\upair{L^{\text{сж}}}{c} & \Big( (\ff{\flg=1}, \Lf{L^{\text{сж}}-3}), \cf{c} \Big), 
+& 3 \leqslant L^{\text{сж}} \leqslant 6 \\
+\uset{\Lf{L^{\text{несж}}} \\ c_1...c_L} & \Big( (\ff{\flg=0}, \Lf{L^{\text{несж}}-1}), c_1...c_L \Big),
+& 1 \leqslant L^{\text{несж}} \leqslant 4\\
+\end{array}
+\right.
+$
+% обозначаем $\widetilde{L} = L - L_{\min}$
+
+\vfill
+
+$m = 7777\,7000\,0000\,0000\,0123\,4567\,0011\,2233\,4455\,6677 $ (40 трёхбитных байтов)
+
+% \footnotesize
+%
+% разбиваем на сжатые и~несжатые цепочки:
+$
+% \upair{L^{\text{сж}}=5}{7}
+% \upair{L^{\text{сж}}=6}{0}
+% \upair{L^{\text{сж}}=6}{0}
+% \uset{\Lf{L^{\text{несж}}=4} \\ 1234}
+% \uset{\Lf{L^{\text{несж}}=4} \\ 5670}
+% \uset{\Lf{L^{\text{несж}}=4} \\ 0112}
+% \uset{\Lf{L^{\text{несж}}=4} \\ 2334}
+% ...
+%
+% \upair{5}{7}
+% \upair{6}{0}
+% \upair{6}{0}
+% \uset{\Lf{4} \\ 1234}
+% \uset{\Lf{4} \\ 5670}
+% \uset{\Lf{4} \\ 0112}
+% \uset{\Lf{4} \\ 2334}
+% ...
+%  %
+\uctriple{1}{5}{7}
+\uctriple{1}{6}{0}
+\uctriple{1}{6}{0}
+\uutriple{0}{4}{1234}
+\uutriple{0}{4}{5670}
+\uutriple{0}{4}{0112}
+\uutriple{0}{4}{2334}
+\uutriple{0}{4}{4556}
+\uutriple{0}{3}{677}
+$
+
+\vfill
+
+$
+\octriple{1}{5-3=2}{7}
+\octriple{1}{6-3=3}{0}
+\octriple{1}{6-3=3}{0}
+\outriple{0}{4-1=3}{1234}
+\outriple{0}{4-1=3}{5670}
+$
+$
+\outriple{0}{4-1=3}{0112}
+\outriple{0}{4-1=3}{2334}
+\outriple{0}{4-1=3}{4556}
+\outriple{0}{3-1=2}{677}
+$
+
+
+\vfill
+
+$
+\ocbittriple{1}{10}{7}
+\ocbittriple{1}{11}{0}
+\ocbittriple{1}{11}{0}
+\oubittriple{0}{11}{1234}
+\oubittriple{0}{11}{5670}
+\oubittriple{0}{11}{0112}
+\oubittriple{0}{11}{2334}
+\oubittriple{0}{11}{4556}
+\oubittriple{0}{10}{677}
+$
+
+\vfill
+
+% \normalsize
+$code(m) = 
+\Lf6\cf7\Lf7\cf0\Lf7\cf0
+\Lf3 1234
+\Lf3 5670
+\Lf3 0112
+\Lf3 2334
+\Lf3 4556
+\Lf2 677
+$ (35 трёхбитных байтов)
+
+% \vfill
+% 
+% Здесь $(\ff{0}, \Lf{L^{\text{несж}}-1}) = L^{\text{несж}}-1$, 
+% ~~
+% $(\ff{1}, \Lf{L^{\text{сж}}-3}) = 2^{k-1} + (L^{\text{сж}}-3) = 4 + (L^{\text{сж}}-3) = L^{\text{сж}}+1$.
+\vspace{-\baselineskip}
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \section{Подсемейство~«RLE с~односимвольным префиксом»}
+\section{RLE: подсемейство~«RLE с~односимвольным префиксом»}
+
+
+\subsection{RLE с~односимвольным префиксом, тезисы}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-5em}
+% \setbeamertemplate{itemize/enumerate body begin}{\normalsize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\normalsize}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0\parskip}
+
+Текст, который не имеет смысла записывать как сжатые цепочки (несжатый текст) "--- пишется как есть, без дополнительных служебных байтов.
+% В нём могут встречаться любые байты.
+
+\vfill
+
+Чтобы отделить сжатые цепочки $\upair{L}{c}$ от несжатого текста, они предваряются \emph{префиксом} 
+"--- выбираемым для каждого файла индивидуально байтом $p$;
+% :
+% $\upair{L}{c}$ записывается как $\left(p, \upair{L}{c} \right)$ "--- тремя байтами.
+%
+то есть  цепочка записывается тремя байтами.
+\vfill
+
+
+
+\begin{itemize}
+
+\item длина кода цепочки $\upair{L}{c}$ 3 байта $\implies$ имеет смысл только при $L \geqslant 4$;
+% для $\upair{L}{c \neq p}$ $L_{\min}^{c\neq p} = 4$;
+
+\vfill
+
+% \item цепочки длины  $L \geqslant 4$ из символов $p$ кодируются 
+% 
+% \vfill
+
+
+\item в несжатом тексте может встретиться любой байт, в~том числе $p$ $\implies$ %значение $p$ в~несжатом тексте 
+нужно экранировать $p$, $pp$ и~$ppp$ (четырёхкратное $pppp$ в~любом случае цепочка $\upair{L=4}{p}$);
+
+\vfill
+
+
+\item любой способ экранирования одного байта $p$ в~несжатом тексте длиннее байта $\implies$ $p$ выбирается для конкретного файла как~самый редкий байт 
+(в~идеале "--- отсутствующий);
+следовательно, $count(p) \leqslant \frac{n}{2^k}$;
+
+
+\vfill
+
+
+% \item $\upair{L}{c}$ записывается как $\left(p, \upair{L}{c} \right)$ $\implies$ байт $p$ самый редкий, $p(p) \leqslant \frac{1}{2^k}$;
+\item
+кодирование в~два прохода по файлу: 1) поиск $p$, 2) сжатие RLE
+\rlap{(наивный и~флаг-биты "--- в~один проход);}
+
+\item\mbox{значение $p$ сохраняется в~заголовке файла "--- нужно для декодирования.}
+
+
+% \item байт $p$ в~несжатом тексте нужно экранировать:
+% \begin{enumerate}
+% \item одиночный $p$ как цепочка $\upair{1}{p}$ $\implies ~ L_{\min}^p = 1$; порядок $L$ и~$c$ любой;
+% \item одиночный $p$ как $(p, 0)$ $\implies$ 
+% а) $L_{\min}^p = 2$;\\
+% б) 
+% в~$\left(p, \upair{L}{c} \right)$ второй байт %д.\,б. 
+% $\neq 0$ 
+% $\implies$ порядок $\left(p, \Lf{L}, \cf{c} \right)$, со смещ.~\rlap{$\left(p, \Lf{L-L_{\min}+1}, \cf{c} \right)$;}
+% \end{enumerate}
+% дву- и~более кратные повторения $p$ $\upair{L\geqslant 2}{p}$ всегда как сжатая цепочка.
+\end{itemize}
+
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Схема данных кодирования  RLE с~односимвольным префиксом}
+\begin{frame}[plain]{\insertsubsection}
+\begin{adjustwidth}{-7em}{-6em}
+\includegraphics[width=0.9\linewidth]{\IMGPATH/data_rle_p}\centering
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Схема данных декодирования  RLE с~односимвольным префиксом}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_p_decode}
+\end{adjustwidth}
+\end{frame}
+
+\subsection{RLE с~префиксом --- варианты RLE-$p1p/p0p0p0/p0p2p/p0p0p3p$-$\Delta_{c\neq p}\Delta_{p}$}
+\begin{frame}{\insertsubsection{}}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0em}
+\setlength{\leftmarginii}{0em}
+\setlength{\leftmarginiii}{1em}
+\setlength{\parskip}{0\parskip}
+
+
+\begin{enumerate}
+
+\item %Основное различие разных RLE с~односимвольным префиксом "--- с
+Способ экранирования  в~несжатом тексте $p$, $pp$ и~$ppp$:
+\begin{enumerate}
+\item $p$ как цепочка $\upair{1}{p}$, $pp$ как $\upair{2}{p}$, $ppp$ как $\upair{3}{p}$ $\implies$
+а) $L_{\min}^p = 1$; $L_{\min}^{c\neq p} = 4$;
+% \\
+% в~коде $\upair{L}{c}$ следующий после $p$ байт любой $\implies$ порядок $L$ и~$c$ любой;
+б) порядок любой: $\left(p, \Lf{L-\Delta}, \cf{c} \right)$ или $\left(p, \cf{c}, \Lf{L-\Delta} \right)$,
+причём $\Delta \leqslant L_{\min}$;
+% (максимальное  "--- разное для $c=p$ и~$c\neq p$);
+
+\vfill
+
+\item $p$ как $p0$, $pp$ как $p0p0$, $ppp$ как $p0p0p0$ $\implies$ 
+а) $L_{\min}^p = L_{\min}^{c\neq p} = 4$;
+б) код $\upair{L}{c}$ не должен начинаться с~$p0$ $\implies$   
+%в~коде $\upair{L}{c}$ 
+следующий после $p$ байт ненулевой $\implies$  
+% это $L-\Delta$, 
+порядок $(p, \Lf{\underbrace{L-\Delta}_{\neq0}}, \cf{c} )$,
+причём $\Delta \leqslant L_{\min}-1 =3$;
+
+
+\vfill
+
+\item %гибрид: 
+$p$ как $p0$, но $pp$ как цепочка $\upair{2}{p}$ $\implies$   
+а) $L_{\min}^p = 2$; $L_{\min}^{c\neq p} = 4$;
+б) порядок $(p, \Lf{\underbrace{L-\Delta}_{\neq0}}, \cf{c} )$, $\Delta \leqslant L_{\min}-1$;
+
+
+\item $p$ как $p0$, $pp$ как $p0p0$, $ppp$ как $\upair{3}{p}$ $\implies$ а) $L_{\min}^p = 3$...
+\end{enumerate}
+
+\vfill
+
+\item Код со смещением для $L$ "--- аналогично предыдущим; макс. $\Delta_{p}$ и~$\Delta_{c\neq p}$ "--- в~общем случае разные.
+% :
+% % \begin{itemize}
+% % \item 
+% без смещения ($\Delta_{c\neq p} = \Delta_{p} = 0$);
+% % \item 
+% минимальное смещение ($\Delta_{c\neq p} = \Delta_{p} = 1$);
+% % \item 
+% максимальное смещение (разное);
+% % \item 
+% промежуточные варианты.
+% % \end{itemize}
+% % 
+% % \vfill
+% % 
+% Аналогично флаг-битам,
+% проигрыш при не максимальном смещении
+% меньше для $k=8$ (октета),  чем для $k=3$, но он \emph{есть.}
+
+\vfill
+
+При макс.\,смещении $L$ \emph{для любого} из способов экранирования \enumerateball{1}-\enumerateball{4} найдётся файл, где этот способ будет лучше трёх остальных
+(где хуже код $p$, $pp$ и~$ppp$ "--- там лучше $L_{\max}$).
+
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+\subsection{RLE с~префиксом, одиночный $p$ как цепочка [RLE-p1p-41]}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setlength{\parskip}{0\parskip}
+
+
+Выбираем порядок $\left(p, \Lf{L}, \cf{c} \right)$ и~код с~максимальным смещением:
+
+$\left\{
+\begin{array}{@{}c@{\to}l@{~~~~}l@{~~\Longleftrightarrow~~}l@{}}
+% \upair{L^{c\neq p}}{c \neq p} & \Big( p, \Lf{L^{c\neq p}-L_{\min}^{c\neq p}}, \cf{c} \Big), 
+% & 0 \leqslant L^{c\neq p}-L_{\min}^{c\neq p} \leqslant 2^k -1 
+% & L_{\min}^{c\neq p} \leqslant L^{c\neq p} \leqslant 2^k + L_{\min}^{c\neq p} -1 \\
+%
+% \upair{L^{c\neq p}}{c \neq p} & \Big( p, \Lf{L^{c\neq p}-4}, \cf{c} \Big), 
+% & 0 \leqslant L^{c\neq p}-4 \leqslant 2^k -1 
+% & 4 \leqslant L^{c\neq p} \leqslant 2^k + 3\\
+%
+%
+\upair{L}{c \neq p} & \Big( \pf{p}, \Lf{L-4}, \cf{c} \Big), 
+& 0 \leqslant L^{c\neq p}-4 \leqslant 2^k -1 
+& 4 \leqslant L^{c\neq p} \leqslant 2^k + 3
+\\
+\upair{L}{p} & \Big( \pf{p}, \Lf{L-1}, \cf{p} \Big), 
+&0 \leqslant L^{p}-1 \leqslant 2^k -1 
+& 1 \leqslant L^{p} \leqslant 2^k
+\end{array}
+%
+\right.
+$
+
+\vfill
+
+$k = 3$: ~~ $4 \leqslant L^{c\neq p} \leqslant 11$, ~~ $1 \leqslant L^{p} \leqslant 8$
+
+
+\vfill
+
+$m = 7777\,7000\,0000\,0000\,0123\,4567\,0011\,2233\,4455\,6677 $ (40 трёхбитных байтов)
+
+самые редкие $\{1, 2, 3, 4, 5, 6\}$ "---
+выбираем префикс $p = 1$
+
+$
+\upair{5}{7 \neq p}
+\upair{11}{0 \neq p}
+0
+\upair{1}{1 = p}
+23456700
+\upair{2}{1 = p}
+223344556677
+$
+
+$
+\upair{5-4 = 1}{7 \neq p}
+\upair{11-4 = 7}{0 \neq p}
+0
+\upair{1-1 = 0}{1 = p}
+23456700
+\upair{2-1 = 1}{1 = p}
+223344556677
+$
+
+\vfill
+
+$
+code(m) =
+\pf1\Lf1\cf7
+\pf1\Lf7\cf0
+0
+\pf1\Lf0\cf1
+23456700
+\pf1\Lf1\cf1
+223344556677
+$
+(33 трёхбитных байта)
+
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{RLE с~префиксом, одиночный $p$ как $p0$, сдвоенный как цепочка [RLE-p0p2p-31]}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setlength{\parskip}{0\parskip}
+
+
+Выбираем код с~максимальным смещением:
+
+$\left\{
+\begin{array}{@{}c@{\to}l@{~~~~}l@{~~\Longleftrightarrow~~}l@{}}
+%
+\upair{L}{c \neq p} & \Big( \pf{p}, \Lf{L-3}, \cf{c} \Big), 
+& 1 \leqslant L^{c\neq p}-3 \leqslant 2^k -1 
+& 4 \leqslant L^{c\neq p} \leqslant 2^k + 2
+\\
+\upair{1}{p}
+&\Big( \pf{p, 0} \Big), 
+\\
+\upair{L\geqslant2}{p} & \Big( \pf{p}, \Lf{L-1}, \cf{p} \Big), 
+&1 \leqslant L^{p}-1 \leqslant 2^k -1 
+& 2 \leqslant L^{p} \leqslant 2^k
+\\
+\end{array}
+%
+\right.
+$
+
+
+\vfill
+
+$k = 3$: ~~ $4 \leqslant L^{c\neq p} \leqslant 10$, ~~ $2 \leqslant L^{p} \leqslant 8$
+
+
+\vfill
+
+$m = 7777\,7000\,0000\,0000\,0123\,4567\,0011\,2233\,4455\,6677 $ (40 трёхбитных байтов),
+выбираем $p = 1$
+
+$
+\upair{5}{7 \neq p}
+\upair{10}{0 \neq p}
+00
+\upair{1}{1 = p}
+23456700
+\upair{2}{1 = p}
+223344556677
+$
+
+$
+\upair{5-3=2}{7 \neq p}
+\upair{10-3=7}{0 \neq p}
+00
+\pf{\Big(p, 0\Big)}
+23456700
+\upair{2-1 = 1}{1 = p}
+223344556677
+$
+
+\vfill
+
+$
+code(m) =
+\pf1\Lf2\cf7
+\pf1\Lf7\cf0
+00
+\pf{10}
+23456700
+\pf1\Lf1\cf1
+223344556677
+$
+(33 трёхбитных байта)
+
+\end{adjustwidth}
+\end{frame}
+
+\section{RLE: лучший и~худший случаи + модель источника}
+
+
+\subsection{Лучший и~худший случаи RLE (для октетов: $k=8$)}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setlength{\parskip}{0.\parskip}
+
+Лучший исходный файл длины $n$ 
+для всех RLE "--- $m_{\text{л}}=\hex{\underbrace{0000...0000}_{n}}$;
+% (для конкретного $L_{\max}$ "--- все байты входят сериями по $L_{\max}$ раз), 
+
+худший "--- 
+% \hex{\underbrace{01234567...01234567...}_{n}} 
+$m_{\text{х}}=\hex{\underbrace{0123...0123
+...}_{n}} $
+\rlap{(все байты от $0$ до $2^k-1$ [октеты от \hex{00} до \hex{FF}]; нет ни одного повторения).}
+
+\vfill
+
+Считаем $n \gg L_{\max}$ («хвостом» можно пренебречь); 
+
+$L_{\max}$ оцениваем по порядку величины (без~смещения будет на 1 меньше, с~макс.\, "--- немного больше).
+
+Все длины $|code|$ оцениваются приблизительно (кроме $|code(m_{\text{х}})|$ для RLE-н% и~RLE-$p*$ "--- у~них точные оценки
+).
+
+\vfill
+
+{
+\renewcommand*{\arraystretch}{1.6}
+\setlength{\tabcolsep}{4pt}
+
+\hspace*{-2em}
+\begin{tabular}{|l||c|@{}c@{}||c|c||c|c|}\hline
+$code$  &   $L_{\max}$ & $L_{\max}|_{k=8}$  
+& $|code(m_{\text{л}})|$  & $|code(m_{\text{л}})|_{k=8}$ &  $|code(m_{\text{х}})|$ &  $|code(m_{\text{х}})|_{k=8}$  \\\hline
+RLE-н   &   $2^k$   & 256 &   
+$2\cdot \frac{n}{L_{\max}}\approx\frac{n}{2^{k-1}}$ & \cellcolor{yellow}  $\frac{n}{128} = 2\cdot\frac{n}{256}$
+& $= 2\cdot n $ &    $2\cdot n$ 
+\\\hline
+RLE-фб  &   $2^{k-1}$ &128& 
+$2\cdot \frac{n}{L_{\max}}\approx\frac{n}{2^{k-2}}$ &  $\frac{n}{64} = 4\cdot\frac{n}{256}$
+& $ (1 + \frac{1}{L_{\max}})\cdot n$ & $ (1 + \frac{1}{128})\cdot n$
+\\\hline
+RLE-$p0*$   &   \multirow{2}{*}{$2^k$}   & \multirow{2}{*}{256} &   
+\multirow{2}{*}{$3\cdot \frac{n}{L_{\max}}\approx\frac{3n}{2^{k}}$} &  \multirow{2}{*}{$3\cdot\frac{n}{256}$}
+& $n + count(p)\leqslant  (1 + \frac{1}{2^k})\cdot n$ &\cellcolor{yellow} $ (1 + \frac{1}{256})\cdot n$
+\\\hhline{-|~~~~--}
+RLE-$p1p$&&&&
+& $n + 2count(p)\leqslant (1 + \frac{1}{2^{k-1}})\cdot n$ & $  (1 + \frac{1}{128})\cdot n$
+\\\hline
+\end{tabular}
+
+}
+
+\vfill
+
+RLE-$p*$ лучше RLE-фб в~наилучшем и~наихудшем случаях; но есть файлы, где RLE-фб лучше.
+
+RLE-н лучше всех прочих в~наилучшем случае (все байты входят сериями по $L_{\max}$ раз).
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \section{Модель источника для RLE}
+% \subsection{Модель источника наивного RLE --- построение}
+\subsection{Модель RLE-н: построение}
+
+
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-6em}{-5em}
+\small
+\setbeamertemplate{itemize/enumerate body begin}{\small\setlistspacing{1}{0.5ex}}
+\setbeamertemplate{itemize/enumerate subbody begin}{\small}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\parskip}{0.3\parskip} 
+
+Зададимся конкретным кодом $code$ семейства RLE
+"--- «наивным»  $(L-1, c)$ (RLE-н-1)
+для $k$-битного байта (алфавит "--- из $T = 2^k$ байтов; $L_{max} = 2^k = T$) % "--- RLE-н-1-$k$
+
+и~попробуем построить модель $X$ (аналоговый сигнал по определению RLE), 
+% которая ему соответствует так же, как модель без памяти коду Хаффмана: 
+для которой
+$|code(C)| \to I_X(C)$
+не только в~среднем по  $X$, но и~для любого  $C$.
+
+\begin{enumerate}
+% \item $X$ "--- аналоговый сигнал по определению RLE, вероятности $p(a|b)$;
+
+\item Из симметрии RLE-н
+~~
+$\forall a \neq b{:} ~ 
+\left\{
+\begin{array}{l}
+p(a|a) = p(b|b) = r,\\
+p(a|b) = p(b|a) = s.\\
+\end{array}
+\right.
+% r \gg (T-1)s
+% , ~~
+% % \text{где $T$ "--- размер алфавита,}
+$
+\hfill
+(*)
+
+\item Из предположений RLE $r \gg (T-1)s$.
+\item Код RLE-н-1 не зависит от конкретных частот "--- $r$ и~$s$ не оцениваются по файлу (фиксированы);
+\end{enumerate}
+
+\vfill
+
+Найдём $r$ и~$s$ такие, что $|code(C)| = I_X(C)$ для достаточно длинного сообщения ($\alpha \to \infty$):
+
+% \begin{enumerate}
+% \item в~лучшем случае: длина кода  $C = \underbrace{aaa..aaa}_{\alpha\cdot L_{max}}$ "--- $2\alpha$ байтов ($2\alpha k$ бит) 
+% $\implies$ $I_X(C) = 2\alpha k$ бит
+% $\implies$ $p(C) = \frac{1}{2^{2\alpha k}}$.
+% 
+% 
+% \end{enumerate}
+
+% \hspace*{-2em}
+$
+\begin{array}{|c|c|c|c|c|c|c|}\hline
+\text{Случай}    & C                    & |code(C)| = I_X(C)          &  p(C) ~\text{по} ~I_X(C) &  p(C) ~\text{по} ~C &\text{Итог} \\\hline
+\text{лучший}    & \underbrace{aaa..aaa}_{\alpha\cdot L_{max}}  & \text{$2\alpha$ байтов ($2\alpha k$ бит)} 
+& \frac{1}{2^{2\alpha k}}  = \frac{1}{T^{2\alpha}} 
+&\frac{1}{T}\cdot r^{\alpha\cdot L_{max}-1} 
+&r
+= T^{-\frac{2\alpha-1}{\alpha T-1}}
+= T^{-\frac{2-\frac{1}{\alpha}}{T-\frac{1}{\alpha}}}
+\\\hline
+\text{худший}    & \underbrace{abc...}_{\alpha} & \text{$2\alpha$ байтов ($2\alpha k$ бит)} 
+& \frac{1}{2^{2\alpha k}}   = \frac{1}{T^{2\alpha}} 
+&\frac{1}{T}\cdot s^{\alpha-1}
+&s
+= T^{-\frac{2\alpha-1}{\alpha-1}}
+= T^{-\frac{2-\frac{1}{\alpha}}{1-\frac{1}{\alpha}}}
+\\\hline
+\end{array}
+$
+
+\end{adjustwidth}
+\end{frame}
+
+% \subsection{Модель RLE-н (1) и (2) --- расчёт $r$ и~$s$}
+\subsection{Модель RLE-н: расчёт $r$ и~$s$ лучшего и~худшего случаев $\implies$ нет точной модели}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-6em}{-6em}
+% \setlength{\parskip}{0.5\parskip} 
+\setlength{\parskip}{0.3\parskip} 
+\small
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+
+Для октетов $k=8$, $T=256$ %(RLE-н-1-8): 
+(для $k\neq 8$ значения другие, но \hfill  
+% $r_{\text{л}\alpha} < r_{\text{х}\alpha}$, \hfill $r_{\text{л}\infty} < r_{\text{х}\infty}$ 
+$s_{\text{х}\alpha} < s_{\text{л}\alpha}$, \hfill $s_{\text{х}\infty} < s_{\text{л}\infty}$ 
+\hfill сохраняется)
+
+% \hspace*{-2.8em}
+$
+\begin{array}{|c|c|c|c|c|c|c|c|c|c|}\hline
+\text{Случай}   
+& \text{лучший}, \alpha \to \infty ~({\text{л}\infty}) & \text{лучший}, \alpha =1 ~ ({\text{л}1})   
+& \text{худший}, \alpha \to \infty ~({\text{х}\infty}) & \text{худший}, \alpha =2 ~ ({\text{х}2})  
+\\\hline
+r               & 0,9576 \approx 1-0,04 & 0,9785  \approx 1-0,02      & 0,9961   \approx 1-0,004          & 1 - 1,5\cdot 10^{-5}     \\\hline
+s               & 1,7 \cdot 10^{-4} & 8 \cdot 10^{-5}    & 1,5\cdot 10^{-5}  &   6 \cdot 10^{-8}        \\\hline
+\end{array}
+$
+
+% разные оценки $r$ и~$s$ по лучшему и~худшему случаю не только по коротким сообщениям ($\alpha=1$ и~$\alpha=2$, 
+% влияет первая вероятность, которую приняли равной $\frac{1}{T}$),
+% но и~по длинным ($\alpha \to \infty$%, не влияет безусловная вероятность
+% ),
+% 
+% % то есть для RLE-н-1 не существует такого источника $X$, что $|code(C)| \to I_X(C)$
+% % \mbox{(такого, чтобы RLE-н-1 был для $X$ оптимальным).}
+% 
+% то есть не существует такого источника $X$, чтобы RLE-н-1 был для $X$ оптимальным.
+
+\begin{itemize}
+\item на $\text{л}1$ и~$\text{х}2$ сильно влияет первая вероятность, которую приняли $\frac{1}{T}$ $\implies$ не рассматриваем их;
+
+% для $\text{л}\infty$ и~$\text{х}\infty$ оценки $r$ и~$s$ разные $\implies$ не существует такого источника $X$, чтобы RLE-н-1 был для $X$ оптимальным 
+% в~смысле $|code(x)| \to I_X(x)$ для всех $x$ из $X$;
+
+\item $s_{\text{л}\infty} \neq s_{\text{х}\infty}$  $\implies$ не существует такого $X$ вида (*), чтобы  $|code(x)| \to I_X(x)$ 
+для всех $x$ из $X$;
+% ;
+% ~
+% $\forall x \hookleftarrow X$;
+
+\termin{то есть нет такой модели $X$ вида (*), чтобы оценка $|code(x)|$ как $I_X(x)$ была, как для Хаффмана "--- всегда близкой %к~реальности 
+и~иногда достижимой.
+% % (оценка длины как $I_X(x)$ всегда сильно занижена);
+% \rlap{(оценка RLE-н-1  настолько занижена, что бесполезна);}
+}
+
+% \item 
+% Для $X_{\text{л}\infty}$ и~$X_{\text{х}\infty}$ вида (*) и~сообщений $C_{\text{л}\infty}$ и~$C_{\text{х}\infty}$:
+% $I_{\text{л}\infty}(C_{\text{л}\infty}) = |code(C_{\text{л}\infty})|$
+% $s_{\text{х}\alpha} <  s_{\text{л}\alpha}$
+ 
+% $I_{\text{л}\alpha}(C_{\text{л}\alpha}) 
+% = |code(C_{\text{л}\alpha})|$; %по определению;
+% % $s_{\text{л}\alpha} <  s_{\text{х}\alpha}$
+% % $\implies$ 
+% $I_{\text{л}\alpha}(C_{\text{х}\alpha}) 
+% = \frac{1}{T}\cdot s_{\text{л}\alpha}^{\alpha-1}
+% > \frac{1}{T}\cdot s_{\text{х}\alpha}^{\alpha-1}
+% \approx |code(C_{\text{х}\alpha})|$
+
+% % усредним по источнику:
+% $
+% \left\{
+% \begin{array}{@{}cc@{}}
+% I_{\text{л}\alpha}(C_{\text{л}\alpha}) 
+% = |code(C_{\text{л}\alpha})|
+% \\
+% I_{\text{л}\alpha}(C_{\text{х}\alpha}) 
+% = 
+% -\log_2 \left(
+% \frac{1}{T}\cdot s_{\text{л}\alpha}^{\alpha-1}
+% \right)
+% < -\log_2 \left(
+% \frac{1}{T}\cdot s_{\text{х}\alpha}^{\alpha-1}
+% \right)
+% \approx |code(C_{\text{х}\alpha})|
+% \end{array}
+% \right.
+% $
+% $\implies$ 
+% $I(X_{\text{л}\alpha}) < |code(X_{\text{л}\alpha})|$
+% 
+% 
+% $
+% \left\{
+% \begin{array}{@{}cc@{}}
+% I_{\text{х}\alpha}(C_{\text{х}\alpha}) 
+% = |code(C_{\text{х}\alpha})|
+% \\
+% I_{\text{х}\alpha}(C_{\text{л}\alpha}) 
+% = -\log_2 \left(
+% \frac{1}{T}\cdot r_{\text{х}\alpha}^{\alpha\cdot L_{max}-1} 
+% \right)
+% < -\log_2 \left(
+% \frac{1}{T}\cdot r_{\text{л}\alpha}^{\alpha\cdot L_{max}-1} 
+% \right)
+% \approx |code(C_{\text{л}\alpha})|
+% \end{array}
+% \right.
+% $
+% $\implies$ 
+% \rlap{$I(X_{\text{х}\alpha}) < |code(X_{\text{х}\alpha})|$}
+
+
+% \item как для 
+% % $X_{\text{л}\alpha}$, так и~для $X_{\text{х}\alpha}$ с~любым $\alpha$ 
+% $X_{\text{л}\infty}$, так и~для $X_{\text{х}\infty}$
+% RLE-н-1 избыточен ($I_X(x) \leqslant |code(x)|$ и~есть $<$ \rlap{$\implies I(X) < |code(X)|$);}
+
+
+% \item 
+% $\exists X$ вида (*):  $s_{\text{х}\infty} < s^* < s_{\text{л}\infty}$, что
+% RLE-н-1 оптимален
+% в~смысле $|code(X)| \to I(X)$ \rlap{в~среднем по $X$.}
+
+%  ^^^ а существует ли?
+% 
+% \item если существует $X^*$ вида (*)
+% такой, что RLE-н-1 оптимален
+% в~смысле $|code(X^*)| \to I(X^*)$ \mbox{в~среднем по $X^*$,}
+% то $s_{\text{х}\infty} < s^* < s_{\text{л}\infty}$
+
+\item 
+% невозможно сказать, есть ли $X$ вида (*), что
+% RLE-н-1 оптимален в~среднем ($|code(X)| \to I(X)$).
+невозможно сделать вывод, существует ли такой  $X$ вида (*), что
+$|code(X)| \to I(X)$ \rlap{в~среднем по $X$.}
+
+\end{itemize}
+
+\vfill
+
+% Для источников $X$ с 
+% % $p(a|a)$
+% % % порядка $10^{-4}$--$10^{-5}$, в~том числе различными для разных пар $a, b$,
+% % % от $1-0,04$ до $1 - 10^{-5}$, 
+% % от $r_{\text{л}\infty}$ до $r_{\text{х}\infty}$
+% % в~том числе различными для разных  $a$,
+% % а~
+% $p(a|b), b \neq a$ порядка $10^{-5}$, % и~ниже
+% в~том числе различными для разных пар $a, b$,
+% код~RLE-н-1 с~8"=битным  $\widetilde{L}$ может быть назван \termin{субоптимальным} (ближайшим к~оптимальному 
+% из всех «наивных» RLE, а~скорее всего "--- из всех RLE, и~даже из всех LZ77 и~всех LZ78
+% ).
+
+
+Для источника с 
+$p(a|b) 
+\in 
+% % [10^{-5}, 10^{-4}]
+[s_{\text{х}\infty}, s_{\text{л}\infty}]
+% \approx s^*  
+% \in [s_{\text{х}\infty}, s^*]
+$ 
+или того же порядка
+% $p(a|b)$ порядка $s^*$
+RLE-н-1 с~8"=битным  $\widetilde{L}$ \termin{субоптимален}
+\\
+и~лучше других RLE-н (скорее всего "---  лучше всех RLE и~даже всех LZ77 и~всех LZ78).
+\vfill
+
+
+При 
+% $1-p(a|a) \lll
+% % 10^{-5}
+% 0,04
+% $ 
+$p(a|b) \lll 
+% 10^{-5}
+s_{\text{х}\infty}
+% s^*
+$
+субоптимальным будет RLE-н, где  $|\widetilde{L}| > 8$ бит (но $|c| = 8$, символ = байт).
+
+
+При 
+% $p(a|b)$ порядка $10^{-4}$ или чуть больше "--- 
+$1 \gg  p(a|b) \gg 
+% 10^{-5}
+s_{\text{л}\infty}
+% s^*
+$
+сложные RLE %могут быть 
+лучше «наивного» (если $p(a|b)$ не малы "--- все RLE плохи). %;   LZ77/LZ78 лучше RLE. <<< ???
+\\
+Оценка~по~худшему случаю строже $\implies$ в~сложных RLE необходимо уменьшать $|code(\text{х}\alpha)|$.
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \subsection{Модель источника наивного RLE (3) --- из соображений баланса}
+% 
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-5em}{-5em}
+% \small
+% 
+% Длина кода $\underbrace{aaa..aaa}_{L_{max}} \underbrace{aaa..aaa}_{L_{max}}$ и~$ab$ одинакова:
+% 
+% $p(\underbrace{aaa..aaa}_{L_{max}} \underbrace{aaa..aaa}_{L_{max}}) = p(ab)$
+% ~~$\implies$~~
+% $p(a)\cdot r^{2 L_{max}-1} = p(a)\cdot s$
+% ~~$\implies$~~
+% $r^{2 L_{max}-1} = s$
+% \hfill (б2)
+% 
+% решается только численно.
+% 
+% В~общем случае длина кода $\alpha\cdot L_{max}$ одинаковых символов и $\alpha$ разных "--- одинакова:
+% 
+% $p(a)\cdot r^{\alpha L_{max}-1} = p(a)\cdot s^{\alpha - 1}$
+% ~~ (б$\alpha$)
+% % \hfill
+% ~~
+% при $\alpha \to \infty$  $r \to 1$, $s \to 0$ "--- не стабилизируется ~~ (б$\infty$).
+% 
+% Для октетов ($k=8$, $T=256$) тем более не получается единой модели:
+% $
+% \begin{array}{|c|c|c|c|c|c|c|}\hline
+%     & {\text{л}\infty}& {\text{л}1}     &  {\text{б}2}    & {\text{х}\infty}& {\text{х}2}         & {\text{б}\infty} \\\hline
+% r   & 0,9576            & 0,9785            & 0,9815            & 0,9961            & 1 - 1,5\cdot 10^{-5}  &   1   \\\hline
+% s   & 1,7 \cdot 10^{-4} & 8 \cdot 10^{-5}   & 7 \cdot 10^{-5}   & 1,5\cdot 10^{-5}  &   6 \cdot 10^{-8}     &   0   \\\hline
+% \end{array}
+% $
+% 
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+
+
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-5em}{-5em}
+% 
+% \footnotesize
+% % % \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% % % \lstset{xleftmargin=1em,numbers=none}
+% % % \lstset{lineskip=0.5ex}
+% % % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% % \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% % \setlength{\leftmargini}{0ex}
+% % \setlength{\leftmarginii}{3ex}
+% \setlength{\parskip}{0.\parskip}
+% % 
+% % \setlength{\digitwidth}{\widthof{$0$}}
+% % \setlength{\digitheight}{\heightof{$0$}}
+% % 
+% % \smallskip
+% 
+% Существует ли модель аналогового сигнала, которая позволяет \termin{точно} оценить снизу размер кода?
+% 
+% Попробуем составить для $k$-битного байта (алфавит "--- из $T = 2^k$ байтов)
+% %
+% и RLE-н-1 $(L-1, c)$.
+% % [$L_{max} = 2^k = T$].
+% 
+% 
+% Из симметрии RLE-н
+% \hfill
+% $\forall a \neq b{:} ~ 
+% \left\{
+% \begin{array}{l}
+% p(a|a) = p(b|b) = r,\\
+% p(a|b) = p(b|a) = s.\\
+% \end{array}
+% \right.
+% % r \gg (T-1)s
+% % , ~~
+% % % \text{где $T$ "--- размер алфавита,}
+% $
+% (*)
+% \hfill
+% Из предположений RLE $r \gg (T-1)s$.
+% % \hfill\hfill
+% 
+% \vfill
+% 
+% 
+% 
+% \begin{enumerate}
+% \item Модель $X_{\text{б}2}$ построим из соображений баланса: длина кода RLE-н двух цепочек из $L_{max}$ одинаковых символов $a$
+% равна длине кода двух разных символов $ab$; если RLE-н соответствует источнику $X_1$, то вероятности их тоже равны:
+% 
+% $p(\underbrace{aaa..aaa}_{L_{max}} \underbrace{aaa..aaa}_{L_{max}}) = p(ab)$
+% % \hfill$\implies$\hfill
+% ~~$\implies$~~
+% $p(a)\cdot r^{2 L_{max}-1} = p(a)\cdot s$
+% ~~$\implies$~~
+% $r^{2 L_{max}-1} = s$
+% 
+% \vfill
+% 
+% \item $X_{\text{л}\alpha}$ "--- по лучшему случаю: длина кода  $\underbrace{aaa..aaa}_{\alpha\cdot L_{max}}$ "--- $2\alpha$ байтов ($2\alpha k$ бит):
+% 
+% $p(\underbrace{aaa..aaa}_{\alpha\cdot L_{max}}) = \frac{1}{2^{2\alpha k}}$
+% ~~$\implies$~~
+% $\frac{1}{T}\cdot r^{\alpha\cdot L_{max}-1} = \frac{1}{2^{2\alpha k}}$
+% 
+% 
+% 
+% 
+% 
+% 
+% \vfill
+% 
+% \item  $X_{\text{х}\alpha}$ "--- по худшему случаю: длина кода  $\underbrace{abc...}_{\alpha}$ "--- $2\alpha$ байтов ($2\alpha k$ бит):
+% 
+% $p(\underbrace{abc...}_{\alpha}) = \frac{1}{2^{2\alpha k}}$
+% ~~$\implies$~~
+% $\frac{1}{T}\cdot s^{\alpha-1} = \frac{1}{2^{2\alpha k}}$
+% 
+% 
+% 
+% 
+% \end{enumerate}
+% 
+% \vfill
+% 
+% В~$X_{\text{л}\alpha}$  и~$X_{\text{х}\alpha}$ используется $p(a)=\frac{1}{T}$, что верно только для начала сообщения.
+% 
+% \end{adjustwidth}
+% \end{frame}
+% 
+% 
+% 
+% 
+% 
+% 
+% \subsection{Модель источника наивного RLE --- расчёт}
+% 
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-6em}{-5em}
+% 
+% \footnotesize
+% \setlength{\parskip}{0.\parskip}
+% 
+% Найдём  $r, s$ %для $X_\text{б}$, $X_{\text{л}\alpha}$ и~$X_3$ 
+% с~учётом 
+% ~~$L_{max} = 2^k = T$~~~и~~$r + (T-1)s = 1$, ~~~ а~также $(T-1)s \ll r < 1$:
+% 
+% 
+% \vfill
+% 
+% \begin{enumerate}
+% \item $X_{\text{б}2}$:\hfill
+% $r^{2 L_{max}-1} = s$
+% \hfill$\Longleftrightarrow$\hfill
+% $r^{2T-1} = s$
+% \hfill$\Longleftrightarrow$\hfill
+% $\Big(1 - (T-1)s\Big)^{2T-1} = s$
+% 
+% Решаем %это трансцендентное уравнение 
+% численно:
+% шаг 1 "---
+% из приближения
+% $1 - (T-1)\cdot (2T-1)s \approx s$ 
+% \hfill
+% начальное
+% $ s_0 = \frac{1}{(T-1)\cdot (2T-1) + 1}$;
+% \\
+% шаг 2 "--- уточняем численно решение $\Big(1 - (T-1)s\Big)^{2T-1} = s$ от $s_0$.
+% % ; \hfill шаг 3 "--- уточняем от $s$.
+% 
+% Если аналогично $X_{\text{л}\alpha}$ и~$X_{\text{х}\alpha}$ рассмотреть $X_{\text{б}\alpha}$ 
+% как «$\alpha\cdot L_{max}$ одинаковых символов равновероятны $\alpha$ разным»,
+% $r$ с~ростом $\alpha$ стремится к~1, а~$s$ %"---  к~$s_0 = \frac{1}{(T-1)\cdot (\alpha T-1) + 1}$ и~вместе с~ним 
+% к~0.
+% 
+% 
+% % \vfill
+% 
+% \item $X_{\text{л}\alpha}$:\hfill
+% %
+% $\frac{1}{T}\cdot r^{\alpha\cdot L_{max}-1} = \frac{1}{2^{2\alpha k}}$
+% \hfill$\Longleftrightarrow$\hfill
+% $\frac{1}{T}\cdot r^{\alpha T-1} = \frac{1}{T^{2\alpha}}$
+% \hfill$\Longleftrightarrow$\hfill
+% $r
+% = T^{-\frac{2\alpha-1}{\alpha T-1}}
+% = T^{-\frac{2-\frac{1}{\alpha}}{T-\frac{1}{\alpha}}}
+% $
+% 
+% 
+% 
+% \vfill
+% 
+% \item $X_{\text{х}\alpha}$:\hfill
+% $\frac{1}{T}\cdot s^{\alpha-1} = \frac{1}{2^{2\alpha k}}$
+% \hfill$\Longleftrightarrow$\hfill
+% $\frac{1}{T}\cdot s^{\alpha-1} = \frac{1}{T^{2\alpha}}$
+% \hfill$\Longleftrightarrow$\hfill
+% $s
+% = T^{-\frac{2\alpha-1}{\alpha-1}}
+% = T^{-\frac{2-\frac{1}{\alpha}}{1-\frac{1}{\alpha}}}
+% $
+% 
+% \end{enumerate}
+% 
+% \vfill
+% 
+% % X1
+% % ft = inline ("(1-(T-1)*s)^(T-1) - s")
+% %  T = 8, f = inline ("ft(8,s)"), s0 = 1/((T-1)^2+1), s = fsolve (f, s0), r = 1 - (T-1)*s
+% 
+% %  T = 256, f = inline ("ft(256,s)"), s0 = 1/((T-1)^2+1), s = fsolve (f, s0), r = 1 - (T-1)*s, printf("s0=%e, s=%e, 1-r=%e\n", s0, s, 1-r)
+% 
+% 
+% % s2 = fsolve (f, s), r2 = 1 - (T-1)*s2
+% % s3 = fsolve (f, s2), r3 = 1 - (T-1)*s3
+% 
+% % X2
+% % r = T.^(-1./(T-1)), s = (1-r)/(T-1), printf("s=%e, 1-r=%e\n", s, 1-r)
+% 
+% % X3
+% %  s = 1/(T^3),  r = 1 - (T-1)*s, printf("s=%e, 1-r=%e\n", s, 1-r)
+% 
+% 
+% % printf("r=%0.4f\n", r)
+% % -log2(r), -log2(r)*T, -log2(s)
+% {
+% % \renewcommand*{\arraystretch}{1.6}
+% \setlength{\tabcolsep}{2pt}
+% 
+% 
+% 
+% Для октетов: $k=8$, $T=256$
+% $
+% \begin{array}{|c|c|c|c|c|c|c|}\hline
+%     & X_{\text{л}\infty}& X_{\text{л}1}     &  X_{\text{б}2}    & X_{\text{х}\infty}& X_{\text{х}2}         & X_{\text{б}\infty} \\\hline
+% r   & 0,9576            & 0,9785            & 0,9815            & 0,9961            & 1 - 1,5\cdot 10^{-5}  &   1   \\\hline
+% s   & 1,7 \cdot 10^{-4} & 8 \cdot 10^{-5}   & 7 \cdot 10^{-5}   & 1,5\cdot 10^{-5}  &   6 \cdot 10^{-8}     &   0   \\\hline
+% \end{array}
+% $
+% 
+% }
+% 
+% 
+% RLE-н-1 имеет смысл при $p(a|a) \approx r_{\text{л}\infty}$% или более для всех частых $a$
+% , при этом избыточен для такого источника.
+% 
+% %  ftaa = inline ("(1-(T-1)*s)^(aa*T-1) - s^(aa-1)")
+% %  T = 256, f = inline ("ftaa(256,20,s)"), s0 = 1/((T-1)*(20*T-1)+1), s = fsolve (f, s0), s = fsolve (f, s), r = 1 - (T-1)*s, printf("s0=%e, s=%e, 1-r=%e\n", s0, s, 1-r)
+% 
+% % с ростом aa r явно идёт к 1
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+
+
+
+
+
+
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-5em}{-5em}
+% 
+% \footnotesize
+% % % \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% % % \lstset{xleftmargin=1em,numbers=none}
+% % % \lstset{lineskip=0.5ex}
+% % % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% % \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% % \setlength{\leftmargini}{0ex}
+% % \setlength{\leftmarginii}{3ex}
+% \setlength{\parskip}{0.\parskip}
+% % 
+% % \setlength{\digitwidth}{\widthof{$0$}}
+% % \setlength{\digitheight}{\heightof{$0$}}
+% % 
+% % \smallskip
+% 
+% Существует ли модель аналогового сигнала, которая позволяет \termin{точно} оценить снизу размер кода?
+% 
+% $\forall a \neq b{:} ~ 
+% \left\{
+% \begin{array}{l}
+% p(a|a) = p(b|b) = r,\\
+% p(a|b) = p(b|a) = s,\\
+% \end{array}
+% \right.
+% r \gg (T-1)s
+% , ~~
+% % \text{где $T$ "--- размер алфавита,}
+% $
+% \hfill
+% всегда $r + (T-1)s = 1$ 
+% % $\Longleftrightarrow$
+% \hfill$\Longleftrightarrow$\hfill
+% $r = 1 - (T-1)s$
+% % \hfill{}
+% 
+% \vfill
+% 
+% Наивный RLE $(L-1, c),$ $k$-битный байт (алфавит из $T = 2^k$ байтов, $L_{max} = 2^k = T$):
+% 
+% \begin{enumerate}
+% \item 
+% % $\left\{
+% % \begin{array}{@{}l@{}}
+% % r + (T-1)s = 1\\
+% % p(\underbrace{aaa..aaa}_{L_{max}} x ) = p(ab)
+% % \end{array}
+% % \right.
+% % $
+% % \hfill$\Longleftrightarrow$\hfill
+% % $\left\{
+% % \begin{array}{@{}l@{}}
+% % r + (T-1)s = 1\\
+% % \frac{1}{T}\cdot r^{L_{max}-1}\cdot 1 = \frac{1}{T}\cdot s
+% % \end{array}
+% % \right.
+% % $
+% % \hfill$\Longleftrightarrow$\hfill
+% % $\left\{
+% % \begin{array}{@{}l@{}}
+% % r + (2^k-1)s = 1\\
+% % r^{2^k-1} = s
+% % \end{array}
+% % \right.
+% % $
+% 
+% $p(\underbrace{aaa..aaa}_{L_{max}} x ) = p(ab)$
+% \hfill$\Longleftrightarrow$\hfill
+% $\frac{1}{T}\cdot r^{L_{max}-1}\cdot 1 = \frac{1}{T}\cdot s$
+% \hfill$\Longleftrightarrow$\hfill
+% % $r^{2^k-1} = s$
+% $r^{L_{\max}-1} = s$
+% \hfill $\Big( r^{T-1} = s \Big)$
+% %
+% % \hfill$\Longleftrightarrow$\hfill
+% 
+% С~учётом $r = 1 - (T-1)s$ получаем уравнение
+% % $(1 - (2^k-1)s)^{2^k-1} = s$, считаем $(2^k-1)s \ll 1$: 
+% $\Big(1 - (T-1)s\Big)^{T-1} = s$, решаем в два шага:
+% \\
+% шаг 1 "---
+% нач.\,прибл. с~учётом $(T-1)s \ll 1$:
+% ~~
+% $1 - (T-1)\cdot (T-1)s \approx s$
+% $\implies$
+% $ s\approx \frac{1}{(T-1)^2 + 1} = s_0$;
+% \\
+% шаг 2 "--- уточняем численно решение $\Big(1 - (T-1)s\Big)^{T-1} = s$ от $s_0$.
+% 
+% 
+% \vfill
+% 
+% \item $\underbrace{aaa..aaa}_{L_{max}}$ "--- два байта ($2k$ бит):
+% %
+% \hfill
+% $p(\underbrace{aaa..aaa}_{L_{max}}) = \frac{1}{2^{2k}}$
+% \hfill$\Longleftrightarrow$\hfill
+% %
+% $\frac{1}{T}\cdot r^{L_{max}-1} = \frac{1}{2^{2k}}$
+% \hfill$\Longleftrightarrow$%\hfill
+% 
+% $\Longleftrightarrow$\hfill
+% %
+% $r^{L_{max}-1} =\frac{T}{2^{2k}}%=\frac{2^k}{2^{2k}}= \frac{1}{2^{k}}
+% $
+% %
+% \hfill$\Longleftrightarrow$\hfill
+% %
+% $r^{T-1} =\frac{T}{T^{2}} =\frac{1}{T} $
+% %
+% %
+% % \hfill$\Longleftrightarrow$\hfill
+% % $r^{2^k-1} = \frac{2^k}{2^{2k}}= \frac{1}{2^{k}}$
+% \hfill$\Longleftrightarrow$\hfill
+% $r = \left( \frac{1}{T} \right)^{ \frac{1}{T-1} }
+% = T^{-\frac{1}{T-1}}
+% $
+% 
+% 
+% 
+% \vfill
+% 
+% \item ${ab}c$ "--- четыре байта ($4k$ бит) + код $c...$:
+% 
+% $p(ab) = \frac{1}{2^{4k}}$
+% \hfill$\Longleftrightarrow$\hfill
+% %
+% $\frac{1}{T}\cdot s = \frac{1}{2^{4k}}$
+% \hfill$\Longleftrightarrow$\hfill
+% %
+% $s =\frac{T}{2^{4k}}=\frac{T}{T^{4}} =\frac{1}{T^{3}}= \frac{1}{2^{3k}}$
+% 
+% \end{enumerate}
+% % три \termin{разных} оценки $r$ и~$s$.
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+
+
+
+% \begin{frame}{\insertsubsection{} (продолжение: три разных модели)}
+% \begin{adjustwidth}{-5em}{-5em}
+% \setlength{\parskip}{0.3\parskip}
+% Три способа оценивания дают три \termin{разных} оценки $r$ и~$s$:
+% \vfill\vfill
+% 
+% Трёхбитный байт: $L_{max} = T = 2^k = 2^3 = 8$
+% 
+% \begin{enumerate}
+% \item $\Big(1 - (T-1)s\Big)^{T-1} = s$:
+% %
+% \hfill
+% $s_0 %=  \frac{1}{(T-1)^2 + 1} 
+% % = \frac{1}{7^2 + 1} 
+% = \frac{1}{50} = 0,02$ 
+% % после уточнения
+% % уточн.
+% \hfill$\implies$\hfill
+% $s \approx  0,05$,
+% % откуда 
+% \hfill
+% $r = 1 - (T-1)s \approx 0,65$
+% 
+% % ft = inline ("(1-(T-1)*s)^(T-1) - s")
+% %  T = 8, f = inline ("ft(8,s)"), s0 = 1/((T-1)^2+1), s = fsolve (f, s0), r = 1 - (T-1)*s
+% 
+% %  T = 256, f = inline ("ft(256,s)"), s0 = 1/((T-1)^2+1), s = fsolve (f, s0), r = 1 - (T-1)*s
+% 
+% %  T = 256, f = inline ("ft(256,s)"), s0 = 1/((T-1)^2+1), s = fsolve (f, s0), r = 1 - (T-1)*s, printf("s0=%e, s=%e, 1-r=%e\n", s0, s, 1-r)
+% 
+% \vfill
+% 
+% \item 
+% % $r^{T-1} = \frac{1}{T}$
+% % \hfill$\implies$\hfill
+% $r %= \left( \frac{1}{T} \right)^{ \frac{1}{T-1} }
+% = T^{-\frac{1}{T-1}}
+% = 8^{-\frac{1}{7}}
+% \approx 0,74
+% $
+% \hfill$\implies$\hfill
+% $s = \frac{1 - r}{T-1} \approx 0,04$
+% 
+% % r = T.^(-1./(T-1)), s = (1-r)/(T-1)
+% 
+% % r = T.^(-1./(T-1)), s = (1-r)/(T-1), printf("s=%e, 1-r=%e\n", s, 1-r)
+% 
+% \vfill
+% 
+% \item $s = \frac{1}{T^{3}} 
+% = \frac{1}{8^{3}} 
+% \approx 0,002
+% $
+% \hfill$\implies$\hfill
+% $r = 1 - (T-1)s \approx 0,99$
+% 
+% %  s = 1/(T^3),  r = 1 - (T-1)*s
+% %  s = 1/(T^3),  r = 1 - (T-1)*s, printf("s=%e, 1-r=%e\n", s, 1-r)
+% 
+% \end{enumerate}
+% \vfill
+% \hrulefill
+% 
+% \vfill
+% 
+% 
+% Октет: $L_{max} = T = 2^8 = 256$
+% %
+% \hfill\hfill
+% \enumerateball{1} 
+% $
+% s_0 \approx 1,5 \cdot 10^{-5},$ \hfill
+% $s \approx 1,3 \cdot 10^{-4}, $\hfill
+% $r \approx 1 - 3\cdot 10^{-2};$
+% 
+% \enumerateball{2} 
+% $
+% s \approx 8 \cdot 10^{-5}, ~~~
+% r \approx 1 - 2\cdot 10^{-2};
+% $
+% %
+% \hfill
+% \enumerateball{3} 
+% $
+% s \approx 6 \cdot 10^{-8}, ~~~
+% r \approx 1 - 1,5\cdot 10^{-5}.
+% $
+% 
+% \vfill\hrulefill
+% \vfill
+% 
+% % Три способа оценивания дают три \termin{разных} оценки $r$ и~$s$:
+% % \enumerateball{1} $I(m)$ "--- заниженная оценка $|code(m)|$ как в~наилучшем, так и~в~наихудшем случае;
+% % %
+% % \enumerateball{2} точная в~наилучшем, заниженная в~наи
+% 
+% Задача: оценить $I(m)$ по моделям \enumerateball{1}, \enumerateball{2}, \enumerateball{3} для сообщений длины 
+% $N \to \infty$
+% % $N$
+% \\
+% $m_1 = 0000...0000$ (наилучший случай) 
+% и~%
+% $m_2 = {0707...0707}$ (наихудший случай);
+% сравнить с~длиной наивного RLE $(L-1, c)$ этих сообщений $\Big(\text{рассчитать~}\frac{code(m)}{I_i(m)}\Big)$.
+% 
+% 
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+\subsection{Задачи: модель источника RLE}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+% \footnotesize
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+
+\begin{enumerate}
+\item Оценить $I(m)$ по моделям 
+% \enumerateball{1}, \enumerateball{2}, \enumerateball{3} 
+$X_{\text{л}}$, $X_{\text{х}}$
+для сообщений длины 
+$n \to \infty$
+\\
+$m_1 = 0000...0000$ (наилучший случай) 
+и~%
+$m_2 = {0123...4567}$ (наихудший случай);
+сравнить с~длиной наивного RLE $(L-1, c)$ этих сообщений $\Big(\text{рассчитать~}\frac{code(m)}{I_i(m)}\Big)$.
+
+\item При каком $r$ имеет смысл наивный RLE с~двухоктетным $L$?
+
+\item Построить 
+% модель/модели источника для оценки снизу длины кода RLE с~флаг-битом (не обязательно с~максимальным смещением $L$).
+% 
+% Существует ли простая (марковская первого порядка) модель для точной оценки?
+приближённую модель для RLE с~флаг-битом (считать, что $L_{\max} \approx 2^{k-1} = \frac{T}{2}$ для всех цепочек).
+
+
+Как отличаются вероятности от модели наивного RLE?
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\section{Семейство LZ77 (идея предложена Зивом с~участием Лемпеля в~1977 году)}
+
+
+
+
+% оставляем *f
+\newcommand{\Sf}[1]{\cf{#1}}
+\newcommand{\Si}[1]{{\tiny\cf{#1}}}
+
+\newcommand{\LLf}[1]{\textcolor{red!50!yellow}{#1}}
+
+
+\newcommand{\uSL}[2]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+ \Sf{#1} \\ \Lf{#2}
+\end{array}\right\}
+}}
+
+\newcommand{\uSLtext}[3]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+ \Sf{#1} \\ \Lf{#2} \\ #3
+\end{array}\right\}
+}}
+
+
+\subsection{Концепция LZ77, код Зива--Лемпеля LZ77/LZ1}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+
+
+
+
+% LZ77 и LZ1 — синонимы
+% http://patft1.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=%2Fnetahtml%2FPTO%2Fsearch-bool.html&r=1&f=G&l=50&co1=AND&d=PTXT&s1=5532693.PN.&OS=PN/5532693&RS=PN/5532693
+% % \subsection{Код Зива"--~Лемпеля LZ77}
+% \section{Код Зива--Лемпеля, LZ77/LZ1}
+% % \subsection{Концепция LZ77}
+% \begin{frame}{\insertsection}
+\footnotesize
+% \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% \lstset{xleftmargin=1em,numbers=none}
+% \lstset{lineskip=0.5ex}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+
+\setlength{\digitwidth}{\widthof{$0$}}
+\setlength{\digitheight}{\heightof{$0$}}
+
+
+1977 г., Якоб Зив (Jacob Ziv) и Абрахам Лемпель (Abraham Lempel)
+
+\textcolor{gray}{
+J. Ziv and A. Lempel, «A universal algorithm for sequential data compression», in IEEE Transactions on Information Theory, vol. 23, no. 3, pp. 337-343, May~1977, doi: 10.1109/TIT.1977.1055714.
+\\
+"--- идея замены слова ссылкой \uSL{S}{L} и~концепт  $(S, L, c)/(0, 0, c)$:
+}
+\smallskip
+
+если цепочка символов (не обязательно одинаковых) длины $L_{\min} \leqslant L \leqslant L_{\max}$ (слово) встречается более одного раза, то 
+каждое \termin{следующее вхождение} слова \termin{заменяется ссылкой на предыдущее.}
+
+Ссылка \uSL{S}{L} состоит из:
+\begin{itemize}
+\item относительного смещения $S \geqslant 1$ предыдущего вхождения слова относительно текущей позиции;
+\item длины $L$ слова.
+\end{itemize}
+
+\smallskip
+
+\termin{Скользящее окно:} область перед текущей позицией кодирования, в~которой можем искать \termin{начало} предыдущего вхождения слова (конец слова м.\,б.\,вне окна) и~адресовать %($w \leqslant \max(S)$) 
+ссылки ($S_{\min} \leqslant S \leqslant S_{\max}$).
+
+
+% \hrulefill
+
+% Если $S$ записывается 
+% % одним байтом ($n$ различных значений), 
+% $N$ битами,
+% то~максимальный размер окна 
+% % $w = \max(S) = n-1$.
+% $w = \max(S) = 2^N-1$.
+
+
+\vfill
+
+\termin{Поиск выполняется по несжатому тексту} (при декодировании "--- по \termin{уже разжатой} части)!
+\\
+В~окне поиска нет ни ссылок \uSL{S}{L}, ни флаг-байтов, ни экранирующих нулей, ни иных служебных \rlap{структур.}
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Схема данных кодирования методом LZ77 (общая)}
+\begin{frame}[plain]{\insertsubsection}
+% \begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz77}
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Схема данных декодирования методом LZ77 (декодирование символа $c$ и~ссылки 
+$\{L, S\}$
+должно строго соответствовать их кодированию)}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz77_decode}
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Схема данных кодирования LZ77 (подробная; слова в~окне "--- отдельная структура)}
+% \begin{frame}[plain]{\insertsubsection}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+% \includegraphics[width=\linewidth]{\IMGPATH/data_lz77}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz77_encode_dict_v2}
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Неоднозначность кодирования LZ77}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0\parskip}
+% \setlength{\leftmargini}{0em} 
+% \setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em}
+
+В~окне $1 \leqslant S \leqslant S_{\max}$ может быть несколько подходящих совпадений $L_{\min} \leqslant L \leqslant L_{\max}$:
+
+\vfill
+
+$S_{\min} = 1$ всегда. Пусть $S_{\max} = 16$, $L_{\min} = 4$, $L_{\max} = 6$.
+
+\vfill
+
+$
+\setlength{\arraycolsep}{2pt}
+\begin{array}{@{}cccccccccccccccccccccccccccccccccccccccccc@{}}
+&\phantom{33}&\phantom{33}&\phantom{33}&
+\Si{16}&\Si{15}&\Si{14}&\Si{13}&\Si{12}&\Si{11}&\Si{10}&\Si{09}&\Si{08}&\Si{07}&\Si{06}&\Si{04}&\Si{03}&\Si{02}&\Si{01}& ~\downarrow~ &
+\phantom{33}&\phantom{33}&\phantom{33}&\phantom{33}&\phantom{33}&\phantom{33}&\phantom{33}
+\\
+% \text{\normalsize}
+...&7&6&5&
+1&1&2&3&1&2&5&1&2&3&1&6&1&2&3&
+\Lf1 & \Lf2  & \Lf3 & \Lf1 & \LLf2 & \LLf3 & 1 & 1 &...
+\end{array}
+$
+
+\vfill
+
+
+\enumerateball{1} \uSL{S_1 = 15}{L_1 = 5}, 
+\hfill
+\enumerateball{2} \uSL{S_2 = 9}{L_2 = 4}, 
+\hfill
+\enumerateball{3} \uSL{S_3 = 3}{L_3 = 6} (при б\'{о}льшем $L_{\max}$ было бы 7).
+\hfill{}
+
+\termin{Любая} одна из этих пар будет допустимым кодом слова %допустимой длины 
+% ($L_{\min}...L_{\max}$) 
+в~текущей ($\downarrow$) позиции.
+
+\vfill
+
+
+\begin{itemize}
+\item полный перебор всех смещений ($S_{\min}...S_{\max}$) или ускоренный, по вспомогательным структурам данных (как в~LZSS)
+\item поиск первого совпадения длины $L_{\min}$ (слабее сжатие) или поиск наилучшего (медленно);
+\item по возрастанию абсолютного адреса (от $S_{\max}$ к~$S_{\min}$) или по убыванию и~т.\,д.
+\end{itemize}
+
+%\textcolor{gray}
+{Поиск предыдущего вхождения "--- основная сложность %алгоритмов 
+семейства LZ77 и~неоднозначность кодирования.}
+
+\vfill
+
+\termin{Декодирование любого кода семейства LZ77 однозначно.}
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+\subsection{Семейство LZ77 --- варианты}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0\parskip}
+% \setlength{\leftmargini}{0em} 
+% \setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+
+LZ77, как и~RLE "--- \termin{семейство кодов,} основанных на одной идее;
+так как семейство LZ77 чаще применяется на~практике "--- многие коды семейства получили собственные имена.
+Отличаются:
+
+\begin{enumerate}
+{
+
+\item способом отделения ссылок $\upair{L}{S}$ от несжатого текста 
+$\Big($концепт Зива--Лемпеля $\Big/$ 
+\vspace{-1ex}
+
+\mbox{флаг-байт ссылка/символ} $\Big/$ флаг-бит ссылка/цепочка $\Big/$ префикс и~т.\,д.$\Big)$;
+
+}
+
+\vfill
+
+\item порядком $(L, S) / (S, L)$ для тех случаев, где порядок не определён способом отделения;
+\vfill
+
+\item выбором $L_{\min}$: значение $\inf(L_{\min})$, то есть наименьшее $L$ такое, что ссылка $\upair{L}{S}$ занимает меньший объём, чем несжатые $L$ символов,
+определяется способом кодирования; но можно %принудительно 
+задать \mbox{$L_{\min} > \inf(L_{\min})$} 
+(в~частности, %взять для флаг-бита ссылка/цепочка 
+$L_{\min}=4$ вместо $3$ "--- хуже сжатие, но быстрее поиск).
+
+\vfill
+\item разрядностью $L$ и~$S$: для сильно избыточных файлов лучше $|L|=|S|=k$ бит (больше $L_{\max}$),
+для малоизбыточных $|L|=k-\delta$ бит, $|S|=k+\delta$ бит (больше окно).
+
+\textcolor{gray}{%
+Но~слишком большое окно замедляет кодирование 
+% (поиск в~окне выполняется для \termin{каждой} из $n-1$ возможных позиций, где $n$ "--- длина файла) 
+"--- ${16}$ разрядов много.
+}
+
+\vfill
+\item (не)использованием для $L$ и~$S$ кода со смещением
+% , разрядностью $L$ и~$S$ $\implies$ \rlap{%$L_{\min}$, 
+% $L_{\max}$, %$S_{\min}$, 
+% $S_{\max}$}
+% \\
+и~другими деталями реализации.
+
+\end{enumerate}
+
+\vfill
+
+\termin{Алгоритм семейства LZ77 = код + алгоритм поиска оригинала в~окне.}
+%
+%\textcolor{gray}
+{Так, алгоритм LZSS (Сторер, Сжимански) "--- флаг-бит ссылка/символ и~битовый выходной поток %+
+\mbox{+ дерево для ускорения поиска.}
+}
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+\subsection{Выбор для примеров ниже (реализовать иначе "--- можно, но не всё стоит)}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0\parskip}
+% \setlength{\leftmargini}{0em} 
+% \setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+% Общие положения для примеров ниже:
+
+\begin{enumerate}
+% \item Символ первичного алфавита = байт по определению, $|c| = 1~\text{байт} = k~\text{бит}$.
+% Примеры "--- $k=3$.
+% 
+% % \item 
+% % Рассматриваем только байтовый выходной поток. Считаем, что:
+% % \begin{itemize}
+% % \item $L$ и~$S$ в~сумме занимают \termin{ровно два байта} (для трёхбитного байта рассматриваются случаи 
+% % а) $|L|=|S|=1~\text{байт} = 3~\text{бита}$
+% % и~б) $|L|= 2~\text{бита}, |S|=4~\text{бита}$)
+% % \item флаг-байт, содержащий флаг-биты ссылка/символ "--- ровно один байт;
+% % \end{itemize}
+% % \vfill
+% 
+% \item Рассматриваем только байтовый выходной поток. 
+
+\item Символ=байт, $|c| = 1~\text{байт} = k~\text{бит}$ (примеры для $k=3$).  Выходной поток байтовый.
+% \vfill
+% 
+% \item 
+$S_{\min} = 1$. 
+\vfill
+
+% \item Порядок
+% \vfill
+
+\item Принимаем $L_{\min} = \inf(L_{\min})$, не увеличиваем (если способ кодирования не даёт однозначного $\inf(L_{\min})$ "--- берём наибольший из вариантов).
+\vfill
+
+\item 
+% Окно $S_{\max}$ хотя бы вдвое больше алфавита $\implies$ разрядность $S$ от $k+1$ (лучше $k+2$).
+Рассматриваем на примере малоизбыточных файлов  $\implies$ окно $S_{\max}$ желательно вчетверо больше алфавита, минимум вдвое $\implies$ разрядность $S$ от $k+2$, минимум  от $k+1$.
+\vfill
+
+Считаем, что $L$ и~$S$ в~сумме занимают \termin{ровно два байта.} 3-битный байт, примеры:
+% \begin{itemize}
+% \item 
+$|L|= 2~\text{бита}, |S|=4~\text{бита}$ ($|L|:|S| = 2:4$) "--- двухбитное $L$ дополняется старшим битом $S$ \rlap{до байта;}
+\\
+% \item в~исключительных случаях рассматриваем $|S|=1~\text{байт} = 3~\text{бита}$;
+% \end{itemize}
+Октет: есть реализация 
+$|L|:|S| = 6:10$ (LZJB).
+% , 
+% на сильно избыточном файле можно $%|L|:|S| = 
+% 7:9$.
+% % , очень сильно \rlap{$8:8$.}
+
+% \textcolor{gray}{Если время неограничено, а~степень сжатия принципиальна "--- можно положить три октета на ссылку.}
+\vfill
+
+Флаг-биты ссылка/цепочка рассматриваем на примере $|S|=1~\text{байт} = 3~\text{бита}$.
+
+\vfill
+
+\item Везде, где можно, \termin{для $L$ и~$S$ используется код со смещением.}
+\\
+Обозначим смещённое $S$ как $\widetilde{S} = S - \Delta_S$  и~смещённое $L$ как $\widetilde{L} = L - \Delta_L$.
+% \rlap{Обозн. смещённые $S$ и~$L$ как $\widetilde{S}$ и~$\widetilde{L}$.}
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+\section{LZ77: основные варианты отделения ссылок от несжатого текста}
+
+
+
+
+
+
+
+\subsection{Концепт Зива"---Лемпеля [LZ77-к]}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0\parskip}
+% \setlength{\leftmargini}{0em} 
+% \setlength{\leftmarginii}{0em} 
+\setlength{\leftmarginiii}{0em} 
+
+
+Ссылки чередуются с~несжатыми символами:
+ссылка $\uSL{S}{L}$, за~которой следует $c$ "--- тройка $(S, L, c)$; 
+% несжатый символ $c$ 
+если в~окне не на что дать ссылку
+"--- тройка $(0, 0, c)$.
+
+\vfill
+
+При~необходимости исходный текст дополняется (обычно нулями).
+
+\vfill
+
+$L_{\min} = S_{\min} = 1$, ноль используется как специальное $\implies$ код со смещением невозможен.
+
+Примем $k=3$, $|L|:|S| = 2:4$ $\implies$ $S_{\max} = 2^4-1 = 15$, $L_{\max} = 2^2-1 = 3$
+
+
+\vfill
+
+$m = 7777\,7000\,0000\,0000\,0123\,4567\,0123\,4343\,7012\,1077$ (40 трёхбитных байтов)
+
+$
+\uSLtext{0}{0}{-}7
+\uSLtext{S=1}{L=3}{777}7
+\uSLtext{0}{0}{-}0
+\uSLtext{S=1}{L=3}{000}0
+\uSLtext{S=1}{L=3}{000}0
+\uSLtext{S=1}{L=3}{000}1
+\uSLtext{0}{0}{-}2
+\uSLtext{0}{0}{-}3
+\uSLtext{0}{0}{-}4
+\uSLtext{0}{0}{-}5
+\uSLtext{0}{0}{-}6
+\uSLtext{0}{0}{-}7
+$
+$
+\uSLtext{S=8}{L=3}{012}3
+\uSLtext{S=8}{L=1}{4}3
+\uSLtext{S=2}{L=2}{43}7
+\uSLtext{S=9}{L=3}{012}1
+\uSLtext{S=4}{L=1}{0}7
+\uSLtext{S=1}{L=1}{7}0
+$
+
+"--- 18 троек $\uSL{S}{L} + c$, каждая записывается тремя байтами $\implies$ 54 байта в~коде.
+
+$code(m) = \Sf0\Lf07 \Sf1\Lf37 \Sf0\Lf00 \Sf1\Lf30 ...$
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+\newcommand{\fbyte}[1]{\ff{\Big(#1\Big)}}
+
+
+\subsection{LZ77 с~флаг-байтами ссылка/символ [LZ77-сс]}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0\parskip}
+
+% Символы $c$ и~ссылки $\uSL{S}{L}$ 
+Символы и~ссылки
+группируются по $k$ штук, 
+каждая группа предваряется байтом, где~каждый бит показывает тип соответствующего объекта (флаг-бит).
+%
+\textcolor{gray}{%Флаг-биты ссылка/символ б
+Без группировки "--- битовый выходной поток.}
+\vfill
+При~необходимости исходный текст дополняется (обычно нулями).
+
+\vfill
+\begin{itemize}
+
+\item флаг-бит $\flg$ ссылка/символ может быть $0/1$ или $1/0$; ниже рассматривается $1/0$;
+\item порядок $S$ и~$L$ в~ссылке любой; примем $(S, L)$;
+
+\item длина кода ссылки $\uSL{S}{L}$ с~учётом флаг-бита $2+\frac{1}{k}$ байта,
+длина кода несжатого символа "--- $1+\frac{1}{k}$ 
+$\implies$ $L_{\min} = 2$
+(ссылка на двухбайтовое слово занимает $2+\frac{1}{k}$ байта, два несжатых байта $2+\frac{2}{k}$).
+
+\item возможен код со смещением: ~~ $\widetilde{S}= S-S_{\min} = S-1,$ ~~ $\widetilde{L} = L - L_{\min}= L-2.$
+
+\end{itemize}
+
+В~наихудшем случае к~файлу из $n$ байтов добавляется $\frac{n}{k}$ флаг-байтов.
+
+\vfill
+
+Примем $k=3$, $|L|:|S| = 2:4$ $\implies$ 
+$\left\{\begin{array}{@{}l@{}}
+0 \leqslant S-1 \leqslant 2^4-1\\
+0 \leqslant L-2 \leqslant 2^2-1\\
+\end{array}\right.$
+ $\implies$ 
+$\left\{\begin{array}{@{}l@{}}
+1 \leqslant S \leqslant 2^4\\
+2 \leqslant L \leqslant 2^2+1\\
+\end{array}\right.$
+$\implies$ 
+$\left\{\begin{array}{@{}l@{}}
+S_{\max} = 16\\
+L_{\max} = 5\\
+\end{array}\right.$
+
+$m = 7777\,7000\,0000\,0000\,0123\,4567\,0123\,4343\,7012\,1077$ (40 трёхбитных байтов)
+
+\scriptsize
+
+$
+7
+\uSLtext{S=1}{L=4}{7777}
+0
+\uSLtext{S=1}{L=5}{00000}
+\uSLtext{S=1}{L=5}{00000}
+01234567
+\uSLtext{S=8}{L=5}{01234}
+\uSLtext{S=2}{L=3}{343}
+\uSLtext{S=9}{L=4}{7012}
+1077
+$
+
+
+% $
+% \fbyte{010}
+% 7
+% \uSL{1-1}{4-2}
+% 0
+% \fbyte{110}
+% \uSL{1-1}{5-2}
+% \uSL{1-1}{5-2}
+% 0
+% \fbyte{000}123
+% \fbyte{000}456
+% \fbyte{001}7
+% \uSL{8-1}{5-2}
+% \uSL{2-1}{3-2}
+% \fbyte{100}
+% \uSL{9-1}{4-2}
+% 10
+% \fbyte{000}
+% 770
+% $
+
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+\begin{frame}{\insertsubsection{} (продолжение): ссылка/символ $1/0$%, $S_{\max} = 16$ и~$L_{\max} = 5$
+}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.5\parskip}
+
+% $m = 7777\,7000\,0000\,0000\,0123\,4567\,0123\,4343\,7012\,1077$ (40 трёхбитных байтов)
+\scriptsize
+
+$
+7
+\uSLtext{S=1}{L=4}{7777}
+0
+\uSLtext{S=1}{L=5}{00000}
+\uSLtext{S=1}{L=5}{00000}
+01234567
+\uSLtext{S=8}{L=5}{01234}
+\uSLtext{S=2}{L=3}{343}
+\uSLtext{S=9}{L=4}{7012}
+1077
+$
+
+группировка по $k=3$ объекта (дополняем до $3x$ нулём); код со смещением ~ $\widetilde{S}= S-1,$ ~ $\widetilde{L} = L-2$:
+
+
+$
+\fbyte{010}
+7
+\uSL{1-1}{4-2}
+0
+\fbyte{110}
+\uSL{1-1}{5-2}
+\uSL{1-1}{5-2}
+0
+\fbyte{000}123
+\fbyte{000}456
+\fbyte{011}7
+\uSL{8-1}{5-2}
+\uSL{2-1}{3-2}
+\fbyte{100}
+\uSL{9-1}{4-2}
+10
+\fbyte{000}
+770
+$
+
+7 флаг-байтов + 6 двухбайтовых ссылок + 15 несжатых символов "--- всего $7 + 6\cdot 2 + 15 = 34$ байта
+
+% 
+% $
+% \fbyte{010}
+% 7
+% \uSL{0}{2}
+% 0
+% \fbyte{110}
+% \uSL{0}{3}
+% \uSL{0}{3}
+% 0
+% \fbyte{000}123
+% \fbyte{000}456
+% \fbyte{001}7
+% \uSL{7}{3}
+% \uSL{1}{1}
+% \fbyte{100}
+% \uSL{8}{2}
+% 10
+% \fbyte{000}
+% 770
+% $
+% 
+% 
+% $
+% \fbyte{010}
+% 7
+% \uSL{0000}{10}
+% 0
+% \fbyte{110}
+% \uSL{0000}{11}
+% \uSL{0000}{11}
+% 0
+% \fbyte{000}123
+% \fbyte{000}456
+% \fbyte{001}7
+% \uSL{0111}{11}
+% \uSL{0001}{01}
+% \fbyte{100}
+% \uSL{1000}{10}
+% 10
+% \fbyte{000}
+% 770
+% $
+% 
+% 
+% $
+% \fbyte{010}
+% 7
+% \uSL{000}{\Sf0 10}
+% 0
+% \fbyte{110}
+% \uSL{000}{\Sf0 11}
+% \uSL{000}{\Sf0 11}
+% 0
+% \fbyte{000}123
+% \fbyte{000}456
+% \fbyte{001}7
+% \uSL{111}{\Sf0 11}
+% \uSL{001}{\Sf0 01}
+% \fbyte{100}
+% \uSL{000}{\Sf1 10}
+% 10
+% \fbyte{000}
+% 770
+% $
+
+
+
+$
+\ff{2}
+7
+\uSL{0}{2}
+0
+\ff{6}
+\uSL{0}{3}
+\uSL{0}{3}
+0
+\ff{0}123
+\ff{0}456
+\ff{3}7
+\uSL{7}{3}
+\uSL{1}{1}
+\ff{4}
+\uSL{8}{2}
+10
+\ff{0}
+770
+$
+
+
+$
+\ff{2}
+7
+\uSL{0000}{10}
+0
+\ff{6}
+\uSL{0000}{11}
+\uSL{0000}{11}
+0
+\ff{0}123
+\ff{0}456
+\ff{3}7
+\uSL{0111}{11}
+\uSL{0001}{01}
+\ff{4}
+\uSL{1000}{10}
+10
+\ff{0}
+770
+$
+
+старший бит $\Sf{\widetilde{S}}$ записывается в~байт, хранящий $\Lf{\widetilde{L}}$:
+
+$
+\ff{2}
+7
+\uSL{000}{\Sf0 10}
+0
+\ff{6}
+\uSL{000}{\Sf0 11}
+\uSL{000}{\Sf0 11}
+0
+\ff{0}123
+\ff{0}456
+\ff{3}7
+\uSL{111}{\Sf0 11}
+\uSL{001}{\Sf0 01}
+\ff{4}
+\uSL{000}{\Sf1 10}
+10
+\ff{0}
+770
+$
+
+%ссылка 
+\uSL{S}{L} записывается в~порядке $(S, L)$:
+%
+$
+code(m) =
+\ff2
+7
+\Sf0 \Lf2
+0
+\ff6
+\Sf0 \Lf3
+\Sf0 \Lf3
+0
+\ff{0}123
+\ff{0}456
+\ff{3}
+7
+\Sf7 \Lf3
+\Sf1 \Lf1
+\ff{4}
+\Sf0 \Lf6
+10
+\ff{0}
+770
+$
+(34 трёхбитных байта)
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+\newcommand{\ufSLtext}[4]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+\ff{#1} \\ \Sf{#2} \\ \Lf{#3} \\ #4
+\end{array}\right\}
+}}
+
+
+
+\subsection{LZ77 с~флаг-битами ссылка/цепочка [LZ77-сц, предложен студентом МИЭТ]}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0\parskip}
+
+Несжатые символы объединяются в~цепочки аналогично RLE с~флаг-битом.
+
+\begin{itemize}
+
+\item флаг-бит $\flg$ ссылка/цепочка может быть $0/1$ или $1/0$; ниже рассматривается $1/0$;
+
+\item  $\flg$ помещается в~байт $L$; $L$ или $S$ на один бит короче \mbox{(разрядность $L$ цепочки может отличаться от $L$ ссылки);}
+
+\item порядок  $(\Lf{L}, \Sf{S})$;
+
+\item для ссылки: аналогично RLE % с~флаг-битом 
+% наименьшее  
+$\inf(L_{\min}) \in\{ 2, 3\}$ "--- возьмём $L_{\min}=3$;
+
+\item для цепочки несжатых символов:  $L_{\min}^{\text{несж}}=1$ по определению;
+
+\item возможен код со смещением: ~~ $\widetilde{S}= S-S_{\min} = S-1,$ ~~ $\widetilde{L} = L - L_{\min}= L-3;$ 
+\\
+{$\widetilde{L^{\text{несж}}} = L^{\text{несж}} -1$} $\implies$ 
+$L_{\max}^{\text{несж}} = 2^{k-1}$.
+
+\end{itemize}
+\vfill
+
+В~наихудшем случае к~файлу из $n$ байтов добавляется $\frac{n}{L_{\max}^{\text{несж}}} = \frac{n}{2^{k-1}}$ дополнительных байтов
+\\
+(при $k > 3$ "--- меньше, чем для флаг-байтов ссылка/символ).
+
+\vfill\vfill
+
+Примем $k=3$: %$|\flg|:|L|:|S| = 1:2:3$ 
+% $\implies$ 
+
+для ссылок  \uSL{S}{L} $|\flg|:|L|:|S| = 1:2:3$,
+$\left\{\begin{array}{@{}l@{}}
+0 \leqslant S-1 \leqslant 2^3-1\\
+0 \leqslant L-3 \leqslant 2^2-1\\
+\end{array}\right.$
+ $\implies$ 
+$\left\{\begin{array}{@{}l@{}}
+1 \leqslant S \leqslant 2^3\\
+3 \leqslant L \leqslant 2^2+2\\
+\end{array}\right.$
+$\implies$ 
+\rlap{
+$\left\{\begin{array}{@{}l@{}}
+S_{\max} = 8\\
+L_{\max} = 6\\
+\end{array}\right.$
+}
+
+для цепочек несжатых символов  $|\flg|:|L| = 1:2$, ~~ %$0 \leqslant L-1 \leqslant 2^2-1$ $\implies$ 
+$L_{\max}^{\text{несж}} = 4$.
+
+% \vfill
+% 
+% $m = 7777\,7000\,0000\,0000\,0123\,4567\,0123\,4343\,7012\,1077$ (40 трёхбитных байтов)
+% 
+% \scriptsize
+% 
+% $
+% \uutriple{0}{L=1}{7}
+% \ufSLtext{1}{S=1}{L=4}{7777}
+% \uutriple{0}{L=1}{0}
+% \ufSLtext{1}{S=1}{L=7}{0000000}
+% \ufSLtext{1}{S=1}{L=4}{0000}
+% \uutriple{0}{L=4}{1234}
+% \uutriple{0}{L=3}{567}
+% \ufSLtext{1}{S=8}{L=5}{01234}
+% \ufSLtext{1}{S=2}{L=3}{343} 
+% \uutriple{0}{L=4}{7012}
+% \uutriple{0}{L=4}{1077}
+% $
+
+\end{adjustwidth}
+\end{frame}
+
+\begin{frame}{\insertsubsection{} (продолжение): ссылка/цепочка $1/0$}
+\begin{adjustwidth}{-5em}{-5em}
+
+\setlength{\parskip}{0\parskip}
+
+$m = 7777\,7000\,0000\,0000\,0123\,4567\,0123\,4343\,7012\,1077$ (40 трёхбитных байтов)
+
+\scriptsize
+\vfill
+
+ссылки \ff{($\flg = 1$):} $\Sf{1 \leqslant S \leqslant 8,} ~~ \Lf{3 \leqslant L \leqslant 6}$; 
+цепочки несжатых символов \ff{($\flg = 0$):} \Lf{$1 \leqslant L \leqslant 4$:}
+
+
+$
+\uutriple{0}{L=1}{7}
+\ufSLtext{1}{S=1}{L=4}{7777}
+\uutriple{0}{L=1}{0}
+\ufSLtext{1}{S=1}{L=6}{000000}
+\ufSLtext{1}{S=1}{L=5}{00000}
+\uutriple{0}{L=4}{1234}
+\uutriple{0}{L=3}{567}
+\ufSLtext{1}{S=8}{L=5}{01234}
+\ufSLtext{1}{S=2}{L=3}{343} 
+\uutriple{0}{L=4}{7012}
+\uutriple{0}{L=4}{1077}
+$
+
+\vfill
+
+смещение для ссылки: ~~ $\widetilde{S}=  S-1,$ ~~ $\widetilde{L} = L-3;$ ~~~~  для цепочки $\widetilde{L} = L-1$:
+
+$
+\Big( (\ff0, \Lf{1-1=0}), 7 \Big)
+\Big( (\ff1, \Lf{4-3=1}), \Sf{1-1=0} \Big)
+\Big( (\ff0, \Lf{1-1=0}), 0 \Big)
+\Big( (\ff1, \Lf{6-3=3}), \Sf{1-1=0} \Big)
+\Big( (\ff1, \Lf{5-3=2}), \Sf{1-1=0} \Big)
+$
+$
+\Big( (\ff0, \Lf{4-1=3}), 1234 \Big)
+\Big( (\ff0, \Lf{3-1=2}), 567 \Big)
+\Big( (\ff1, \Lf{5-3=2}), \Sf{8-1=7} \Big)
+\Big( (\ff1, \Lf{3-3=0}), \Sf{2-1=1} \Big)
+$
+$
+\Big( (\ff0, \Lf{4-1=3}), 7012 \Big)
+\Big( (\ff0, \Lf{4-1=3}), 1077 \Big)
+$
+
+% \normalsize
+\small
+
+\vfill 
+
+$
+(\ff0 \Lf{00}, 7)
+(\ff1 \Lf{01}, \Sf{0})
+(\ff0 \Lf{00}, 0)
+(\ff1 \Lf{11}, \Sf{0})
+(\ff1 \Lf{10}, \Sf{0})
+(\ff0 \Lf{11}, 1234)
+(\ff0 \Lf{10}, 567)
+(\ff1 \Lf{10}, \Sf{7})
+(\ff1 \Lf{00}, \Sf{1})
+(\ff0 \Lf{11}, 7012)
+(\ff0 \Lf{11}, 1077)
+$
+
+\vfill 
+\normalsize
+
+$
+code(m) = 
+\Lf0 7 
+\Lf5 \Sf0 
+\Lf0 0
+\Lf7 \Sf0 
+\Lf6 \Sf0 
+\Lf3 1234
+\Lf2 567
+\Lf6 \Sf7 
+\Lf4 \Sf1
+\Lf3 7012
+\Lf3 1077
+$
+(33 трёхбитных байта)
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+\subsection{LZ77 с~односимвольным префиксом [LZ77-$p$]}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+% \footnotesize
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\parskip}{0\parskip}
+
+\begin{itemize}
+\item $\uSL{S}{L}$ записывается как $\left(p, \uSL{S}{L} \right)$; байт $p$ самый редкий, $P(p) \leqslant \frac{1}{2^k}$;
+\mbox{значение $p$ сохраняется в~заголовке файла;}
+
+\vfill
+
+\item $L_{\min} = 4$;
+
+\vfill
+
+\item байт $p$ в~несжатом тексте экранируется только как $(p, 0)$ $\implies$
+
+$\implies$
+в~$\left(p, \uSL{S}{L} \right)$ второй байт %д.\,б. 
+$\neq 0$ 
+$\implies$ 
+% 
+% $\implies$ 
+порядок $\left(p, \Lf{\widetilde{L}}, \Sf{\widetilde{S}} \right)$ с~$\widetilde{L} \neq 0$
+$\implies$ 
+
+$\implies$ 
+смещение не на $L_{\min}=4$, а~на $L_{\min}-1=3$: 
+% $\left(p, \Lf{L-L_{\min}+1}, \Sf{S} \right)$
+\rlap{$\left(p, \Lf{L-3}, \Sf{S-1} \right)$}
+
+\end{itemize}
+
+\vfill
+
+
+В~наихудшем случае к~файлу из $n$ байтов 
+% (из них $p$ "--- $n_p \leqslant \frac{n}{2^k}$)
+добавляется столько дополнительных байтов, сколько было символов $p$ "--- не более $\frac{n}{2^k}$
+(меньше, чем для флаг-битов).
+
+
+
+
+
+
+\end{adjustwidth}
+\end{frame}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-5em}{-5em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\parskip}{0.5\parskip}
+
+
+
+Примем $k=3$, $|L|:|S| = 2:4$ $\implies$ 
+$\left\{\begin{array}{@{}l@{}}
+0 \leqslant S-1 \leqslant 2^4-1\\
+1 \leqslant L-3 \leqslant 2^2-1\\
+\end{array}\right.$
+ $\implies$ 
+$\left\{\begin{array}{@{}l@{}}
+1 \leqslant S \leqslant 2^4\\
+4 \leqslant L \leqslant 2^2+2\\
+\end{array}\right.$
+$\implies$ 
+$\left\{\begin{array}{@{}l@{}}
+S_{\max} = 16\\
+L_{\max} = 6\\
+\end{array}\right.$
+
+выбираем префикс $p = 5$
+
+
+\vfill
+
+$m = 7777\,7000\,0000\,0000\,0123\,4567\,0123\,4343\,7012\,1077$ (40 трёхбитных байтов)
+
+\scriptsize
+
+$
+7
+\uSLtext{S=1}{L=4}{7777}
+0
+\uSLtext{S=1}{L=6}{000000}
+\uSLtext{S=1}{L=5}{00000}
+1234\pf567
+\uSLtext{S=8}{L=5}{01234}
+343
+\uSLtext{S=9}{L=4}{7012}
+1077
+$
+
+
+
+$
+7
+\uSL{1-1=0}{4-3=1}
+0
+\uSL{1-1=0}{6-3=3}
+\uSL{1-1=0}{5-3=2}
+1234\pf{\Big(5, 0\Big)}67
+\uSL{8-1=7}{5-3=2}
+343
+\uSL{9-1=8}{4-3=1}
+1077
+$
+
+
+$
+7
+\uSL{0000}{01}
+0
+\uSL{0000}{11}
+\uSL{0000}{10}
+1234\pf{\Big(5, 0\Big)}67
+\uSL{0111}{10}
+343
+\uSL{1000}{01}
+1077
+$
+
+$
+7
+\uSL{000}{\Sf0 01}
+0
+\uSL{000}{\Sf0 11}
+\uSL{000}{\Sf0 10}
+1234\pf{\Big(5, 0\Big)}67
+\uSL{111}{\Sf0 10}
+343
+\uSL{000}{\Sf1 01}
+1077
+$
+
+\vfill
+\footnotesize
+
+$code(m) =
+7
+\pf5 \Lf1 \Sf0
+0
+\pf5 \Lf3 \Sf0
+\pf5 \Lf2 \Sf0
+1234\pf{50}67
+\pf5 \Lf2 \Sf7
+343
+% \pf1 \Lf0 \Sf8
+\pf5 \Lf5 \Sf0
+1077
+$
+(33 трёхбитных байта)
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+
+\subsection{Лучший и~худший случаи LZ77 (для октетов: $k=8$)}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-7em}{-7em}
+\footnotesize
+\setlength{\parskip}{0.\parskip}
+
+Лучший исходный файл %длины $n$  
+"--- $m_{\text{л}}=\hex{\underbrace{0000...0000}_{n}}$;
+%
+худший "--- 
+ни в~одном в~окне нет ни одного совпадения $L\geqslant L_{\min}$ 
+% \vfill
+
+Считаем $n \gg L_{\max}$; всё оцениваем приблизительно; в~частности, для LZ77-сц $L_{\max}^{\text{несж}}\approx L_{\max}$.
+
+Первые две колонки $|code(m_{\text{л}})|$ и  $|code(m_{\text{х}})|$ "--- для любого $L_{\max}$ (то есть любых $|L|$ и~$|S|$), далее $|L|=|S|=k$.
+
+\vfill
+
+
+{
+\renewcommand*{\arraystretch}{1.6}
+\setlength{\tabcolsep}{4pt}
+
+% \hspace*{-2em}
+\begin{tabular}{|l|c|c||c|@{}c@{}|c|c|}\hline
+$code$  & $|code(m_{\text{л}})|$ &  $|code(m_{\text{х}})|$
+&   $L_{\max}^{|L|=|S|=k}$ & $L_{\max}^{|L|=|S|=k}|_{k=8}$  
+ & $|code(m_{\text{л}})|$  &  $|code(m_{\text{х}})|$  \\\hline
+LZ77-к   
+&   $3\cdot \frac{n}{L_{\max}+1}
+%=3\cdot\frac{n}{2^{k}}
+$
+& $3\cdot n$
+&   $2^k-1$   & 255 
+ & $3\cdot\frac{n}{256}$      & $3\cdot n$
+\\\hline
+
+LZ77-сс
+&   $(2 + \frac{1}{k})\cdot \frac{n}{L_{\max}} 
+%= (2 + \frac{1}{k})\cdot \frac{n}{2^k+1}
+$ 
+& $(1 + \frac{1}{k})\cdot n$  
+&   $2^k+1$   & 257 
+&\cellcolor{yellow} $(2 + \frac{1}{8})\cdot \frac{n}{257}$    
+& $(1 + \frac{1}{8})\cdot n$
+\\\hline
+
+LZ77-сц  
+& $2\cdot \frac{n}{L_{\max}}
+%\approx\frac{n}{2^{k-2}}
+$& $ (1 + \frac{1}{L_{\max}})\cdot n$ 
+& $\approx 2^{k-1}$ &130 (128 несж)
+%  &  $\frac{n}{64} = 4\cdot\frac{n}{256}$
+%  &  $\frac{n}{65} = 4\cdot\frac{n}{260}$
+ &  $\frac{2n}{130} = 4\cdot\frac{n}{260}$
+& $ (1 + \frac{1}{128})\cdot n$
+
+\\\hline
+
+
+LZ77-$p$   
+&   $3\cdot \frac{n}{L_{\max}}
+%=3\cdot\frac{n}{2^{k}+2}
+$& $n + count(p)\leqslant n \cdot (1 + \frac{1}{2^k})$ 
+&   {$2^k+2$}   & {258} 
+ & {$3\cdot\frac{n}{258}$}
+&\cellcolor{yellow} $ (1 + \frac{1}{256})\cdot n$
+\\\hline
+
+\end{tabular}
+
+}
+
+\vfill
+
+При $|L|=k-1$ и~$|S|=k+1$: а) $L_{\max}$ примерно вдвое меньше; б) худший случай для LZ77-к не~реализуется \mbox{(окно больше алфавита} и~$L_{\min}=1$).
+При $|L|=k-2$ и~$|S|=k+2$: $L_{\max}$ вчетверо меньше, а~окно больше...
+
+\vfill
+
+LZ77-сс лучший на $m_{\text{л}}$; используется в~LZJB с~$|L|=6$ и~$|S|=10$ бит и изб. данными "--- худший случай редок.
+
+\vfill
+
+LZ77-$p$ лучший на $m_{\text{х}}$.
+Вопрос: всегда ли LZ77-$p$ лучше или равноценен LZ77-к?
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% % \section{Сравнение RLE и~LZ77}
+% \subsection{Сравнение с~RLE}
+% 
+% \newlength{\tempwidth}
+% 
+% \begin{frame}{\insertsubsection}
+% % \begin{frame}{\insertsection}
+% \begin{adjustwidth}{-5em}{-5em}
+% \footnotesize
+% % \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% % \lstset{xleftmargin=1em,numbers=none}
+% % \lstset{lineskip=0.5ex}
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{0ex}
+% \setlength{\parskip}{0.\parskip}
+% 
+% \setlength{\digitwidth}{\widthof{$0$}}
+% \setlength{\digitheight}{\heightof{$0$}}
+% 
+% 
+% 
+% % \begin{itemize}
+% % \item 
+% Как RLE, так и~LZ77 не требуют отдельного словаря.
+% % \item 
+% % % В~RLE (кроме флаг-бита), $L$ имеет разрядность байта $k$; в~LZ77 "--- на 1-2 бита короче из-за $S$
+% % Разрядность поля $L$ в~LZ77 на 1-2 бита короче, чем в~RLE аналогичной реализации (из-за $S$)
+% % $\implies$ 
+% % 
+% % $\implies$ 
+% % $L_{\max}^{RLE}$ примерно вдвое-вчетверо больше $L_{\max}^{LZ77}$;
+% % \\
+% % для $k=8$: $L_{\max}^{RLE} \approx 256$, $L_{\max}^{LZ77} \approx 64$ (кроме флаг-битов, где фактическая разрядность $k-1$).
+% 
+% % \end{itemize}
+% \vfill
+% 
+% Сравниваем реализации с~префиксом для $k=3$: $p=5$,\hfill
+% $RLE:
+% \left\{\begin{array}{@{}l@{}}
+% 4 \leqslant L^{c\neq p} \leqslant 11,\\
+% 1 \leqslant L^{p} \leqslant 8;\\
+% \end{array}\right.$
+% \hfill
+% $LZ77:
+% \left\{\begin{array}{@{}l@{}}
+% 1 \leqslant S \leqslant 16,\\
+% 4 \leqslant L \leqslant 6.\\
+% \end{array}\right.$
+% 
+% \vfill
+% 
+% \begin{enumerate}
+% 
+% \item Одиночная цепочка повторений длины $L \leqslant L_{\max}^{LZ77}$:
+% \setlength{\tempwidth}{5.5em}
+% 
+% \makebox[\tempwidth][l]{RLE: \hfill$L \to 3$}~~
+% $
+% 77777\to
+% \pf5 \Lf2 \cf7
+% $
+% 
+% \makebox[\tempwidth][l]{LZ77: \hfill$L \to 4$}~~
+% $
+% 77777
+% \to
+% 7
+% \pf5 \Lf1 \Sf0
+% $
+% 
+% \vfill
+% 
+% \setlength{\tempwidth}{2.4em}
+% \item Есть  цепочки повторений длины порядка $L_{\max}^{RLE}$:
+% 
+% \makebox[\tempwidth][l]{RLE:}
+% $
+% 7777700000000000012345670123434370121077\to
+% \pf5 \Lf2 \cf7
+% \pf5 \Lf7 \cf0
+% 001234\pf{50}670123434370121077
+% $
+% \hfill
+% $40 \to 33$
+% 
+% \makebox[\tempwidth][l]{LZ77:}
+% $
+% 7777700000000000012345670123434370121077
+% \to
+% 7
+% \pf5 \Lf1 \Sf0
+% 0
+% \pf5 \Lf3 \Sf0
+% \pf5 \Lf2 \Sf0
+% 1234\pf{50}67
+% \pf5 \Lf2 \Sf7
+% 343
+% % \pf1 \Lf0 \Sf8
+% \pf5 \Lf4 \Sf0
+% 1077
+% $
+% \hfill $40 \to 33$
+% 
+% \vfill
+% 
+% \item Длина повторений не более $L_{\max}^{LZ77}$:
+% 
+% 
+% \makebox[\tempwidth][l]{RLE:}
+% $
+% 777770000000012345670123434370121077
+% \to
+% \pf5 \Lf2 \cf7
+% \pf5 \Lf3 \cf0
+% 001234\pf{50}670123434370121077
+% $
+% \hfill $36 \to 32$
+% 
+% 
+% 
+% \makebox[\tempwidth][l]{LZ77:}
+% $
+% 777770000000012345670123434370121077
+% \to
+% 7
+% \pf5 \Lf1 \Sf0
+% 0
+% \pf5 \Lf3 \Sf0
+% 01234\pf{50}67
+% \pf5 \Lf2 \Sf7
+% 343
+% % \pf1 \Lf0 \Sf8
+% \pf5 \Lf4 \Sf0
+% 1077
+% $
+% \hfill $36 \to 31$
+% 
+% \end{enumerate}
+% 
+% \vfill
+% 
+% Для большинства файлов  LZ77 эффективнее RLE аналогичной реализации;
+% % % аналогичного способа кодирования цепочек/ссылок.
+% % для файлов с~длинными повторениями можно реализовать LZ77 %с~полноразрядным $L$ 
+% % с~$L_{\max} \approx L_{\max}^{RLE}$
+% % и~относительно малым $S_{\max}$ 
+% % ($|L|=|S|=k$).
+% %
+% существуют файлы, для которых лучшим будет RLE; для некоторых (модель наивного RLE) лучшим будет наивный RLE.
+% 
+% \end{adjustwidth}
+% \end{frame}
+% 
+% 
+% \subsection{Модель источника для LZ77}
+% \begin{frame}{\insertsubsection}
+% 
+% LZ77 строится из предположения, что модель марковская.
+% % порядка не более $S_{\max}$.
+% 
+% 
+% Задача: каковы характеристики модели для оценки снизу длины кода алгоритмов семейства LZ77:
+% 
+% \begin{itemize}
+% \item стационарна ли она?
+% \item какова глубина памяти такой модели?
+% \end{itemize}
+% 
+% 
+% \end{frame}
+
+\section{Семинар RLE/LZ77}
+
+\subsection{Задача №1}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-2em}{-2em}
+\setlength{\leftmargini}{0ex}
+
+Закодируйте различными реализациями RLE/LZ77 сообщение
+
+$m = 
+7770\,0000\,0123\,4567~\,7770\,7770\,0000\,0000~\,0011\,2233\,4455\,6677
+$
+
+исходная длина $m$ в~символах $n = 
+4\cdot 12
+= 48$ символов
+% 
+% % 7770 0000 0123 4567 7770 7770 0000 0000 0011 2233 4455 6677
+% 
+% $C = $\\
+% \texttt{%
+% FFF0\,0000\,0123\,4567~89AB\,CDEF\,FFF0\,FFF0~0000\,0000\,0000\,0000~\\
+% 1122\,3344\,5566\,7788~99AA\,BBCC\,DDEE\,FFF0
+% }
+% % для копирования:
+% % FFF0 0000 0123 4567  89AB CDEF FFF0 FFF0  0000 0000 0000 0000  1122 3344 5566 7788  99AA BBCC DDEE FFF0 (80 символов)
+% % все 0-F входят по одному разу и по 2 подряд (RLE с префиксом — p0, но p2p)
+% % 17 нулей подряд — три цепочки по 7 (7+7+3), но две по 7+3=10 (10+7); а 17+4=21 ноль уже и для Lmax=10 по три цепочки
+% % 
+% %  
+% % (пробелов в~$C$ нет)
+% 
+% 
+% исходная длина $C$ в~символах $n = %20 \cdot 4 
+% 5\cdot 16
+% = 80$ символов
+
+
+\begin{enumerate}
+
+% \item в~байте 4 бита (тетрада);
+\item в~байте $k=3$ бита;
+
+\item символ кодирования "--- 3-битный байт (\hex{0-7}); сгруппированы по~4 и~16 штук для удобства.
+
+\end{enumerate}
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+\subsection{Задача №2}
+\begin{frame}{\insertsubsection}
+\setlength{\leftmargini}{0ex}
+
+\begin{enumerate}
+
+\item Рассчитать количество информации в~сообщении 
+% «$\underbrace{\text{ля-ля-ля-...-ля}}_{\text{80 раз}}\text{!}$»
+$C = \text{«}\underbrace{\text{ля-ля-ля-...-ля}}_{\text{80 раз}}\text{»}$
+(кодировка koi8-r)
+
+\item Закодировать сообщение $C$ алгоритмом LZ77
+\end{enumerate}
+
+\end{frame}
+
+\makethanks
+
+
+\begin{frame}{Информация и~модели источника}
+\footnotesize
+% \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% \lstset{xleftmargin=1em,numbers=none}
+% \lstset{lineskip=0.5ex}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+
+Заменяя вероятности символов на их оценки по модели $X$, получаем \termin{оценку} количества информации:
+% $I_M \geqslant I$
+\begin{enumerate}
+
+\item Без памяти, $A_1 = \{\text{л}, \text{я}, \text{-}\}$: 
+$I_1 = 2\cdot80\cdot\Big(-\log_2\big(\frac{80}{239}\big)\Big) + 79\cdot\Big(-\log_2\big(\frac{79}{239}\big)\Big) = 254,2 ~\text{бит} = 31,8 ~\text{байт}$
+
+\item Без памяти, $A_1 = \{\text{ля-}, \text{ля}\}$: 
+$I_2 = 79\cdot\Big(-\log_2\big(\frac{79}{80}\big)\Big) + 1\cdot\Big(-\log_2\big(\frac{1}{80}\big)\Big) = 7,6 ~\text{бит} = 0,9 ~\text{байт}$
+
+\item Маркова, $A_1 = \text{koi8-r}, N=3$ со следующими оценками \rlap{вероятностей:}
+\begin{tabularx}{0.9\linewidth}{@{}Ll@{}}
+$p(c_1=\text{л}) = p(c_2=\text{я}) = p(c_3=\text{-})  = \frac{1}{256}$,
+&$p(\text{-}|\text{-ля}) = \frac{79}{80}$,
+\\
+$p(\text{л}|\text{ля-}) = p(\text{я}|\text{я-л}) = 1$,
+&$p(eof|\text{-ля}) = \frac{1}{80}$: 
+\end{tabularx}
+
+\hspace*{-1.5em}\rlap{%
+$I_3 = 3\cdot\log_2{256} + 79\cdot\Big(-\log_2\big(\frac{79}{80}\big)\Big) + 1\cdot\Big(-\log_2\big(\frac{1}{80}\big)\Big) 
+= 31,6 ~\text{бит} = 3,9 ~\text{байт}$
+}
+
+% \item LZ77:
+% ля-$(p,3,237)$ "--- 6 байт
+
+\end{enumerate}
+
+\end{frame}
+
+
+
+\end{document}

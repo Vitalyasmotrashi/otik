@@ -1,0 +1,96 @@
+body {
+/*  background:#EEF0FF;*/
+	font-family:Georgia,sans-serif;
+	background:white;
+	padding:0;
+	margin:0;
+}
+
+ul{list-style-type:none;text-align:left;padding:0;margin:0}
+ul li{line-height:120%;}
+
+.title {font-size:200%;font-family:Palatino Linotype, Georgia,serif;padding:0.1em 0.2em 0 0; text-align:right; }
+
+.main{
+  text-align:justify;
+  padding:1em;
+  margin-left:4em;
+  margin-right:4em;
+  margin-bottom:3em;
+  border:dotted 1px gray;
+  letter-spacing:1px;
+  line-height:130%;
+  word-spacing:0.3ex;
+  background:white;
+  border-top:dotted 1px silver;
+  border-bottom:dotted 1px silver;
+  margin-bottom:2em;
+  }
+.main a{text-decoration:underline;color:#00A}
+
+.main h1, .main h3 {text-align:center}
+
+.art_right{
+		float:right;
+		margin-right:-4em;
+		margin-top:0.3em;
+		margin-left:0.6em;
+		margin-bottom:0.5em;
+		border-right:dotted 1px silver;
+		padding-right:0.5ex;
+}
+.art_left{
+		float:left;
+		margin-left:-4em;
+		margin-top:0.3em;
+		margin-right:0.6em;
+		margin-bottom:0.5em;
+		border-left:dotted 1px silver;
+		padding-left:0.5ex;
+}
+
+.header{
+	text-align:right;
+	word-spacing:0.5ex;
+	font-family:sans-serif;
+	margin:0;
+	background:white;
+	padding:1em;
+	margin-bottom:1em;
+	margin-left:88px;
+}
+.header a{
+	font-size:small;
+	white-space:nowrap;
+	text-decoration:none;
+	}
+.header a:hover{
+	background:#CCE;
+	text-decoration:none;
+	}
+a:hover{background:#F0F0FF}
+.frmlink{margin-right:0;margin-top:0;text-align:right;font-family:Arial Narrow;letter-spacing:1px;}
+abbr{border-bottom:dashed 1px silver}
+#orphus{position:absolute;top:0;left:0;}
+
+
+/*compability*/
+table.menu {
+    float:left;
+    margin-right:0.5em;
+	background:#CCE;
+	border-right:dotted 1px black;
+	border-bottom:dotted 1px black;
+	
+}
+
+table.menu td{	
+	padding:1ex;
+}
+table.menu a{text-decoration:none}
+.main H3 {
+	font-size:210%;
+	text-align:right;
+	padding-right:1em;
+	font-family:'Georgia',serif;
+}

@@ -1,0 +1,76 @@
+\input{arc-commonheader.tex}
+
+\geometry{margin=10mm, left =10mm, paperwidth=200mm,paperheight=1300mm}
+
+
+\begin{document}
+
+\input{arc-commonencode.tex}
+
+\renewcommand{\tabletail}{
+2 & \c{2} & \b{1} + \fq{2}&=& \b{2} \\
+3 & \c{3} & \b{2} + \fq{3}&=& \b{3} \\
+% 4 & \c{4} & \b{3} + \fq{4}&=& \b{4} \\
+}
+
+
+\initencodesection{октокот}{
+  let \c{1} = О;
+  let \c{2} = К;
+  let \c{3} = Т;
+}{3,2,2}
+
+
+\noindent
+\begin{tikzpicture}
+  \intinit 0 [0,\N-1], {}  
+  \intsubdiv[\intsubdivlabel]{1}  
+  \intsubdiv[\intsubdivlabel]{2}  
+  \intsubdiv{3}  
+  \intsubdiv{1}  
+  \intsubdiv{2}  
+  \intsubdiv{1}  
+  \intsubdiv{3}  
+  
+  \finalbit{1}
+\end{tikzpicture}
+
+
+\def\finalcode{0100011101}
+\def\msglen{7}
+
+
+
+\input{arc-concldecode.tex}
+
+
+
+
+\noindent
+\begin{tikzpicture}
+  \intinit [0,\N-1], [0,\N-1], {} 
+  
+  \readbit{0}
+  \readbit{1}
+  \readbit{0}
+  \readbit{0}
+  \readbit{0}
+  \readbit{1}
+  \readbit{1}
+  \readbit{1}
+  \readbit{0}
+  \readbit{1}
+  
+  \readbit{0}
+  \readbit{0}
+  \readbit{0}
+%   \readbit{0}
+
+\end{tikzpicture}
+
+
+
+
+
+
+\end{document}

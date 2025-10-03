@@ -1,0 +1,460 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Список вопросов и билеты по 2 вопроса
+% расстояния подобраны методом тыка
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage[
+  a4paper, mag=1000, %nohead,includefoot,
+  margin=0mm, %headsep=20mm, footskip=0mm
+  top=5mm, bottom=12mm
+]{geometry}
+
+\usepackage[T2A]{fontenc}
+% \usepackage[utf8x]{inputenc} % некрасивое оглавление: вместо заголовка просит \PrerenderUnicode; а с \PrerenderUnicode — не собирается
+\usepackage[utf8]{inputenc} % https://tex.stackexchange.com/questions/48197/error-please-insert-prerenderunicode
+
+
+\usepackage[english,russian]{babel}
+% \usepackage{cyrtimes}	% Times, Arial и Courier одновременно
+\usepackage{graphicx}
+\usepackage{enumitem}	% Настраиваемые списки
+\newcommand\No{№}
+\usepackage{mathtools}  % amsmath with extensions
+\usepackage{amssymb}  % (otherwise \mathbb does nothing)
+\DeclareMathOperator{\sal}{sal}
+\DeclareMathOperator{\sar}{sar}
+\DeclareMathOperator{\shl}{shl}
+\DeclareMathOperator{\shr}{shr}
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+% \usepackage{forloop}	% Цикл с параметром
+\usepackage{tikz} % цикл с параметром — оттула
+
+
+\usepackage[pdftex,unicode=true,colorlinks]{hyperref}
+    \hypersetup{citecolor=blue,linkcolor=blue,urlcolor=blue}
+
+% =============================================================================
+\makeatletter
+% %     ^
+% % ** /!\ Название курса ************************************************* /!\
+% %   ----
+% не только в билете, но и в списках вопросов и задач
+
+\global\@namedef{courseheading}{Основы теории информации и~кодирования}
+
+\makeatother
+
+\newcounter{idx_ticket}		% счётчик билетов
+\setcounter{idx_ticket}{1}
+
+
+% Один билет =========================
+\newcommand\printticket{
+\begin{minipage}[c][0.48\textheight]{0.85\linewidth}
+\setlength{\parskip}{0.mm}
+\setlength{\parindent}{0cm}
+\begin{center}
+% \vfill
+\textbf{
+% МОСКОВСКИЙ ИНСТИТУТ ЭЛЕКТРОННОЙ ТЕХНИКИ
+Национальный исследовательский университет «МИЭТ»
+}
+% \vspace{-0.8cm}
+\vspace{-0.5\baselineskip}
+
+\noindent\hrulefill
+
+\textbf{\largeЭКЗАМЕНАЦИОННЫЙ БИЛЕТ \No\arabic{idx_ticket}}\addtocounter{idx_ticket}{1}
+\end{center}
+% \vspace{-0.6cm}
+
+по курсу <<\courseheading>>
+\vfill
+
+% \setlist{nolistsep}
+% % \begin{enumerate}[noitemsep, 
+% % % wide
+% % leftmargin = 0em, itemindent=2em]
+% \setlist{leftmargin=*}
+% \setlist[1]{labelindent=\parindent}
+\setlist{nolistsep,noitemsep, leftmargin=*,labelindent=\parindent}
+\begin{enumerate}  
+        \item \abPrint[Q]{idxQA}.
+\vfill  \item \abPrint[Q]{idxQB}.
+\end{enumerate}
+% \vfill \textbf{Задачи:} дано \printC{idxC}. При построении кодов указывайте все выбираемые вами опции.
+% \begin{enumerate}[resume]
+\vfill \textbf{Задача:} дано \abPrint[C]{idxC}. При построении кодов \ref{item_task_A}--\ref{item_task_B} указывайте все выбираемые вами опции.
+\begin{enumerate}
+\vfill\item\label{item_task_A} \abPrint[T]{idxTA}.
+\vfill\item\label{item_task_B} \abPrint[T]{idxTB}.
+\vfill\item Рассчитайте $I_{\text{РВ}}(C)$, $I_{\text{БП}}(C)$ и~$I_{\text{М1}}(C)$.
+Как $I_{X}(C)$ для указанных моделей $X$ должно соотноситься с~длинами кодов \ref{item_task_A}--\ref{item_task_B}? Выполняются ли эти соотношения?
+\end{enumerate}
+\vfill
+% При построении кода необходимо указать все выбранные опции.
+% : сортировку по~умолчанию, маркировку ветвей, разрядность и~смещение для $L$ и~для $S$ и~т.\,п.
+
+% \vspace{-\baselineskip}
+% \vfill
+
+\vspace{-0.5\baselineskip}
+\noindent\hrulefill
+% \vspace{-1cm}
+\vfill
+{%
+\footnotesize%
+%Билет рассмотрен и~утверждён на заседании института СПИНТех 25.05.22
+% Билет рассмотрен и утвержден на заседании УС Института СПИНТЕХ 21.12.2022
+% Билет рассмотрен и~утверждён на заседании УС института СПИНТех 07.06.2023 %среда, весна (Д)
+% Билет рассмотрен и~утверждён на заседании УС института СПИНТех 18.12.2023 
+Билет рассмотрен и~утверждён на заседании УС института СПИНТех 9.12.2024 %(понедельник!!! ???)
+\par
+\vspace*{1.5\baselineskip}Директор СПИНТех\,\hrulefill\,Гагарина Л.\,Г.
+% Директор СПИНТех\,\rlap{\includegraphics[width=48mm]{tmp/gagar_facsimile}}\hrulefill\,Гагарина Л.\,Г.
+
+}
+\end{minipage}\centering
+
+}
+% =============================================================================
+
+
+% Печать текста вопроса по счётчику-№ вопроса/задачи (1, 2, 3,... count_XXX)
+
+
+% Вопрос в списке вопросов и задача в списке задач ====================================================
+
+\newcounter{ab_idx_current}	
+
+\makeatletter
+\newcommand\abPrint[2][Q]{\expandafter\@nameuse{#1\arabic{#2}}}
+\newcommand\abCreateQuiet[2]{\global\expandafter\@namedef{#1\arabic{ab_idx_current}}{#2}\stepcounter{ab_idx_current}}
+\newcommand\abCreateEnumerateItem[2]{\item #2.\abCreateQuiet{#1}{#2}}
+\makeatother
+
+% \let\abCreateTagVal\abCreateQuiet
+
+
+
+\newcommand\abItem[1]{}
+
+\newcommand\abSeparator{}
+\newcommand\abSeparatorWithParams[2]{%      1—maxA, 2—minB
+\setcounter{#1}{\value{ab_idx_current}-1}%
+\setcounter{#2}{\value{ab_idx_current}}%
+}
+\newcommand\abCloseList{}
+
+
+
+% 1—тег,    2—minA, 3—maxA, 4—minB, 5—maxB  6—заголовок
+
+\newenvironment{abListQuiet}[5][Q]
+{%
+    \begingroup
+    \renewcommand\abItem[1]{\abCreateQuiet{#1}{##1}}
+    \setcounter{ab_idx_current}{1}	
+    \setcounter{#2}{1}
+    \renewcommand\abSeparator{\abSeparatorWithParams{#3}{#4}}
+    \renewcommand\abCloseList{\setcounter{#5}{\value{ab_idx_current}-1}}
+}
+{%    
+    \abCloseList%
+    \endgroup%
+}
+
+
+\newenvironment{abListEnumerate}[6][Q]
+{%
+    \begin{abListQuiet}[#1]{#2}{#3}{#4}{#5}
+    \renewcommand\abItem[1]{\abCreateEnumerateItem{#1}{##1}}
+    \textbf{#6}
+    \begin{enumerate}
+}
+{%    
+    \end{enumerate}
+    \end{abListQuiet}
+}
+
+% =============================================================================
+
+
+
+
+\newcounter{idxQA}	% счётчик для 1-го вопроса билета
+\newcounter{idxQB}	% счётчик для 2-го вопроса билета
+\newcounter{idxTA}	% счётчик для 1-й задачи билета
+\newcounter{idxTB}	% счётчик для 2-й задачи билета
+\newcounter{idxC}	
+
+% \newcounter{dQA}	% приращение для 1-го вопроса билета
+% \newcounter{dQB}	% приращение для 2-го вопроса билета
+% \newcounter{dTA}	% приращение для 1-й задачи билета
+% \newcounter{dTB}	% приращение для 2-й задачи билета
+% \newcounter{dC}	% приращение 
+
+\newcounter{minQA}	% минимум 1-го вопроса билета в списке вопросов
+\newcounter{minQB}	% минимум 2-го вопроса билета в списке вопросов
+\newcounter{minTA}	% минимум 1-й задачи билета в списке задач
+\newcounter{minTB}	% минимум 2-й задачи билета в списке задач
+\newcounter{minC}	
+
+\newcounter{maxQA}	% максимум 1-го вопроса билета   в списке вопросов
+\newcounter{maxQB}	% максимум 2-го вопроса билета   в списке вопросов
+\newcounter{maxTA}	% максимум 1-й задачи билета     в списке задач
+\newcounter{maxTB}	% максимум 2-й задачи билета     в списке задач
+\newcounter{maxC}
+
+
+\newcommand\startticketlist[4]{%
+    \setcounter{idxQA}{\value{minQA}}
+    \setcounter{idxQB}{\value{minQB}}
+    \setcounter{idxTA}{\value{minTA}}
+    \setcounter{idxTB}{\value{minTB}}
+    \setcounter{idxC}{\value{minC}}
+%     \setcounter{dQA}{#1}
+%     \setcounter{dQB}{#2}
+%     \setcounter{dTA}{#3}
+%     \setcounter{dTB}{#4}
+%     \setcounter{dC}{1}
+}
+% Один билет ==================================================================
+\newcommand\printticketAndGoNext{%
+    \printticket%
+%     \addtocounterInRange{idxQA}{dQA}{minQA}{maxQA}
+%     \addtocounterInRange{idxQB}{dQB}{minQB}{maxQB}
+%     \addtocounterInRange{idxTA}{dTA}{minTA}{maxTA}
+%     \addtocounterInRange{idxTB}{dTB}{minTB}{maxTB}
+%     \addtocounterInRange{idxC}{dC}{minC}{maxC}
+    \stepcounterInRange{idxQA}{minQA}{maxQA}
+    \stepcounterInRange{idxQB}{minQB}{maxQB}
+    \stepcounterInRange{idxTA}{minTA}{maxTA}
+    \stepcounterInRange{idxTB}{minTB}{maxTB}
+    \stepcounterInRange{idxC}{minC}{maxC}
+
+}
+\newcommand\printIdxAndGoNext{%
+    \arabic{idxQA}/%
+    \arabic{idxQB}/%
+    \arabic{idxTA}/%
+    \arabic{idxTB} %
+%     \addtocounterInRange{idxQA}{dQA}{minQA}{maxQA}
+%     \addtocounterInRange{idxQB}{dQB}{minQB}{maxQB}
+%     \addtocounterInRange{idxTA}{dTA}{minTA}{maxTA}
+%     \addtocounterInRange{idxTB}{dTB}{minTB}{maxTB}
+%     \addtocounterInRange{idxC}{dC}{minC}{maxC}
+    \stepcounterInRange{idxQA}{minQA}{maxQA}
+    \stepcounterInRange{idxQB}{minQB}{maxQB}
+    \stepcounterInRange{idxTA}{minTA}{maxTA}
+    \stepcounterInRange{idxTB}{minTB}{maxTB}
+    \stepcounterInRange{idxC}{minC}{maxC}
+}
+% =============================================================================
+
+% Добавление значения счётчика #2 к счётчику #1 с учётом минимального значения счётчика #3 и максимального значения счётчика #4
+% \newcommand\addtocounterInRange[4]{
+% \addtocounter{#1}{\value{#2}}
+% \ifnum \value{#1}>\value{#4}
+%     \setcounter{#1}{\value{#3}} % если перевалили за максимум — в минимум
+% \fi
+% }
+
+\newcommand\stepcounterInRange[3]{
+\stepcounter{#1}
+\ifnum \value{#1}>\value{#3}
+    \setcounter{#1}{\value{#2}} % если перевалили за максимум — в минимум
+\fi
+}
+
+
+
+
+\usepackage[small,indentafter]{titlesec}
+\titlespacing*{\section}{0ex}{3.5ex plus 1ex minus .2ex}{2.3ex plus 0ex}
+\titleformat{\section}{\filright\bfseries}{\thesection.}{.5em}{}
+
+\usepackage{titletoc}
+\titlecontents{section}[1.5cm]{}{\thecontentslabel.~}{}{\titlerule*[9pt]{.}{\contentspage}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+
+\newgeometry{margin=20mm}
+
+\clearpage
+
+\phantomsection\addcontentsline{toc}{section}{Вопросы и задачи}
+\begin{abListEnumerate}[Q]{minQA}{maxQA}{minQB}{maxQB}{Контрольные (экзаменационные) вопросы по~курсу <<\courseheading>>}
+\abItem{Вероятностный подход к измерению информации}
+\abItem{Энтропия источника данных, первая теорема Шеннона для сжатия}
+\abItem{Энтропийное кодирование, модель источника}
+\abItem{Метод энтропийного сжатия Шеннона"--~Фано}
+\abItem{Метод энтропийного сжатия Хаффмана}
+% \abItem{Арифметическое кодирование}
+
+% окончание первых (в билете) вопросов — ab_idx_current после \abItem{} — это уже номер следующего
+\abSeparator
+
+\abItem{Кодирование длин повторений (RLE): идея, основные опции. «Наивный» RLE. RLE с~флаг-битом сжатая/несжатая цепочка}
+\abItem{Кодирование длин повторений (RLE): идея, основные опции. «Наивный» RLE. RLE с~односимвольным префиксом сжатой цепочки в несжатом тексте}
+
+
+\abItem{Метод словарного сжатия LZ77: идея, основные опции. Концепт Зива---Лемпеля от 1977 года}
+\abItem{Метод словарного сжатия LZ77: идея, основные опции. LZ77 с~флаг-битом ссылка/символ}
+\abItem{Метод словарного сжатия LZ77: идея, основные опции. LZ77 с~односимвольным префиксом ссылки в несжатом тексте}
+
+
+
+
+% \abItem{Семейство алгоритмов словарного сжатия LZ78. Концепт Зива---Лемпеля от 1978 года}
+% \abItem{Семейство алгоритмов словарного сжатия LZ78. LZW}
+
+
+% % \abItem{Сжатие с потерями}
+% % \abItem{Дискретное преобразование Фурье (ДПФ)}
+% % \abItem{Быстрое ДПФ (БПФ)}
+% % \abItem{Дискретное косинусное преобразование}
+% % \abItem{Преобразование Хаара}
+% \abItem{Ёмкость канала передачи данных, первая теорема Шеннона для канала}
+% % \abItem{Условная энтропия и~относительная информация двух источников данных, вторая теорема Шеннона}
+% % \abItem{Двоичный симметричный канал}
+% \abItem{Простейшие помехоустойчивые коды}
+% \abItem{Код Хэмминга}
+% % % \abItem{Алгебры, группоиды, полугруппы, моноиды}
+% % % \abItem{Группы}
+% % % \abItem{Циклические группы и~примитивные элементы}
+% % % \abItem{Кольца, тела}
+% % % \abItem{Поля}
+% % \abItem{Кольца, тела, поля}
+% % \abItem{Кольцо многочленов над полем}
+% % % \abItem{Делимость многочленов}
+% % % \abItem{Неприводимые многочлены}
+% % \abItem{Делимость многочленов. Неприводимые многочлены}
+% % \abItem{Конечные поля}
+% % \abItem{Полиномиальные коды}
+% % % \abItem{Циклические полиномиальные коды}
+% % % \abItem{Циклические коды Рида"--~Соломона}
+% % % \abItem{Двоично-десятичное кодирование (ДДК)}
+% % % \abItem{Свойства двоично-десятичных кодов}
+% % % \abItem{Коды Эмери}
+% % \abItem{Натуральный двоичный код. Двоично-десятичное кодирование (ДДК), виды, примеры}
+% % \abItem{Код Грея}
+% % % \abItem{Единичный код}
+% % % \abItem{Код Джонсона}
+% % \abItem{Единичный код, код Джонсона}
+
+\abItem{Структура текстовых файлов. ASCII. Расширения ASCII, кодировки русского языка}
+\abItem{Структура текстовых файлов. Unicode. UTF-8, UTF-16, UTF-32}
+% \abItem{}
+% \abItem{}
+% \abItem{}
+% \abItem{}
+% \abItem{}
+% \abItem{}
+
+\end{abListEnumerate}
+
+
+
+
+
+\clearpage
+
+\newcommand\Ctri[1]{\abItem{сообщение $C=\hex{#1}$ (в~байте \mbox{$k=3$~бита)}}}
+
+\begin{abListQuiet}[C]{minC}{}{}{maxC}
+% \Ctetra{0000 \, 0000 \, 0123 \, 4567 ~~ 89AB \, CDEF \, 9ABC \, DEF9}
+% \Ctetra{0000 \, 1111 \, 0123 \, 4567 ~~ 89AB \, CDEF \, DEFD \, EFDE}
+% \Ctetra{0123 \, 4567 \, 89AB \, CDEF ~~ FEDC \, CDEF \, FEDC \, CDEF}
+% \Ctetra{0123 \, 4567 \, 89AB \, CDEF ~~ 0000 \, 1111 \, 2222 \, 2222}
+% \Ctetra{0123 \, 4567 \, 89AB \, CDEF ~~ 4567 \, 89AB \, CDEF \, 2222}
+% \Ctetra{0123 \, 4567 \, 89AB \, CDEF ~~ 0123 \, 4567 \, 89AB \, CDEF}
+% \Ctetra{0011 \, 2233 \, 4455 \, 4455 ~~ 4455 \, 5555 \, 6789 \, CDEF}
+
+\Ctri{0000 \, 0000 \, 0123 \, 4567 ~~ 7777 \, 7777 \, 2223 \, 3322}
+\Ctri{0000 \, 0000 \, 0123 \, 3333 ~~ 3434 \, 3434 \, 0001 \, 4567}
+\Ctri{0001 \, 2222 \, 2223 \, 3333 ~~ 4555 \, 6677 \, 6776 \, 7767}
+\Ctri{1111 \, 1111 \, 0123 \, 4567 ~~ 1231 \, 2312 \, 1212 \, 1212}
+\Ctri{0000 \, 2444 \, 0123 \, 3333 ~~ 4567 \, 7771 \, 7772 \, 7727}
+
+
+\end{abListQuiet}
+
+
+
+
+
+
+\newcommand\taskbp[1]{\abItem{Сожмите $C$ кодом из семейства #1 без учёта контекста}}
+\newcommand\taskma[1]{\abItem{Сожмите $C$ кодом из семейства #1}}
+
+
+\begin{abListQuiet}[T]{minTA}{maxTA}{minTB}{maxTB}%{Контрольные (экзаменационные) задачи по~курсу <<\courseheading>>}
+
+
+
+% \task{Сожмите сообщение $C$ алгоритмом Хаффмана. 
+% Рассчитайте $I_{\text{БП}}(C)$
+% }
+% \task{Сожмите сообщение $C$ алгоритмом Шеннона-Фано}
+% \task{Сожмите сообщение $C$ алгоритмом }
+
+\taskbp{Хаффмана}
+\taskbp{Шеннона-Фано}
+% \taskbp{Шеннона}
+
+\taskma{Хаффмана с~учётом одного предшествующего символа}
+
+% окончание первых (в билете) задач
+\abSeparator
+
+% \task{Сожмите сообщение $C$ алгоритмом RLE с~флаг-битом сжатая/несжатая цепочка}
+% \task{Сожмите сообщение $C$ алгоритмом RLE с~односимвольным префиксом сжатой цепочки в несжатом тексте}
+% 
+% % \task{Сожмите сообщение $C$ алгоритмом LZ77-концептом 1977 г.}
+% \task{Сожмите сообщение $C$ алгоритмом LZ77 с~флаг-битом ссылка/символ}
+% \task{Сожмите сообщение $C$ алгоритмом LZ77 с~односимвольным префиксом ссылки в несжатом тексте}
+% 
+% % \task{Сожмите сообщение $C$ алгоритмом LZ78-концептом 1978 г.}
+% % \task{Сожмите сообщение $C$ алгоритмом LZW}
+
+\taskma{RLE с~флаг-битом сжатая/несжатая цепочка}
+\taskma{RLE с~односимвольным префиксом сжатой цепочки в~несжатом тексте}
+
+\taskma{LZ77 с~флаг-битом ссылка/символ (флаг-биты группируются по~$k$ штук во~флаг-байты)}
+\taskma{LZ77 с~односимвольным префиксом ссылки в~несжатом тексте}
+
+\end{abListQuiet}
+
+% 2024—2025: 3(?) первых задачи, 4(?) вторых
+
+% \end{minipage}
+\restoregeometry
+\pagestyle{empty}	% Страницы без нумерации
+
+
+
+
+
+
+
+
+
+
+\setlength{\leftmargini}{2cm}
+
+\phantomsection\addcontentsline{toc}{section}{Экзаменационные билеты}
+
+\startticketlist{1}{1}{1}{1}
+
+\foreach \ticketpage in {1,...,15}{
+    \printticketAndGoNext\vfill\printticketAndGoNext
+%     \printIdxAndGoNext\par\printIdxAndGoNext\par
+}
+
+
+
+
+\end{document}

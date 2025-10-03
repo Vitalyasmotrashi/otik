@@ -1,0 +1,208 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage[normalem]{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+\tikzstyle{espdnormalheight}      = [minimum height=7ex]
+
+% размеры
+\tikzstyle{espdnormalsize}  = [espdnormalheight, text width=12em, inner sep = 0.2em]
+\tikzstyle{espdwide}        = [espdnormalheight, text width=15.5em, inner sep = 0.2em]
+
+
+\tikzstyle{block}      = [espdblackcenter, espdwide]
+\tikzstyle{bcomment}      = [red]
+
+
+% \tikzset{node distance = 2ex and 1em}
+\tikzset{node distance = 4ex and 1em}
+% \tikzset{node distance = 4ex and 4em}
+
+% \node[espdblackcenter, espdnormalsize ] (exist) {1921, Роналд Фишер: $\exists  \inf |code(X)|$, назовём~его $I(X)$};
+% 
+% \node[espdblackcenter, espdnormalsize, below = of exist] (Hartley) {1928, Роналд Фишер: $\exists  \inf |code(X)|$, назовём~его $I(X)$};
+% без фамилий
+
+% \node[espdblackcenter, espdnormalsize ] (codeX) {Для каждого кода $code$ есть \emph{средняя} длина $\displaystyle |code(X)| = \sum_{x \hookleftarrow X} |code(x)|$};
+% \node[espdblackcenter, espdnormalsize, below = of codeX ] (exist) {Для каждого источника $X$ есть предел сжатия $\exists  \inf |code(X)|$, назовём~его $I(X)$};
+% 
+% \node[espdblackcenter, espdnormalsize, below = of exist] (rv) {Для $N$ состояний РВ $I(X) = \log_2 N$};
+% 
+% cloud
+
+\node[block ] (exist) {1921, Роналд Фишер: для~каждого источника $X$ есть~предел сжатия $\displaystyle \exists  \inf_{code} |code(X)|$};
+
+% % \node[espdblackcenter, espdnormalsize, cloud, inner sep=0ex, cloud ignores aspect, cloud puffs=11, left = of rv] (rv2a) {Для равновероятного (РВ) $X$ с~$N=2^r$ состояниями
+% % предел $r$ бит
+% % };
+% \node[espdblackcenter, espdnormalsize, cloud, inner sep=0ex, cloud ignores aspect, cloud puffs=10, below = of exist] (rv2a) {Для РВ $X$ с~$N=2^r$ состояниями
+% предел $r$ бит
+% };
+\node[block, below = 8ex of exist] (rv) {1928,  Ральф Хартли:
+
+\raggedright
+
+а) назовём~этот предел $I(X)$
+\medskip
+
+
+б) для РВ $X$ с~$N$ 
+% состояниями
+символами
+
+\centering
+$I(X) = \log_2 N = - \log_2 \frac{1}{N}$ бит
+
+};
+
+
+\tikzstyle{asshannon}        = [block, text width = 25.4em, inner sep = 0.2em]
+
+
+\node[asshannon, 
+% right = of rv,
+right = of rv.south east, anchor=south west,
+] (shannon) {1948,  Клод Шеннон:
+
+\raggedright
+
+а) пусть в~\emph{сообщении}~$x$: $I_X(x) = - \log_2 p_X(x)$ бит
+\medskip
+
+б) усредняем по $X$ как длину: \rlap{$\displaystyle I(X) = \sum_{x \hookleftarrow X} p_X(x)\cdot I_X(x)$}
+\medskip
+
+% в) такое $I(X) \leqslant \Big|code(X)\Big|$;
+% 
+% г) 
+% % $\forall \varepsilon>0 ~ \exists code: I(X)+\varepsilon > \Big|code(X)\Big|$
+
+в) такая $I(X)$ действительно является $\displaystyle  \inf_{code} |code(X)|$ 
+
+\vspace*{-0.5ex}
+\mbox{(первая теорема Шеннона в~формулировке для сжатия)}
+
+};
+
+
+% \node[espdblackcenter, espdnormalsize, cloud, inner sep=0ex, cloud ignores aspect, cloud puffs=11, below = of shannon] (ix) {$I(X)$ "--- средняя длина оптимального кода $X$, 
+% % тогда 
+% 
+% $I_X(x)$ "--- длина оптимального кода $x \hookleftarrow X$
+% };
+
+\draw[espdstreamto] (exist) -- node [pos=0.5, espdwide, text badly centered] {Для РВ $X$ с~$N=2^r$ символами предел $r$ бит на символ} (rv);
+% \draw[espdstreamto] (rv) -- (shannon);
+\draw[espdstreamto] (rv) -- (shannon.west|-rv);
+
+
+% \node[espdblackcenter, espdnormalsize, 
+% % right = 0em of shannon|-codeX.north, anchor=north
+% above = 4ex of shannon|-codeX, anchor=center,
+% % cloud, inner sep=0ex, cloud ignores aspect, cloud puffs=11,
+% red, draw=none
+% ] 
+% (physics) {1865--1901, статистическая термодинамика:
+% 
+% энтропия $H = k \cdot \log_2 N $
+% };
+
+
+% \node[bcomment,
+% below = 1ex of rv.south west, anchor=north west,
+% ] 
+% (physics) {1865--1901, статистическая термодинамика: энтропия $H = k \cdot \log_2 N$};
+
+\node[bcomment,
+left =  of rv.south west, anchor=south west,
+rotate=90, text width = 19em, text badly centered, inner sep=0ex
+] 
+(physics) {1865--1901, статистическая термодинамика: мера уравновешенности "--- энтропия $H = k \cdot \ln N$};
+
+\tikzset{node distance = 2ex and 2em}
+
+% \node[espdblackcenter, espdnormalsize, cloud, inner sep=0ex, cloud ignores aspect, cloud puffs=11] 
+\node[espdblackcenter, espdnormalsize, cloud, inner sep=0ex, cloud ignores aspect, cloud puffs=63,
+above = of exist] 
+(codeX) {%Теор.\,вер. и~мат.\,стат.: с
+Средняя длина кода $code$ зависит от источника:
+
+\hspace*{-1.7em}{\mbox{$\displaystyle \Big|code(X)\Big| = \sum_{x \hookleftarrow X} p_X(x)\cdot\Big|code(x)\Big|$}}
+
+};
+
+\node[espdblackcenter, espdnormalsize, cloud, inner sep=0ex, cloud ignores aspect, 
+% cloud puffs=11, 
+cloud puffs=31, 
+above = of shannon] 
+% \node[bcomment, espdwide, above = of shannon] 
+(rvp) {Для РВ $X$ с~$N$ 
+%состояниями
+символами
+$\frac{1}{N} = p_X(a_j)$
+};
+
+\node[asshannon, bcomment, draw=none,
+above = of rvp,
+] (ov) {
+
+Объёмный подход: $\displaystyle I(X)= \inf_{code} |code(X)|$
+
+Вероятностный подход: $I(X)$ зависит от вероятностей 
+% $p_X(x), x \hookleftarrow X$
+$X$
+\medskip
+
+
+Первая теорема Шеннона "--- эквивалентность  подходов
+
+};
+
+
+\end{tikzpicture}
+}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

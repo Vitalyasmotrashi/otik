@@ -1,0 +1,252 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Список вопросов и билеты по 2 вопроса
+% расстояния подобраны методом тыка
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage[
+  a4paper, mag=1000, %nohead,includefoot,
+  margin=12mm, 
+  %headsep=20mm,qsfootskip=0mm
+  top=1mm, 
+  bottom=1mm 
+]{geometry}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8x]{inputenc}
+%\usepackage[english,russian]{babel}
+\usepackage[russian]{babel}
+% \usepackage{cyrtimes}	% Times, Arial и Courier одновременно
+\usepackage{graphicx}
+\usepackage{enumitem}	% Настраиваемые списки
+\newcommand\No{№}
+\usepackage{mathtools}  % amsmath with extensions
+\usepackage{amssymb}  % (otherwise \mathbb does nothing)
+\DeclareMathOperator{\sal}{sal}
+\DeclareMathOperator{\sar}{sar}
+\DeclareMathOperator{\shl}{shl}
+\DeclareMathOperator{\shr}{shr}
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+\usepackage{icomma}
+
+\usepackage[pdftex,unicode=true,colorlinks]{hyperref}
+    \hypersetup{citecolor=blue,linkcolor=blue,urlcolor=blue}
+    
+\usepackage{tikz}
+
+\newcounter{count_variants}
+\setcounter{count_variants}{1}
+
+
+% \usepackage[small,indentafter]{titlesec}
+% \titlespacing*{\section}{0ex}{3.5ex plus 1ex minus .2ex}{2.3ex plus 0ex}
+% \titleformat{\section}{\filright\bfseries}{\thesection.}{.5em}{}
+% 
+% \usepackage{titletoc}
+% \titlecontents{section}[1.5cm]{}{\thecontentslabel.~}{}{\titlerule*[9pt]{.}{\contentspage}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\pagestyle{empty}
+
+
+
+% \newcommand\beforetask{\noindent\textbf{ОТИК-\the\year-\arabic{count_variants}\addtocounter{count_variants}{1}.}~}
+% \newcommand\aftertask{\par\bigskip\bigskip\bigskip}
+% \newcommand\beforetask{\noindent\textbf{ОТИК-\the\year.~}}
+% \newcommand\aftertask{\par\vfill\pagebreak[3]}
+\newcommand\beforetask{\pagebreak[3]\noindent}
+% \newcommand\aftertask{\par\bigskip\par\vfill\pagebreak[3]}
+\newcommand\aftertask{\par\par\vfill\pagebreak[3]}
+
+
+%\newcommand\qa[1]{{\beforetask}#1{\aftertask}}
+
+\newcommand\qtask[2]{{\beforetask}Студент, выполняя #1, нашёл:\\ 
+#2
+\\
+\mbox{Правдоподобны ли результаты?}
+% Если нет "--- в~чём они противоречивы?%
+Если нет "--- где противоречие?%
+{\aftertask}}
+
+\newcommand\qtaskKrHf[1]{\qtask{Кр1 (блочные коды без учёта контекста) по~ОТИК}{#1}}
+\newcommand\qtaskKrBoth[1]{\qtask{Кр1 (блочные коды без учёта контекста) и~Кр2 (коды с~учётом контекста) по~ОТИК}{#1}}
+
+\newcommand\qhf[3]{\qtaskKrHf{$\left\{
+\begin{array}{@{~}c@{~=~}l}
+|C| & #1 ~\text{бит}, \\
+I_{\text{БП}}(C) & #2 ~\text{бит}, \\
+|\text{Хф}(C)| & #3 ~\text{бит}. \\
+\end{array} 
+\right.
+$}}
+
+\newcommand\qsf[3]{\qtaskKrHf{$\left\{
+\begin{array}{@{~}c@{~=~}l}
+|C| & #1 ~\text{бит}, \\
+I_{\text{БП}}(C) & #2 ~\text{бит}, \\
+|\text{ШФ}(C)| & #3 ~\text{бит}. \\
+\end{array} 
+\right.
+$}}
+
+\newcommand\qhfsf[4]{\qtaskKrHf{$\left\{
+\begin{array}{@{~}c@{~=~}l}
+|C| & #1 ~\text{бит}, \\
+I_{\text{БП}}(C) & #2 ~\text{бит}, \\
+|\text{Хф}(C)| & #3 ~\text{бит}, \\
+|\text{ШФ}(C)| & #3 ~\text{бит}. \\
+\end{array} 
+\right.
+$}}
+
+
+\newcommand\bpLZ[4]{\qtaskKrBoth{$\left\{
+\begin{array}{@{~}c@{~=~}l}
+|C| & #1 ~\text{бит}, \\
+I_{\text{БП}}(C) & #2 ~\text{бит}, \\
+|\text{#4}(C)| & #3 ~\text{бит}. \\
+\end{array} 
+\right.
+$}}
+
+
+\newcommand\mmLZ[4]{\qtaskKrBoth{$\left\{
+\begin{array}{@{~}c@{~=~}l}
+|C| & #1 ~\text{бит}, \\
+I_{\text{М1}}(C) & #2 ~\text{бит}, \\
+|\text{#4}(C)| & #3 ~\text{бит}. \\
+\end{array} 
+\right.
+$}}
+
+
+\newcommand\qbmdl[5]{\qtaskKrBoth{$\left\{
+\begin{array}{@{~}c@{~=~}l}
+|C| & #1 ~\text{бит}, \\
+I_{\text{#2}}(C) & #3 ~\text{бит}, \\
+|\text{#4}(C)| & #5 ~\text{бит}. \\
+\end{array} 
+\right.
+$}}
+
+
+\setcounter{count_variants}{1}
+
+
+% оригинальные из Кр1 2024
+% % фикс, Iбп, Xф, ШФ 
+% \qsf  {36}{23,47}     {26,964} % длина ШФ — нецелая
+% \qhfsf{36}{24,6}{27} {26}    % Хаффман хуже ШФ
+% \qhf  {36}{25,5}{26}         % ок
+% \qsf  {36}{25,7}     {27}    % ок
+% % \qsf  {36}{25,7}     {27}    % ок
+% \qsf  {36}{26,2}     {28}    % ок
+% \qsf  {36}{26,7}     {27}    % ок
+% \qsf  {36}{26,8}     {27}    % ок
+% \qhfsf{36}{27,5}{28}{28}     % ок
+% \qhf  {36}{28,0}{40}         % Хаффман неоптимален и даже хуже фиксированного
+% \qsf  {36}{28,2}     {29}    % ок
+% \qhf  {36}{28,4}{29}         % ок
+% \qhfsf{36}{28,4}{29}{30}     % ок
+% \qhf  {36}{28,7}{30}         % ок
+% \qsf  {36}{29,0}     {30}    % ок
+% % \qsf  {36}{29,0}     {30}    % ок, дубль
+% \qsf  {36}{29,1}     {30}    % ок
+% \qsf  {36}{29,2}     {30}    % ок
+% \qhf  {36}{29,5}{30}         % ок
+% \qhf  {36}{30,2}{31}         % ок
+% \qhf  {36}{30,2}{38}         % Хаффман неоптимален и даже хуже фиксированного
+% \qhf  {36}{30,3}{31}         % ок
+% \qhfsf{36}{31,0}{32}{32}     % ок
+% \qhf  {36}{31,4}{32}         % ок
+% \qsf  {36}{31,5}     {32}    % ок
+% \qhfsf{36}{31,5}{32}{32}     % ок
+% \qhf  {36}{31,6}{32}         % ок
+% \qsf  {36}{32,2}     {34}    % ок
+% \qhf  {36}{32,7}{32}         % нарушение 1тШ
+% \qsf  {36}{33,0}     {34}    % ок
+% \qhf  {36}{34,3}{35}         % ок
+% \qsf  {36}{34,2}     {35}    % ок
+% \qsf  {36}{35,2}     {36}    % ок
+
+
+
+% фикс, Iбп, Xф, ШФ
+\qsf  {36}{23,47}     {26,964} % длина ШФ — нецелая
+\qhfsf{36}{24,6}{27} {26}    % Хаффман хуже ШФ
+\qhf  {36}{25,5}{26}         % ок
+% \qsf  {36}{25,7}     {27}    % ок
+\qsf  {36}{26,2}     {28}    % ок
+\qsf  {36}{26,2}     {26}    % 1тШ
+\qsf  {36}{26,7}     {27}    % ок
+% \qsf  {36}{26,8}     {27}    % ок
+\qhfsf{36}{26,8}{25}{27}     % 1тШ
+\qhfsf{36}{27,5}{28}{28}     % ок
+\qhf  {36}{28,0}{40}         % Хаффман неоптимален и даже хуже фиксированного
+% \qsf  {36}{28,2}     {29}    % ок
+% \qhf  {36}{28,4}{29}         % ок
+\qhf  {36}{20,4}{29}         % Хаффман явно неоптимален
+\qhfsf{36}{28,4}{29}{30}     % ок
+\qhf  {36}{28,7}{30}         % ок
+% \qsf  {36}{29,0}     {30}    % ок
+\qsf  {48}{29,0}     {30}    % ок
+\qsf  {36}{29,1}     {30}    % ок
+\qsf  {36}{2,91}     {30}    % 1тш
+\qsf  {36}{29,1}     {29}    % 1тШ
+\qsf  {36}{11,1}     {29}    % Хаффман явно неоптимален
+\qsf  {36}{29,2}     {30}    % ок
+% \qhf  {36}{29,5}{30}         % ок
+\qhf  {36}{30,2}{31}         % ок
+\qhf  {36}{30,2}{38}         % Хаффман неоптимален и даже хуже фиксированного
+% \qhf  {36}{30,3}{31}         % ок
+\qhfsf{36}{31,0}{32}{32}     % ок
+\qhf  {36}{31,4}{32}         % ок
+\qhf  {30}{31,4}{32}         % 1тШ
+\qsf  {36}{31,5}     {32}    % ок
+% \qhfsf{36}{31,5}{32}{32}     % ок
+\qhfsf{36}{3,15}{32}{32}     % 1тш
+\qhfsf{48}{31,5}{32}{31}     % неопт, Хаффман хуже ШФ
+\qhf  {36}{31,6}{32}         % ок
+\qsf  {36}{32,2}     {34}    % ок
+% \qsf  {36}{32,2}     {34,6}    % нецелая
+\qsf  {36}{2,2}      {34}    % неопт
+\qsf  {120}{32,2}    {34}    % ок
+\qhf  {36}{32,7}{32}         % нарушение 1тШ
+\qsf  {36}{33,0}     {34}    % ок
+\qhf  {36}{34,3}{35}         % ок
+% \qsf  {36}{34,2}     {35}    % ок
+\qsf  {36}{36,2}     {35}    % 1тш
+\qsf  {36}{35,2}     {36}    % ок
+% 28 ок, 17 неок → убираем часть ок → 28-13=15 ок;  
+% -1 неок, -2 ок
+
+\bpLZ {48}{16}{12}{RLE-н}    % ок
+\bpLZ {48}{16}{96}{RLE-н}    % ок
+
+\bpLZ {36}{30,2}{108}{RLE-н}    % RLE-н в наихудшем случае увеличивает вдвое, а не втрое
+\bpLZ {36}{30,2}{1}{RLE-н}    % RLE-н не м.б таким
+% \bpLZ {36}{30,2}{72}{RLE-н}    % ок
+\bpLZ {36}{30,2}{30}{RLE-н}    % ок
+
+\bpLZ {48}{47,2}{44}{LZ77-p}    % ок
+
+\mmLZ {48}{44,2}{44}{LZ77-p}    % ок
+\mmLZ {48}{44,2}{144}{LZ77-p}    % LZ77-p втрое не увеличивает
+
+\mmLZ {48}{44,2}{144}{RLE-p}    % RLE-p втрое не увеличивает
+
+
+% \bpLZ {48}{16}{12}{RLE-н}    % ок         есть выше
+% % \bpLZ {48}{16}{12}{RLE-н}    % ок
+% % \bpLZ {48}{16}{12}{RLE-н}    % ок
+
+\qbmdl{48}{М1}{3}{Хф}{0}   % ок
+% \qbmdl{48}{М1}{3}{Хф}{0}   % ок
+% \qbmdl{48}{М1}{3}{Хф}{0}   % ок
+
+
+% \qhf  {30}{31,4}{32}         % 1тШ    есть выше
+
+
+\end{document}

@@ -1,0 +1,751 @@
+\input{commonpres}
+
+% \title{Коды Рида"--~Соломона}
+% \title{Коды Рида--Соломона}
+\title{Группоиды, кольца, поля}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+\begin{document}
+
+\maketitle
+
+% http://mathhelpplanet.com/static.php?p=gruppy-koltsa-polya-v-matematike
+
+\section{Группоиды}
+\subsection{Алгебра, группоид}
+\begin{frame}{\insertsubsection}
+\termin{Алгебра} "--- множество $G$ (носитель) с~заданным на нём набором операций, удовлетворяющим некоторой системе аксиом.
+
+\termin{Группоид} "--- алгебра $\mathcal{G}=(G,\cdot)$, сигнатура которой состоит из одной бинарной операции $\cdot$: $G\times G \to G$.
+
+% \termin{Полугруппа} "--- операция ассоциативна "--- $\forall a,\,b,\,c \in G$:
+% $a\cdot (b\cdot c)= (a\cdot b)\cdot c$
+\end{frame}
+
+\subsection{Полугруппа, моноид}
+\begin{frame}{\insertsubsection}
+\termin{Полугруппа} "--- группоид, операция ассоциативна "--- $\forall a,\,b,\,c \in G$:
+$a\cdot (b\cdot c)= (a\cdot b)\cdot c$
+
+\termin{Моноид} "--- полугруппа c~единицей:
+$\exists \bold{1}:  \forall a \in G  ~~ a\cdot\bold{1}=\bold{1}\cdot a=a$,\\$\bold{1}$ "--- нейтральный элемент (единица) моноида
+
+\termin{Группа} "--- моноид, в~котором для каждого элемента существует обратный.
+
+\end{frame}
+
+\subsection{Группа}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-0.0em}{-1.3em}
+Множество $G$ с~% алгебраической 
+операцией $\cdot$ %называется группой, если выполняются следующие условия:
+"--- \termin{группа}, если:
+\begin{enumerate}
+
+\item операция $\cdot$ в~$G$ ассоциативна: $a\cdot(b\cdot c)=(a\cdot b)\cdot c~~ \forall a,b,c\in G$;
+
+\item в~$G$ существует единица (нейтральный элемент) $\bold{1}\colon\, a\cdot\bold{1}=\bold{1}\cdot a=a~ \forall a\in G$;
+
+\item для каждого $a\in G$ существует обратный: $a^{-1}\in G\colon\, a\cdot a^{-1}=a^{-1}\cdot a=\bold{1}$.
+\end{enumerate}
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \subsection{Тождества группы}
+% \begin{frame}%[allowframebreaks]
+% {\insertsubsection}
+% \setlength{\parskip}{0.5\parskip}
+% \begin{adjustwidth}{-0.0em}{-1.3em}
+% 
+% $(a\cdot b)^{-1}= b^{-1}\cdot a^{-1}$
+% 
+% $(a^{-1})^{-1}=a$
+% 
+% левый и правый законы сокращения: если $a\cdot x=a\cdot y$, то $x=y$, и если $x\cdot a=y\cdot a$, то $x=y$.
+% 
+% уравнения вида $a\cdot x=b$ и $x\cdot a=b$ имеют решения, и притом единственные.
+% 
+% \end{adjustwidth}
+% \end{frame}
+% 
+% \subsection{Степень}
+% \begin{frame}%[allowframebreaks]
+% {\insertsubsection}
+% \begin{adjustwidth}{-0.0em}{-1.5em}
+% 
+% В~полугруппе $a^1 = a, ~~ a^{n+1} = a\cdot a^n, n \in \Naturalset$
+% 
+% В~моноиде $a^0 = 1$
+% 
+% В~группе $a^{(-n)} = (a^{-1})^n, n \in \Naturalset$
+% 
+% Для любой полугруппы $a^m \cdot a^n = a^{m+n}, ~(a^m )^n = a^{mn}$;\\
+% для группы $a^{(-n)} = (a^n)^{-1}$
+% ($m,n \in \Naturalset$).
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+\subsection{Свойства}
+\begin{frame}%[allowframebreaks]
+{\insertsubsection}
+\setlength{\parskip}{0.3\parskip}
+\begin{adjustwidth}{-1.0em}{-1.8em}
+
+Если $\cdot$ коммутативна, то полугруппа  (группа, группоид) называется \termin{коммутативной}, или \termin{абелевой}.
+
+% Если в~полугруппе есть 
+$\exists \bold{0}: \forall a ~~ a\cdot\bold{0}= \bold{0}\cdot a=\bold{0}$ "--- полугруппа называется полугруппой \termin{с~нулём} (и~не может быть группой).
+
+Если все элементы полугруппы (группы, группоида) являются некоторыми целыми степенями $a \in G$ "--- \\полугруппа называется \termin{моногенной (циклической)},\\$a$ "--- \termin{примитивным \mbox{(порождающим, образующим)}}.
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\subsection{Примеры}
+\begin{frame}{\insertsubsection}
+\linespread{1.0}
+\setlength{\parskip}{0.2\parskip}
+% \setlength{\parskip}{0\parskip}
+% \begin{adjustwidth}{-1.2em}{-2.1em}
+\begin{adjustwidth}{-0em}{-1.5em}
+
+% Множество $V_3$ свободных трёхмерных векторов  
+% Трёхмерные вектора с~операцией векторного умножения 
+Трёхмерные вектора с~векторным умножением
+"--- \uncover<2->{группоид ($ {({\vec a}\times {\vec b})\times {\vec b}\ne{\vec a}\times ({\vec b}\times {\vec b})}$).}
+
+% $\Naturalset$  с~операцией возведения в~степень
+$\Naturalset$  с~возведением в~степень
+"--- \uncover<3->{группоид ($(2^2)^3%=4^3=64
+\ne 2^{\left({2^3}\right)}%=2^8=256
+)$.}
+%, так как (a^b)^c\ne a^{(b^c)}.
+
+Арифметика с~насыщением $([-N, N], +)$ "--- \uncover<4->{группоид.}
+
+$(\Naturalset, +)$  %с~операцией сложения 
+"--- \uncover<5->{циклическая полугруппа (коммутативная);}
+\\
+$(\Naturalset, \cdot)$ %с~операцией умножения 
+"--- \uncover<6->{коммутативный моноид.}
+
+$(\Naturalset\cup\left\{0\right\}, +)$  %с~операцией сложения 
+"--- \uncover<7->{циклический коммутативный моноид;}\\
+$(\Naturalset\cup\left\{0\right\}, \cdot)$ %с~операцией умножения 
+"--- \uncover<8->{коммутативный моноид.}
+
+%  $\Integerset$  с~операцией сложения "--- \uncover<9->{абелева группа.}
+$(\Integerset,+)$ "--- \uncover<9->{циклическая коммутативная группа;}\\
+$(\Integerset,\cdot)$ "--- \uncover<10->{коммутативный моноид.}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+% \subsection{Аксиомы натуральных чисел}
+% \begin{frame}{\insertsubsection}
+% \setlength{\leftmargini}{0ex}
+% % \small
+% \footnotesize
+% 
+% \begin{enumerate}
+% \item     1 является натуральным числом.
+% \item    Число, следующее за натуральным, также является натуральным.
+%  \item   1 не следует ни за каким натуральным числом.
+% \item    Если натуральное число a непосредственно следует как за числом $b$, так и за числом $c$, то $b$ и $c$ тождественны.
+% \item    (Аксиома индукции) Если какое-либо предложение доказано для 1 (база индукции) и если из допущения, что оно верно для натурального числа $n$, вытекает, что оно верно для следующего за $n$ натурального числа (индукционное предложение), то это предложение верно для всех натуральных чисел. 
+% \end{enumerate}
+% 
+% \end{frame}
+
+% \begingroup
+% % \renewcommand{\Rightarrow}{\to}
+% 
+% \subsection{Аксиомы вещественных чисел}
+% \begin{frame}{\insertsubsection}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\parskip}{0\parskip}
+% \tiny
+% 
+% Аксиомы сложения 
+% 
+% % На множестве вещественных чисел, обозначаемом через \mathbb{R} (так называемую R рубленую), введена операция сложения («+»), то есть каждой паре элементов (x, y) из множества вещественных чисел ставится в соответствие элемент x + y из этого же множества, называемый суммой x и y.
+% \begin{enumerate}
+% \item 
+%     $\forall x, y \in \mathbb{R}\quad (x + y) = (y + x)$ (коммутативность сложения);
+% \item    $\forall x, y, z \in \mathbb{R}\quad (x + y) + z = x + (y + z)$ (ассоциативность сложения);
+% \item    $\exists 0\in \mathbb{R} \quad \forall x \in \mathbb{R}\quad x + 0 = x$ (существование нейтрального элемента по сложению — нуля);
+% \item    $\forall x \in \mathbb{R}\quad \exists (-x): \quad x + (-x) = 0$ (существование противоположного элемента). 
+% \end{enumerate}
+% 
+% Аксиомы умножения 
+% 
+% % на \mathbb{r} введена операция умножения («·»), то есть каждой паре элементов (x, y) из множества вещественных чисел ставится в соответствие элемент x \cdot y (или, сокращённо, xy) из этого же множества, называемый произведением x и y.
+% \begin{enumerate}
+% \item 
+%     $\forall x, y \in \mathbb{r} \quad (x \cdot y) = (y \cdot x)$ (коммутативность умножения);
+% \item    $\forall x, y, z \in \mathbb{r} \quad (x \cdot y) \cdot z = x \cdot (y \cdot z)$ (ассоциативность умножения);
+% \item    $\exists 1\in \mathbb{r} \quad \forall x \in \mathbb{r} \quad x\cdot 1=x$ (существование нейтрального элемента по умножению — единицы);
+% \item    $\forall x\in\mathbb{r}\backslash \{0\} \quad \exists x^{-1}: \quad x\cdot x^{-1}=1$ (существование обратного элемента). 
+% \end{enumerate}
+% 
+% Связь сложения и умножения 
+% 
+%     $\forall x, y, z \in \mathbb{R} \quad (x + y) \cdot z = x \cdot z + y \cdot z$ (дистрибутивность относительно сложения). 
+% 
+% Аксиомы порядка 
+% 
+% % На\mathbb{R}   задано отношение порядка «\leq» (меньше или равно), то есть для любой пары x, y из \mathbb{R} выполняется хотя бы одно из условий x \leq yилиy \leq x.
+% 
+% \begin{enumerate}
+% \item     $\forall x \in \mathbb{R} \quad x \leq x$;
+% 
+% \item   $\forall x, y, z \in\mathbb{R} \quad (x \leq y \and y \leq z) \Rightarrow x \leq z$;
+% % \item    $\forall x, y \in \mathbb{R} \quad (x \leq y \and y \leq x) \Rightarrow x=y$. 
+% \end{enumerate}
+% 
+% % Связь отношения порядка и сложения 
+% % 
+% %     $\forall x,y,z\in\mathbb{R} \quad x\leq y \quad \Rightarrow \quad x+z\leq y+z.$ 
+% % 
+% % Связь отношения порядка и умножения 
+% % 
+% %     $\forall x, y, z \in \mathbb{R} \quad (x \leq y \and 0 \leq z) \Rightarrow x \cdot z \leq y \cdot z. $
+% % 
+% % Аксиома непрерывности 
+% % 
+% % $\forall X, Y \subset \mathbb{R} \quad (X, Y \neq \emptyset \;\and\; (\forall x \in X\; \forall y \in Y \quad x \leq y)) \Rightarrow \exists c \in \mathbb{R}: \forall x \in X\; \forall y \in Y \ x \leq c \leq y$
+% % 
+% 
+% \end{frame}
+% \endgroup
+
+
+\section{Кольца, поля}
+
+% \section{Кольцо}
+\subsection{Аксиомы кольца}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-0.0em}{-1.3em}
+$\mathcal{K}= (\mathbb{K},+, \cdot, \bold{0}, \bold{1})$, %сигнатура которой состоит из двух бинарных и~двух нульарных операций, 
+причём для любых $a,b,c\in\mathbb{K}$:
+\vspace{-1ex}
+
+\begin{enumerate}
+\item $a+(b+c)=(a+b)+c$;
+\item $a+b=b+a$;
+\item $a+\bold{0}=a$;
+\item для каждого $a\in \mathbb{K}$ существует элемент $(-a)$, такой, что $a+(-a)=\bold{0}$;
+\item $a\cdot (b\cdot c)=(a\cdot b)\cdot c$;
+\item $a\cdot\bold{1}= \bold{1}\cdot a=a$;
+\item $a\cdot (b+c)= a\cdot b+a\cdot c,~ (b+c)\cdot a=b\cdot a+c\cdot a$.
+\end{enumerate}
+
+% Операцию ${}+$ называют сложением кольца, операцию умножением кольца, элемент \bold{0} — нулем кольца, элемент \bold{1} — единицей кольца.
+\end{adjustwidth}
+\end{frame}
+
+% \subsection{Тождества кольца}
+% \begin{frame}%[allowframebreaks]
+% {\insertsubsection}
+% \setlength{\parskip}{0.5\parskip}
+% \begin{adjustwidth}{-0.0em}{-1.3em}
+% \termin{Кольцо} "--- множество, в~котором определены три операции: сложение, умножение и~вычитание.
+% 
+% % Кольцо "---
+% По сложению кольцо "--- коммутативная %(абелева) 
+% группа (1-4).
+% 
+% По умножению кольцо "--- моноид (5 и~6).
+% 
+% $\bold{0}\cdot a=a\cdot\bold{0}=\bold{0}$;
+% 
+% $(-a)\cdot b=-(a\cdot b)=a\cdot (-b)$;
+% 
+% $(a-b)\cdot c= a\cdot c-b\cdot c,~~ c\cdot (a-b)= c\cdot a-c\cdot b$.
+% 
+% 
+% % Аксиомы кольца 1-4 означают, что алгебра (\mathbb{R},+,\bold{0}), сигнатура которой состоит только из операций сложения кольца {}+ и~нуля кольца \bold{0}, является абелевой группой. Эту группу называют аддитивной группой кольца \mathcal{R} и~говорят также, что по сложению кольцо есть коммутативная (абелева) группа.
+% % 
+% % Аксиомы кольца 5 и~6 показывают, что алгебра (\mathbb{R},\cdot, \bold{1}), сигнатура которой включает только умножение кольца \cdot и~единицу кольца \bold{1}, есть моноид. Этот моноид называют мультипликативным моноидом кольца \mathcal{R} и~говорят, что по умножению кольцо есть моноид.
+% 
+% \end{adjustwidth}
+% \end{frame}
+% 
+% \subsection{Свойства колец}
+% \begin{frame}%[allowframebreaks]
+% {\insertsubsection}
+% \begin{adjustwidth}{-0.0em}{-1.3em}
+% Если операция умножения коммутативна: $a\cdot b=b\cdot a$, то кольцо называется \termin{коммутативным}.
+% %, в~противном случае кольцо называется некоммутативным. 
+% 
+% % Если для операции умножения существует $\bold{1}\colon\,a\cdot \bold{1}=\bold{1}\cdot a=a$, то $\mathcal{K}$ "--- кольцо \termin{с~единицей}. \forall
+% 
+% Кольцо, в~котором множество всех ненулевых элементов по умножению образует группу
+% (ассоциативное, с~единицей, каждый ненулевой элемент обратим)
+% "--- \termin{тело}.
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+
+% \subsection{Тело}
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-0.0em}{-1.3em}
+% \small
+% 
+% $\mathcal{T}= (\mathbb{T},+, \cdot, \bold{0}, \bold{1})$, %сигнатура которой состоит из двух бинарных и~двух нульарных операций, 
+% причём для любых $a,b,c\in\mathbb{T}$:
+% \vspace{-2ex}
+% 
+% \begin{enumerate}
+% \item $a+(b+c)=(a+b)+c$;
+% \item $a+b=b+a$;
+% \item $a+\bold{0}=a$;
+% \item для каждого $a\in \mathbb{T}$ существует элемент $(-a)$, такой, что $a+(-a)=\bold{0}$;
+% \item $a\cdot (b\cdot c)=(a\cdot b)\cdot c$;
+% \item $a\cdot\bold{1}= \bold{1}\cdot a=a$;
+% \item для каждого $a\in \mathbb{T}$, отличного от $\bold{0}$, существует элемент $a^{-1}$, такой, что $a\cdot a^{-1}=\bold{1}$;
+% \item $a\cdot (b+c)= a\cdot b+a\cdot c,~ (b+c)\cdot a=b\cdot a+c\cdot a$.
+% \end{enumerate}
+% \vspace{-2ex}
+% 
+% Коммутативное тело "--- \termin{поле}.
+% \end{adjustwidth}
+% \end{frame}
+% 
+% \subsection{Примеры}
+% \begin{frame}{\insertsubsection}
+% \Integerset{} "--- \uncover<2->{коммутативное кольцо.}
+% 
+% 
+% $\mathbb{Z}_k=\bigl(\{0,1,\ldots,k-1\}, \oplus_k, \odot_k, 0,1\bigr)$ с~операциями 
+% % $\oplus_k$ 
+% сложения 
+% % по модулю $k$ 
+% и
+% % $\odot_k$ (
+% умножения по модулю $k$
+% % )
+% % Последняя аналогична операции сложения по модулю k\colon\, m\odot_{k}n равно остатку от деления на k числа m\cdot n. Эта алгебра есть 
+% "--- \uncover<3->{коммутативное кольцо (кольцо классов вычетов по модулю $k$).}
+% 
+% $\Quaternionset$ с~операциями 
+% сложения и~умножения кватернионов "---  \uncover<4->{тело.}
+% \end{frame}
+
+% \section{Поле}
+\subsection{Аксиомы поля}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-0.0em}{-1.3em}
+\small
+\setlength{\parskip}{0.\parskip}
+
+Поле есть алгебра $\mathcal{F}= (\mathbb{F},+, \cdot, \bold{0}, \bold{1}), \bold{0}\neq\bold{1},$
+% сигнатура которой состоит из двух бинарных и~двух нульарных операций, 
+причём% справедливы тождества
+:
+% \vspace{-1ex}
+% \
+\begin{enumerate}
+\item $a+(b+c)=(a+b)+c$;
+\item $a+b=b+a$;
+\item $a+\bold{0}=a$;
+\item для каждого $a\in \mathbb{F}$ существует элемент $(-a)$, такой, что $a+(-a)=\bold{0}$;
+\item $a\cdot (b\cdot c)=(a\cdot b)\cdot c$;
+\item $a\cdot b=b\cdot a$;
+\item $a\cdot\bold{1}= \bold{1}\cdot a=a$;
+\item для каждого $a\in \mathbb{F}$, отличного от $\bold{0}$, существует элемент $a^{-1}$, такой, что $a\cdot a^{-1}=\bold{1}$;
+\item $a\cdot (b+c)=a\cdot b+a\cdot c$.
+\end{enumerate}
+
+Некоммутативное поле "--- \termin{тело}.
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Примеры}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.0em}{-2.3em}
+\setlength{\parskip}{0.2\parskip}
+
+\Integerset{} "--- \uncover<2->{коммутативное кольцо.}
+
+
+$\mathbb{Z}_k=\bigl(\{0,1,\ldots,k-1\}, \oplus_k, \odot_k, 0,1\bigr)$ с~операциями 
+% $\oplus_k$ 
+сложения 
+% по модулю $k$ 
+и
+% $\odot_k$ (
+умножения по модулю $k$
+% )
+% Последняя аналогична операции сложения по модулю k\colon\, m\odot_{k}n равно остатку от деления на k числа m\cdot n. Эта алгебра есть 
+"--- \uncover<3->{коммутативное кольцо (кольцо классов вычетов по модулю $k$).}
+
+$\Quaternionset$ с~операциями 
+сложения и~умножения кватернионов "---  \uncover<4->{тело.}
+
+
+\Rationalset, \Realset, \Complexset{} "---  \uncover<5->{поля.}
+
+$\mathbb{Z}_p$ ($p$ "--- простое)
+% $\mathbb{Z}_p=\bigl(\{0,1,\ldots,p-1\}, \oplus_p, \odot_p, 0,1\bigr)$,
+% вычеты по модулю $p$, 
+% $p$ "--- простое
+"---  \uncover<6->{поле.}
+
+$\bigl(\{a+b\cdot\sqrt{2}\}, +, \cdot, 0,1\bigr)$, %где $a$ и $b$ "--- рациональные числа 
+$a, b \in \Rationalset$
+"---  \uncover<7->{поле.}
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Конечные поля (поля Галуа)}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+
+\begin{block}{Конечное поле или поле Галуа}
+Поле, состоящее из конечного числа элементов.
+% Наиболее известным примером конечного поля является поле классов вычетов по простому модулю, т.е. факторкольцо \mathbb{Z}/(p), где p - простое число[1].
+\mbox{$\mathbb{F}_q$ или $\GF(q)$,} где $q$ "--- число элементов (мощность).
+% С точностью до изоморфизма конечное поле полностью определяется его мощностью, которая всегда является степенью какого-либо простого числа, т.е. 
+\end{block}
+
+$q=p^n$, где $p$ "--- простое число (\termin{характеристика} поля), $n \in \Naturalset$.
+
+
+С~точностью до изоморфизма:
+
+\indent\rlap{для $q=p$}\hspace*{6em}$\GF(q) = \mathbb{Z}_p$
+% Расширение конечного поля GF(p^m) может быть задано разными полиномами p(x) одинаковых степеней m. Ненулевыми элементами любого поля порядка p^m является полный набор возможных многочленов степени m - 1 и ниже, отличающийся для разных полиномов p(x) лишь порядком следования элементов p по степеням примитивного элемента.
+
+\indent\rlap{для $q=p^n$}\hspace*{6em}$\GF(q)$ 
+"--- расширение поля $\mathbb{Z}_p$
+% (поле вычетов многочленов по~модулю неприводимого многочлена степени $n$)
+% (изоморфно полю разложения многочлена $x^q - x$ над полем $\mathbb{Z}_p$).
+% Любое конечное поле из q = p^n элементов изоморфно полю разложения многочлена x^q - x над полем \mathbb{F}_p.[16]
+
+\end{frame}
+
+
+% \section{Кольцо многочленов над полем}
+\section{Многочлены над полем}
+
+\subsection{Определение}
+% \begingroup
+% \setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+% \setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+\begin{frame}{\insertsection}
+\setlength{\parskip}{0.2\parskip}
+
+Многочлен степени $n \in \Naturalset\cup\{0\}$ над полем $\mathcal{F}$
+% 
+$$p(x)=a_nx^n+a_{n-1}x^{n-1}+\ldots+a_1x+a_0$$
+% 
+% где 
+$$a_n,a_{n-1},\ldots,a_1,a_0 \in \mathbb{F}$$
+% "--- коэффициенты многочлена,
+% $\deg p(x) = n$ степень.
+% $x$ называется переменной.
+% , a_n — старший коэффициент (a_n\ne0). Каждое слагаемое a_kx^k в (В.8) называют членом многочлена, в частности, a_nx^n — старший член, a_0 — свободный член. 
+% Степень многочлена n — целое неотрицательное число (обозначается $\deg p(x)$). 
+% Многочлен нулевой степени (n=0) — это одночлен a_0x^0= a_0 (просто число). Если в выражении (В.8) все коэффициенты равны нулю, то получается нулевой многочлен.
+
+% Два многочлена $p(x)$ и $q(x)$ считаются равными, если равны их коэффициенты при одинаковых степенях переменной $x$.
+$p(x)=q(x)$, если равны их коэффициенты при одинаковых степенях $x$.
+
+$x^k \cdot x^m = x^{k+m} (k,m \in \Naturalset\cup\{0\}),
+~~    x^0 \equiv 1.$
+
+Множество всех многочленов $\mathcal{F}[x]$ "--- ассоциативно-коммутативное кольцо с~единицей.
+    
+\end{frame}
+% \endgroup
+
+\subsection{Делимость многочленов}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.5\parskip}
+% Для произвольных многочленов p(x) и q(x) из кольца P существуют многочлены s(x) и r(x) из того же кольца P, что
+$\forall p(x), q(x) \in \mathcal{F}[x] ~~ \exists s(x), r(x)\in \mathcal{F}[x]:$
+\\
+$p(x)=s(x)\cdot q(x)+r(x)$
+
+причём %степень многочлена $r(x)$ меньше степени многочлена $q(x)$ или же $r(x)=0$. 
+$\deg r(x) < \deg q(x)$ или $r(x)=0$. 
+
+Многочлен $s(x)$ называется \termin{частным} (неполным частным), а многочлен $r(x)$ "--- \termin{остатком} от деления $p(x)$ на $s(x)$.
+
+Частное и остаток определяются однозначно.
+
+Справедлива теорема Безу (и~её следствия):
+остаток от деления $f(x)$ на $(x-a)$ равен $f(a)$.
+\end{frame}
+
+\subsection{Неприводимые многочлены}
+\begin{frame}{\insertsubsection}
+Если для любого разложения $p(x)=s(x)\cdot q(x), ~~ p(x), s(x), q(x) \in \mathcal{F}[x]$
+
+либо $\deg s(x)=0$, либо $\deg q(x)=0$,
+
+многочлен $p(x)$ называется \termin{неприводимым} (простым) в кольце $\mathcal{F}[x]$ (или над полем $\mathcal{F}$).
+
+\end{frame}
+
+
+\subsection{Примеры}
+\begin{frame}{\insertsubsection}
+% Над полем $\mathbb{Z}_2$:
+% 
+% $x^2+1 = (x+1)(x+1)$
+% 
+% $x^2+x+1$ неприводим
+\renewcommand{\arraystretch}{1.5}
+
+\begin{tabularx}{1\linewidth}{l|X|l}
+
+
+ & $x^2+1$ & $x^2+x+1$  \\\hline
+Над  $\mathbb{Z}_2$ & $(x+1)(x+1)$ & неприводим \\\hline
+Над  $\mathbb{Z}_3$ & неприводим & $(x+2)(x+2)$ \\\hline
+Над  \Realset & неприводим & неприводим \\\hline
+Над  \Complexset & $(x+i)(x-i)$ & $(x+\frac{1+i\sqrt{3}}{2})(x+\frac{1-i\sqrt{3}}{2})$ \\\hline
+
+\end{tabularx}
+\end{frame}
+
+\section{Расширение поля}
+
+\subsection{Классы вычетов многочленов}
+
+\begin{frame}{\insertsubsection}
+
+Класс вычетов по модулю многочлена $g(x)$ содержит все многочлены $\mathcal{F}[x]$, которые имеют один и тот же остаток при делении на~$g(x)$.
+
+Если $g(x)$ неприводим в~$\mathcal{F}[x]$, множество классов вычетов (фактор-кольцо $\mathcal{F}[x]/g(x)$) "--- \termin{поле.}
+
+Поле $\mathcal{F}[x]/g(x)$ "--- расширение $\mathcal{F}$, полученное добавлением корня $g(x)$ (примитивное расширение) "--- фиктивного $c\notin \mathcal{F}$, что $g(c) = 0$.
+\end{frame}
+
+\subsection{Примитивные расширения \Realset}
+
+\begin{frame}{\insertsubsection}
+
+Многочлен $g(x) = x^2+1$ неприводим над~\Realset.
+
+Поле \Complexset "--- примитивное расширение \Realset, полученное добавлением фиктивного корня $x^2+1$  \mbox{"--- <<мнимой единицы>> $i\notin \Realset$.}
+
+\vfill
+
+
+\emph{$x$, $x+1$, $x+2$, $x^2+4$, $x^2+x+1$ и~$x^4+1$ также неприводимы над~\Realset.
+
+Как будут выглядеть примитивные расширения?}
+
+\end{frame}
+
+
+
+\subsection{Примитивные расширения $\mathbb{Z}_2$}
+
+
+\begin{frame}{\insertsubsection}
+    \setlength{\abovedisplayskip}{0.em}
+    \setlength{\belowdisplayskip}{0.em}
+    
+Многочлен $g(x) = x^2+x+1$ неприводим над~$\mathbb{Z}_2$.
+
+Пусть $i\notin \mathbb{Z}_2$ "--- фиктивный корень $x^2+x+1$.
+
+$$i^2+i+1 = 0$$
+
+Элементы примитивного расширения
+$0, 1, i, i+1$.
+\\
+$i^2 = -(i+1) = i+1$
+
+% $\{0, 1, i, i+1\}$ "--- поле $\GF(4)$.
+
+\end{frame}
+
+\subsection{Поле $\GF(4)$}
+\begin{frame}{\insertsubsection}
+
+$\begin{array}{l|l|l|l@{\,}r|l@{\,}r}
+\multirow{2}{*}{\text{\footnotesize
+\begin{tabular}{@{}c@{}}Полиномиальное\\представление
+\end{tabular}%
+}}
+&\multirow{2}{*}{\text{\footnotesize
+\begin{tabular}{@{}c@{}}Числовое\\представление
+\end{tabular}%
+}}&\multicolumn{5}{c}{\text{\footnotesize Степени}}\\\cline{3-7}
+&&0&1&&2&\\\hline
+% 0&0&
+1&1&1&1&&1&\\
+i&2&1&i & (2)& i+1 &(3) \\
+i+1&3&1& i+1 &(3)&i &(2)\\
+\end{array}$
+
+\footnotesize
+
+Из обобщённой малой теоремы Ферма $a^{3}= {1}$ для всех ненулевых $a$.
+% Для ненулевых элементов поля:
+% $ a^{q-1}= \mathbf{1}$
+
+$i$ и~$i+1$ "--- примитивные элементы, наименьший~$i$:
+$\begin{array}{l@{~}l@{~}l@{~}l@{~}l}
+1&=&1&=&i^0\\
+2&=&i&=&i^1 \\
+3&=&i+1&=&i^2\\
+\end{array}$
+
+\end{frame}
+
+
+
+\subsection{Сложение и~умножение в~$\GF(4)$}
+\begin{frame}{\insertsubsection}
+
+\footnotesize
+\begin{tabularx}{\linewidth}{LK{0.4\linewidth}}
+
+\footnotesize
+Сложение "--- сложение многочленов с~учётом~$1+1=0$ \mbox{(побитовое по модулю~$2$)}
+&
+\footnotesize
+Умножение "--- умножение степеней примитивного элемента с~учётом~$i^3 = 1$
+\\[1em]
+
+
+$\begin{array}{l|c@{\,}c@{\,}c@{\,}c}
++&0&1&2&i+1\\\hline
+0  &0&1&i&i+1\\
+1  &1&0&i+1&i\\
+i  &i&i+1&0&1\\
+i+1&i+1&i&1&0\\
+\end{array}$
+
+&
+
+$\begin{array}{l|llll}
+\cdot
+ &0&1&i&i^2\\\hline
+0&0&0&0&0\\
+1&0&1&i&i^2\\
+i&0&i&i^2&1\\
+i^2&0&i^2&1&i\\
+\end{array}$
+
+\\[1em]
+
+
+$\begin{array}{l|llll}
++&0&1&2&3\\\hline
+0&0&1&2&3\\
+1&1&0&3&2\\
+2&2&3&0&1\\
+3&3&2&1&0\\
+\end{array}$
+
+&
+
+$\begin{array}{l|llll}
+\cdot
+ &0&1&2&3\\\hline
+0&0&0&0&0\\
+1&0&1&2&3\\
+2&0&2&3&1\\
+3&0&3&1&2\\
+\end{array}$
+
+\end{tabularx}
+
+\end{frame}
+
+
+\section{Конечные поля $\GF(2^n)$}
+
+\begingroup
+\subsection{Разрежённые полиномы, неприводимые по~модулю 2 (порождающие табличные)}
+% http://pmpu.ru/vf4/gruppe/galois/vspom6
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1em}{-1.8em}
+\footnotesize
+$\begin{array}{@{}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c}
+x^2&+&x&+&1\\
+x^3&+&x&+&1\\
+x^4&+&x&+&1\\
+x^5&+&x&+&1\\
+x^6&+&x&+&1\\
+x^7&+&x^3&+&1\\
+% x^8&+&x^4&+&x^3&+&x^2&+&1; \quad x^8&+&x^4&+&x^3&+&x&+&1\\
+x^8&+&x^4&+&x^3&+&x^2&+&1 &(RS)\\
+x^8&+&x^4&+&x^3&+&x&+&1 &(AES)\\
+x^9&+&x^4&+&1\\
+\end{array}$
+$\begin{array}{c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c}
+x^{10}&+&x^3&+&1\\
+x^{11}&+&x^2&+&1\\
+x^{12}&+&x^3&+&1\\
+x^{13}&+&x^4&+&x^3&+&x&+&1\\
+% \hspace{2em}
+x^{14}&+&x^5&+&1\\
+x^{15}&+&x&+&1\\
+x^{16}&+&x^{5}&+&x^3&+&x&+&1\\
+\multicolumn{4}{c}{\ldots}\\
+x^{32}&+&x^{7}&+&x^3&+&x^2&+&1\\
+\end{array}$
+$\begin{array}{c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{}}
+\multicolumn{4}{c}{\ldots}\\
+x^{64}&+&x^4&+&x^3&+&x&+&1\\
+\multicolumn{4}{c}{\ldots}\\
+x^{128}&+&x^7&+&x^2&+&x&+&1\\
+\multicolumn{4}{c}{\ldots}\\
+x^{256}&+&x^{10}&+&x^5&+&x^2&+&1\\
+\multicolumn{4}{c}{\ldots}\\
+x^{512}&+&x^8&+&x^5&+&x^2&+&1\\
+\end{array}$
+
+% Многочлен $x^{p^m} - x$ равен произведению всех нормированных неприводимых над $GF(p)$ многочленов, степени которых делят $m$.
+
+Наименьший примитивный элемент расширения: %табличных порождающих многочленов \hfill "---
+ $i~(2)$ (для большинства).
+
+Для используемого в~AES $x^8+x^4+x^3+x+1$ примитивный элемент $i+1~(3)$.
+% AES, примитивен i+1
+
+\end{adjustwidth}
+\end{frame}
+\endgroup
+
+
+\subsection{Таблица степеней GF(8), порождающий полином $x^3+x+1$}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=1\linewidth,valign=c]{09_gf8}\centering
+\end{frame}
+
+\subsection{Таблица степеней GF(16)}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=1\linewidth,valign=c]{09_gf16}\centering
+\end{frame}
+
+
+
+
+\makethanks
+\end{document}

@@ -1,0 +1,790 @@
+\input{commonpres}
+\input{binhex}
+
+\title{Сжатие с~потерями}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+
+
+% \section{Формальное представление знаний. Виды информации}
+% \begin{frame}{\insertsection}
+% % \section{Формальное представление знаний}
+% % \begin{frame}{\insertsection}
+% % \small
+% \setlength{\parskip}{0.5\parskip}
+% 
+% При формальном представлении %знаний 
+% каждому описываемому объекту или понятию ставится в~соответствие %некоторый
+% \emph{числовой код.}
+% \\
+% Связи %между кодируемыми сущностями 
+% также представляются кодами (адресами и~указателями).
+% 
+% 
+% % % Информация может быть двух видов: 
+% % \begin{tabularx}{\linewidth}{lL}
+% % Виды:&
+% % \begin{itemize}
+% % \item дискретная (цифровая) информация;
+% % \item непрерывная (аналоговая).
+% % \end{itemize}
+% % \end{tabularx}
+% 
+% {\terminblue
+% Виды информации: непрерывная (аналоговая) %(цифровая) 
+% % \rlap
+% {и~дискретная.}
+% 
+% }
+% 
+% % Для формализации дискретных данных
+% % % Для перевода неформальных данных
+% % % в формальный, цифровой вид 
+% % % должны использоваться специальные 
+% % используются \termin{таблицы кодировки,}
+% % сопоставляющие кодируемым сущностям их коды.
+% 
+% Формализация аналогового сигнала  "--- оцифровка (аналогово-цифровое преобразование).
+% 
+% 
+% \end{frame}
+
+
+
+\section{Оцифровка аналогового сигнала}
+
+\subsection{Сигналы}
+\begin{frame}{\insertsubsection}
+ Сигнал "--- скалярная функция от одного или
+нескольких аргументов.
+
+s(t) "--- звук
+
+s(x, y) "--- изображение
+
+s(x, y, t) "--- видео без звука
+
+\end{frame}
+
+% \section{Аналогово-цифровое преобразование}
+% \begin{frame}{\insertsection}
+\subsection{Аналогово-цифровое преобразование}
+\begin{frame}{\insertsubsection}
+
+Аналогово-цифровое преобразование \rlap{(оцифровка):}
+\vspace{-2ex}
+
+\begin{enumerate}
+\item    замеры величины амплитуды аналогового сигнала с~некоторым временн\'{ы}м шагом "--- \termin{дискретизация};
+\item    запись полученных значений амплитуды в~численном виде "--- \termin{квантование}.
+\end{enumerate}
+\end{frame}
+
+% http://websound.ru/articles/theory/sound-theory.htm
+\subsection{Дискретизация}
+\begin{frame}{\insertsubsection}
+\small
+
+Процесс получения мгновенных значений преобразуемого аналогового сигнала с определённым временн\'{ы}м шагом (шагом дискретизации).
+
+
+\begin{tabularx}{1\linewidth}{c>{\raggedright\arraybackslash}X}
+\includegraphics[width=0.6\linewidth,valign=t]{00_timesampling}%\centering\par
+&
+Частота дискретизации $\nu = 1/T$, 
+
+где $T$ "--- шаг
+\end{tabularx}
+% \begin{equation*}
+% T=1/\nu
+% \end{equation*}
+
+\end{frame}
+
+
+\subsection{Теорема Котельникова}
+\begin{frame}{\insertsubsection}
+\small
+\begin{adjustwidth}{0em}{-2em}
+\begin{tabularx}{1\linewidth}{@{}c>{\raggedright\arraybackslash}X@{}}
+\includegraphics[height=0.85\textheight,valign=t]{00_kotelnikov}\centering\par
+&
+\termin{Теорема Кот{е}льникова (Найквиста, Шеннона, отсчётов, о~выборках)} % Найквиста"--~Шеннона,
+\medskip
+
+если аналоговый сигнал $x(t)$ имеет конечный %(ограниченный по ширине) 
+спектр, 
+
+то он может быть восстановлен однозначно и без потерь по своим отсчётам, 
+
+взятым с частотой, \termin{строго большей} удвоенной верхней частоте $f_c$:	% Википедия — большей или равной — это не так!
+$$
+    f > 2 f_c 
+    $$
+    
+% Верхняя слышимая частота 20
+% КГц   
+% астоту дискретизации нужно выбрать не меньшей 40 КГц ( в промышленном стандарте на компакт - диске используется частота 44.1 КГц).
+\end{tabularx}
+\end{adjustwidth}
+
+\end{frame}
+
+
+\subsection{Линейное (однородное) квантование}
+\begin{frame}{\insertsubsection}
+\footnotesize
+
+\begin{adjustwidth}{0em}{-2em}
+\termin{Квантование} по амплитуде "--- процесс замены реальных (измеренных) значений амплитуды сигнала значениями, приближенными с некоторой точностью.
+
+\termin{Линейное} (однородное) квантование "--- линейное разбиение амплитудной шкалы на уровни.
+
+\begin{tabularx}{1\linewidth}{c>{\raggedright\arraybackslash}X}
+\includegraphics[width=0.6\linewidth,valign=t]{00_pcm}%\centering\par
+&
+Дискретизация сигнала + метод однородного квантования "--- импульсно-кодовая модуляция, ИКМ
+
+(англ. Pulse Code Modulation "--- PCM).
+\end{tabularx}
+
+\end{adjustwidth}
+
+\end{frame}
+
+
+\section{Сжатие с~потерями}
+\begin{frame}{\insertsection}
+После распаковки мы получим документ, отличающийся от первоначального.
+
+Этапы:
+\begin{enumerate}
+\item 
+удалить несущественную информацию,
+
+\item к оставшимся данным применить наиболее подходящий алгоритм сжатия без потерь.
+\end{enumerate}
+\end{frame}
+
+\subsection{Простейшие приёмы сжатия с~потерями}
+\begin{frame}{\insertsubsection}
+\begin{enumerate}
+\item прореживание
+\begin{itemize}
+\item отбрасывание
+\item усреднение
+\end{itemize}
+\item уменьшение разрядности
+\begin{itemize}
+\item отбрасывание младших разрядов
+\item палитризация
+\end{itemize}
+
+\end{enumerate}
+\end{frame}
+
+
+\subsection{Разделение информации по важности}
+\begin{frame}{\insertsubsection}
+\begin{enumerate}
+\item смена модели (для изображения)
+\item временн\'{о}й анализ
+\item спектральные преобразования
+\end{enumerate}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newcommand\butterfly[4]{
+  \draw (#1) -- (#4);
+  \draw (#2) -- (#3);
+
+  \fill[black] (intersection cs:
+  first line={(#1) -- (#4)},
+  second line={(#2) -- (#3)}) circle (2pt);
+}
+
+
+\tikzstyle{common}	= [draw, fill=white]
+\tikzstyle{omega_mul}	= [common, isosceles triangle,isosceles triangle apex angle=60]
+\tikzstyle{dft}	= [common, rectangle]
+\tikzstyle{dft_contour}	= [draw=yellow!50!white,ultra thick]
+
+
+
+\section{Непрерывное преобразование Фурье}
+\subsection{Определение}
+\begin{frame}{\insertsection}
+Прямое
+$$
+S(\nu) = \int\limits_{-\infty}^{+\infty} f(t) e^{-2\pi i \nu t} dt
+$$
+Обратное (восстановление)
+$$
+f(t) = \int\limits_{-\infty}^{+\infty} S(\nu) e^{2\pi i \nu t} d\nu
+$$
+\end{frame}
+
+% \subsection{Циклическая частота}
+\begin{frame}{Циклическая частота}
+Иногда вместо частоты $\nu$ используют циклическую частоту $\omega = 2\pi\nu$.
+
+Тогда прямое преобразование принимает вид:
+$$
+S(\omega) = \int\limits_{-\infty}^{+\infty} f(t) e^{ -i \omega t} dt,
+$$
+обратное:\vspace{-4ex}
+$$
+f(t) = \dfrac{1}{2\pi} \int\limits_{-\infty}^{+\infty} S(\omega) e^{i \omega t} d\omega
+$$
+\end{frame}
+
+\subsection{Спектр}
+\begin{frame}{\insertsubsection}
+Амплитудный спектр (АЧХ) $f(t)$:
+$$
+|S(\nu)|
+$$
+Фазовый спектр (ФЧХ) $f(t)$:
+$$
+-\arg(S(\nu))
+$$
+\end{frame}
+
+\subsection{Преобразование дискретного сигнала}
+\begin{frame}{\insertsubsection}
+$$
+\tilde{S}(\nu) = \sum\limits_{j=0}^{N-1} f(j \Delta t) e^{-2\pi i \cdot \nu \cdot  j \Delta t} \Delta t
+$$
+%     \begin{tikzpicture}    [line cap=round,line join=round,x=5ex,y=5ex]
+%     \begin{axis}[/pgf/number format/use comma,/pgf/number format/1000 sep={},
+% %     xlabel=$x$,     ylabel=$F(x)$,
+%     height=\graphheight,    width=\graphwidth,
+% %     grid=major,
+%     axis x line=middle,   axis y line=middle,
+% 
+% %     xmin=0,xmax=25.5,  
+% % %     ymin=0,ymax=1.05,  
+%     ]
+%     \addplot[mark=none,domain=0.7:30,samples=61,graphline] 
+%   {1/(1+   ( (x + 2.9 )/7.6 )^-6.11 )};
+% 
+%     \end{axis} 
+%     \end{tikzpicture}
+
+$\tilde{S}(\nu)$ непрерывна,
+
+периодична с~периодом $T = \frac{1}{\Delta t}$:
+$\tilde{S}(\nu+\frac{1}{\Delta t}) = \tilde{S}(\nu)$,
+
+
+отсчётов в~точках $\nu_k = \frac{1}{N\Delta t}\cdot k, ~~ k = 0,\ldots, N-1$
+достаточно для восстановления дискретного сигнала $f(j \Delta t)$
+
+\end{frame}
+
+\subsection{Отсчёты}
+
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.6em}{-1.8em}
+% \footnotesize
+\small
+Обозначим $f_j=f(j \Delta t), ~
+\Delta\nu = \frac{1}{N\Delta t}, ~
+\tilde{S}_k = \tilde{S}(\nu_k) = \tilde{S}(\Delta\nu \cdot k) =$ $= \tilde{S}(\frac{1}{N\Delta t}\cdot k)$:
+\vspace{-5ex}
+
+
+$$
+\tilde{S}_k %= \tilde{S}(\nu_k) = \tilde{S}(\frac{1}{N\Delta t}\cdot k) 
+% = \sum\limits_{j=0}^{N-1} f(j \Delta t) e^{-2\pi i \frac{1}{N\Delta t} k j \Delta t} \Delta t 
+= \sum\limits_{j=0}^{N-1} f_j e^{-2\pi i \cdot  \frac{1}{N\Delta t} k \cdot  j \Delta t} \Delta t 
+% =
+% $$
+% $$
+% = \Delta t \sum\limits_{j=0}^{N-1} f(j \Delta t) e^{-\frac{2\pi i}{N} kj}
+= \Delta t \sum\limits_{j=0}^{N-1} f_j e^{-\frac{2\pi i}{N} kj}
+$$
+Восстановление дискретного сигнала
+$$
+f(j \Delta t) = f_j = \Delta\nu \sum\limits_{k=0}^{N-1} \tilde{S}_k e^{\frac{2\pi i}{N} kj} 
+= \Delta\nu \sum\limits_{k=0}^{N-1}e^{\frac{2\pi i}{N} kj}\Delta t \sum\limits_{m=0}^{N-1} f_m e^{-\frac{2\pi i}{N} mj}
+=
+$$
+$$
+=\frac{1}{N\Delta t}\cdot\Delta t \sum\limits_{k=0}^{N-1}\sum\limits_{m=0}^{N-1}f_m e^{\frac{2\pi i}{N} kj}e^{-\frac{2\pi i}{N} mj}
+= \sum\limits_{m=0}^{N-1}\frac{1}{N} f_m
+  \underbrace{\sum\limits_{k=0}^{N-1} e^{\frac{2\pi i}{N}(j-m)k}}_{
+%   \text{$N$ при $j-m=0$, $0$ при $j-m\neq 0$}
+% \scriptsize
+\tiny
+    \begin{array}{l}
+      \text{$N$ при $j-m=0$}\\
+      \text{$0$ при $j-m\neq 0$}
+    \end{array}  
+  }
+% =\left\{
+% \begin{array}{ll}
+% 
+% \end{array}
+% \right.
+$$
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+\section{Дискретное преобразование Фурье (ДПФ)}
+\subsection{Определение}
+\begin{frame}{\insertsection}
+Прямое (ДПФ, DFT) "--- комплексный спектр
+$$
+y(k) = \frac{1}{\sqrt{N}}\sum\limits_{j=0}^{N-1} x(j) \cdot e^{-\frac{2\pi i}{N} kj}
+~~\Big(%\text{ненормированное}~
+\tilde{y}(k)=\sum\limits_{j=0}^{N-1} x(j) \cdot e^{-\frac{2\pi i}{N} kj}
+\Big)
+$$
+Обратное (ОДПФ)
+$$
+x(j) = \frac{1}{\sqrt{N}} \sum\limits_{k=0}^{N-1} y(k) \cdot e^{\frac{2\pi i}{N} kj}
+$$
+(для симметрии полагаем $\Delta t = \Delta\nu = \frac{1}{\sqrt{N}}$)
+\end{frame}
+
+\subsection{Вектор-спектр}
+\begin{frame}{\insertsubsection}
+Амплитудный спектр:
+$
+\Big\{|y(k)|\Big\}_{k=0}^{N-1}
+$
+
+Фазовый спектр:
+$
+\Big\{-\arg y(k)\Big\}_{k=0}^{N-1}
+$
+
+\small
+$\overline{y(0)} = y(0)$, для $k=1,\ldots, N-1$ ~~$\overline{y(k)} = y(N-k)$
+
+\end{frame}
+
+
+
+\section{Быстрое ДПФ (БПФ)}
+\subsection{Допущения}
+\begin{frame}{\insertsection}
+\begin{adjustwidth}{-1.2em}{-1.8em}
+\small
+Пусть $N = 2^n$; обозначим $\omega_n = e^{-\frac{2\pi i}{2^n}}$:
+\vspace{-3ex}
+
+$$
+\tilde{y}(k) = \sum\limits_{j=0}^{2^n-1} x(j) \cdot e^{-\frac{2\pi i}{2^n} kj}
+ = \sum\limits_{j=0}^{2^n-1} x(j) \cdot \omega_n^{kj}
+$$
+
+$$
+\omega_n^2 = e^{-\frac{2\pi i}{2^n} \cdot 2} = e^{-\frac{2\pi i}{2^{n-1}}} = \omega_{n-1}
+$$
+
+Прореживание 
+"--- разбиение вектора 
+% исходных отсчётов 
+$X = \big\{x(0),\ldots x(2^{n}-1)\big\}$
+на 
+% две непересекающиеся половины\\
+% $X_0 = \big\{x_0(0), \ldots x_0(2^{n-1}-1)\big\}$ и~$X_1 = \big\{x_1(0), \ldots x_1(2^{n-1}-1)\big\}$\\
+% вдвое меньшей размерности:
+% \vspace{-2ex}
+% $$
+% X = X_0 \cup X_1, ~~ |X_0| = |X_1| = \frac{N}{2} = 2^{n-1}
+% $$
+$X_0 = \big\{x(0), x(2) \ldots x(2^{n}-2)\big\} = \big\{ x(2j) \big\}_{j=0}^{2^{n-1}-1}$
+$X_1 = \big\{x(1), x(3), \ldots x(2^{n}-1)\big\} = \big\{ x(2j+1) \big\}_{j=0}^{2^{n-1}+1}$\\
+
+\end{adjustwidth}
+\end{frame}
+
+\subsection{Прореживание по времени}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.2em}{-1.8em}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+$X_0 = \big\{x(0), x(2) \ldots x(2^{n}-2)\big\} = \big\{ x(2j) \big\}_{j=0}^{2^{n-1}-1}$
+$X_1 = \big\{x(1), x(3), \ldots x(2^{n}-1)\big\} = \big\{ x(2j+1) \big\}_{j=0}^{2^{n-1}-1}$\\
+
+
+$$
+\tilde{y}(k)
+%  = \sum\limits_{j=0}^{2^n-1} x(j) \cdot \omega_n^{kj}
+ = \sum\limits_{j=0}^{2^{n-1}-1} \Big( x(2j) \cdot \omega_n^{k\cdot 2j}  + x(2j+1) \cdot \omega_n^{k\cdot (2j+1)} \Big)
+=
+$$ 
+$$
+= \sum\limits_{j=0}^{2^{n-1}-1}  x_0(j) \cdot \omega_{n-1}^{k\cdot j}  + \omega_n^{k}\sum\limits_{j=0}^{2^{n-1}-1} x_1(j) \cdot \omega_{n-1}^{k\cdot j} 
+$$
+где $k=0,1,\ldots 2^{n}-1$
+\end{adjustwidth}
+\end{frame}
+
+\begingroup
+
+
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+\small
+\begin{frame}{\insertsubsection{} --- разделение спектра}
+\begin{adjustwidth}{-1.2em}{-1.8em}
+\vspace*{-4ex}
+$
+\omega_n^{2^{n-1} + k} = e^{-\frac{2\pi i}{2^n} \cdot (2^{n-1} + k)} 
+ = \underbrace{e^{-\pi i}}_{-1} \cdot \underbrace{  e^{-\frac{2\pi i}{2^n}\cdot k}  }_{\omega_n^k} = -\omega_n^k
+$
+
+
+% \tilde{y_0}(k)=\text{ненормированное ДПФ от $x(j)$}$
+$
+\tilde{y_0}(k)=\sum\limits_{j=0}^{2^{n-1}-1} x_0(j) \cdot e^{-\frac{2\pi i}{2^{n-1}} kj}, ~~
+\tilde{y_1}(k)=\sum\limits_{j=0}^{2^{n-1}-1} x_1(j) \cdot e^{-\frac{2\pi i}{2^{n-1}} kj}
+$
+
+$k=0,1,\ldots 2^{n-1}-1$:
+
+$\tilde{y}(k) = \tilde{y_0}(k) + \omega_n^{k}\cdot\tilde{y_1}(k)%, ~~ k=0,1,\ldots 2^{n}
+$
+
+$\tilde{y}(k+2^{n-1}) = \tilde{y_0}(k+2^{n-1}) + \omega_n^{k+2^{n-1}}\cdot\tilde{y_1}(k+2^{n-1}) =$\\$ = \tilde{y_0}(k) - \omega_n^{k}\cdot\tilde{y_1}(k)$
+\hfill
+\raisebox{4ex}[0mm][0mm]{
+  \begin{tikzpicture}[start chain=going below,node distance=1ex]
+    \matrix (bfly)
+    [matrix of math nodes,%
+    ampersand replacement=\&,
+    nodes={outer sep=0pt,rectangle,minimum size=4pt,draw},
+    column sep={16mm,between origins},
+    row sep={8mm,between origins}]
+    {
+      a \& a+b\\
+      b \& a-b\\
+    };
+    \butterfly{bfly-1-1.east}{bfly-2-1.east}{bfly-1-2.west}{bfly-2-2.west}
+  \end{tikzpicture}
+}
+
+
+\end{adjustwidth}
+\end{frame}
+
+\begin{frame}{\insertsubsection{} --- $N=8$}
+\begin{tikzpicture}[%start chain=going below, не работает (раньше работало на том же исходном коде)
+node distance=1ex]
+
+{ [start chain=1 going below]
+	\foreach \i in {0,2,4,6,1,3,5,7}
+		\node [on chain] (x_\i) {$x(\i)$};
+	
+}
+
+{ [start chain=2 going below]
+	\node [on chain, right=8ex of x_0] (y_0_0) {$\tilde{y_0}(0)$};
+	\foreach \i in {1,2,3}
+		\node [on chain] (y_0_\i) {$\tilde{y_0}(\i)$};
+}
+
+{ [start chain=3 going below]
+	\node [on chain, right=8ex of x_1] (y_1_0) {$\tilde{y_1}(0)$};
+		\node [omega_mul,right=4ex of y_1_0, label=above right:$1$] (omega_0) {};
+	\foreach \i in {1,2,3}
+	{
+		\node [on chain] (y_1_\i) {$\tilde{y_1}(\i)$};
+		\node [omega_mul,right=4ex of y_1_\i, label=above right:$\omega_3^\i$] (omega_\i) {};
+	}
+}
+
+
+{ [start chain=4 going below]
+	\node [on chain, right=36ex of y_0_0] (y_0) {$\tilde{y}(0)$};
+	\foreach \i in {1,...,7}
+	{
+		\node [on chain] (y_\i) {$\tilde{y}(\i)$};
+	}
+}
+
+
+\coordinate[right= 2ex of omega_3] (out_y_1_3);
+\foreach \i in {0,1,2}
+{
+	\coordinate (out_y_1_\i) at (out_y_1_3|-y_1_\i);
+}
+\foreach \i in {0,1,2,3}
+{
+	\coordinate (out_y_0_\i) at (out_y_1_3|-y_0_\i);
+}	
+
+
+\foreach \i in {0,...,7}
+{
+	\coordinate[left= 2ex of y_\i] (in_y_\i);
+}	
+
+\begin{pgfonlayer}{background}
+\foreach \i in {0,...,3}
+{
+  \draw (y_1_\i) -- (out_y_1_\i) -- (in_y_\i) -- (y_\i);
+  \pgfmathtruncatemacro{\j}{4+\i}
+  \draw (y_0_\i) -- (out_y_0_\i) -- (in_y_\j) -- (y_\j);
+  
+%   \node [draw,fill,circle] at (intersection of out_y_1_\i -- in_y_\i{} and out_y_0_\i -- in_y_\j) {}; не работает
+  \fill[black] (intersection cs:
+    first line={(out_y_1_\i) -- (in_y_\i)},
+    second line={(out_y_0_\i) -- (in_y_\j)}) circle (2pt);
+
+}	
+\end{pgfonlayer}
+
+\foreach \y in {0,...,3}
+{
+  \pgfmathtruncatemacro{\x}{2*\y}
+  \draw (x_\x) --coordinate[pos =0.2](dft_00_\y) coordinate[pos =0.8](dft_01_\y) (y_0_\y);
+  
+  \pgfmathtruncatemacro{\x}{2*\y+1}
+  \draw (x_\x) --coordinate[pos =0.2](dft_10_\y) coordinate[pos =0.8](dft_11_\y)(y_1_\y);
+}
+
+\node[dft, fit=(dft_00_0) (dft_01_3)] {\scriptsize ДПФ $N=4$};
+\node[dft, fit=(dft_10_0) (dft_11_3)] {\scriptsize ДПФ $N=4$};
+
+\end{tikzpicture}
+
+\end{frame}
+
+
+\begin{frame}{\insertsubsection{} --- БПФ $N=8$}
+\begin{tikzpicture}[node distance=1ex]
+
+{ [start chain=1 going below]
+	\foreach \x/\y in {0/0,4/1,2/2,6/3,1/4,5/5,3/6,7/7}
+	{
+		\node [on chain] (x_\y) {$x(\x)$};
+		\node[left= 0ex of x_\y] {$\nbinary{3}{\x}$};		
+		
+		\coordinate[right= 2ex of x_\y] (out_x_\y);
+		\draw (x_\y) -- (out_x_\y);
+		
+		\foreach \i/\o in {x/d2,d2/d4}
+		{
+		  \coordinate[right= 7ex of out_\i_\y] (in_\o_\y);
+		  \coordinate[right= 7ex of in_\o_\y] (out_\o_\y);
+		  \draw (in_\o_\y) -- (out_\o_\y);
+		}
+		\coordinate[right= 12ex of out_d4_\y] (in_y_\y);
+		\node[right= 2ex of in_y_\y] (y_\y) {$y(\y)$};		
+		\draw (in_y_\y) -- (y_\y);
+	}
+}
+
+\foreach \i in {0,...,3}
+{
+  \pgfmathtruncatemacro{\t}{2*\i}
+  \pgfmathtruncatemacro{\b}{2*\i+1}
+  
+  \butterfly{out_x_\t}{out_x_\b}{in_d2_\t}{in_d2_\b}
+}
+
+\foreach \t in {0,1,4,5}
+{
+  \pgfmathtruncatemacro{\b}{\t+2}
+  \butterfly{out_d2_\t}{out_d2_\b}{in_d4_\t}{in_d4_\b}
+}
+\foreach \t in {0,...,3}
+{
+  \pgfmathtruncatemacro{\b}{\t+4}
+  \butterfly{out_d4_\t}{out_d4_\b}{in_y_\t}{in_y_\b}
+}
+
+\foreach \i in {2,6}
+{
+  \foreach \j in {0,1}
+  {
+	  \pgfmathtruncatemacro{\y}{\i+\j}
+	  \node [omega_mul,right=2ex of in_d2_\y, label=above right:$\omega_2^\j$] {};
+  }
+}
+  \foreach \j in {0,...,3}
+  {
+	  \pgfmathtruncatemacro{\y}{4+\j}
+	  \node [omega_mul,right=2ex of in_d4_\y, label=above right:$\omega_4^\j$] {};
+  }
+\begin{pgfonlayer}{background}
+\draw[dft_contour] (current bounding box.south-|in_d2_0) -- (current bounding box.north-|in_d2_0);
+\draw[dft_contour] (current bounding box.south-|in_d4_0) -- (current bounding box.north-|in_d4_0);
+\draw[dft_contour] (current bounding box.south-|in_y_0) -- (current bounding box.north-|in_y_0);
+\end{pgfonlayer}
+
+\end{tikzpicture}
+\end{frame}
+
+
+
+\endgroup
+
+
+
+\begingroup
+\subsection{Прореживание по частоте}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+\begin{frame}[allowframebreaks]{\insertsubsection}
+\begin{adjustwidth}{-1.4em}{-1.99em}\small
+
+$X_0 = \big\{x(0), x(1) \ldots x(2^{n-1}-1)\big\} = \big\{ x(j) \big\}_{j=0}^{2^{n-1}-1}$\\
+$X_1 = \big\{x(2^{n-1}), x(2^{n-1}+1), \ldots x(2^{n}-1)\big\} = \big\{ x(2^{n-1}+j) \big\}_{j=0}^{2^{n-1}-1}$\\
+
+
+$$
+\tilde{y}(k)
+%  = \sum\limits_{j=0}^{2^n-1} x(j) \cdot \omega_n^{kj}
+ = \sum\limits_{j=0}^{2^{n-1}-1} \Big( x(j) \cdot \omega_n^{k\cdot j}  + x(2^{n-1}+j) \cdot \omega_n^{k\cdot (2^{n-1}+j)} \Big)
+=
+$$ 
+$$
+= \sum\limits_{j=0}^{2^{n-1}-1}  x_0(j) \cdot \omega_n^{k\cdot j}  + \omega_n^{k\cdot 2^{n-1}}\sum\limits_{j=0}^{2^{n-1}-1} x_1(j) \cdot \omega_n^{k\cdot j} 
+$$
+где $k=0,1,\ldots 2^{n}-1$, ~~
+$
+\omega_n^{2^{n-1}} = e^{-\frac{2\pi i}{2^n} \cdot 2^{n-1}} 
+ = e^{-\pi i}={-1} 
+$
+\end{adjustwidth}
+\pagebreak
+\begin{adjustwidth}{-1.2em}{-1.99em}\small
+\small
+
+$
+\tilde{y}(2k)
+= \sum\limits_{j=0}^{2^{n-1}-1}  x_0(j) \cdot \omega_n^{2 k\cdot j}  + (-1)^{2k}\sum\limits_{j=0}^{2^{n-1}-1} x_1(j) \cdot \omega_n^{2k\cdot j} 
+=
+$
+$
+= \sum\limits_{j=0}^{2^{n-1}-1}  x_0(j) \cdot \omega_{n-1}^{k\cdot j}  + \sum\limits_{j=0}^{2^{n-1}-1} x_1(j) \cdot \omega_{n-1}^{k\cdot j} 
+$
+
+$
+\tilde{y}(2k+1)
+= \sum\limits_{j=0}^{2^{n-1}-1}  x_0(j) \cdot \omega_n^{(2 k+1)\cdot j}  + (-1)^{2 k+1}\sum\limits_{j=0}^{2^{n-1}-1} x_1(j) \cdot \omega_n^{(2 k+1)\cdot j} 
+=
+$
+$
+= \sum\limits_{j=0}^{2^{n-1}-1}  x_0(j) \cdot \omega_{n-1}^{k\cdot j}\omega_n^{j}  - \sum\limits_{j=0}^{2^{n-1}-1} x_1(j) \cdot \omega_{n-1}^{k\cdot j} \omega_n^{j}
+$
+\end{adjustwidth}
+
+\end{frame}
+
+
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+\small
+\begin{frame}{\insertsubsection{} --- БПФ $N=8$}
+\begin{tikzpicture}[node distance=1ex]
+
+{ [start chain=1 going below]
+	\foreach \y/\x in {0/0,4/1,2/2,6/3,1/4,5/5,3/6,7/7}
+	{
+		\node [on chain] (x_\x) {$x(\x)$};
+		
+		\coordinate[right= 2ex of x_\x] (out_x_\x);
+		\draw (x_\x) -- (out_x_\x);
+		\coordinate[right= 12ex of out_x_\x] (in_d4_\x);	
+		
+		\foreach \i/\o in {d4/d2,d2/y}
+		{
+		  \coordinate[right= 7ex of in_\i_\x] (out_\i_\x);
+		  \draw (in_\i_\x) -- (out_\i_\x);
+		  \coordinate[right= 7ex of out_\i_\x] (in_\o_\x);
+		}
+		\node[right= 2ex of in_y_\x] (y_\x) {$y(\y)$};		
+		\draw (in_y_\x) -- (y_\x);
+		\node[right= 0ex of y_\x] {$\nbinary{3}{\y}$};		
+	}
+}
+
+
+\foreach \t in {0,...,3}
+{
+  \pgfmathtruncatemacro{\b}{\t+4}
+  \butterfly{out_x_\t}{out_x_\b}{in_d4_\t}{in_d4_\b}
+}
+
+\foreach \t in {0,1,4,5}
+{
+  \pgfmathtruncatemacro{\b}{\t+2}
+  \butterfly{out_d4_\t}{out_d4_\b}{in_d2_\t}{in_d2_\b}
+}
+\foreach \i in {0,...,3}
+{
+  \pgfmathtruncatemacro{\t}{2*\i}
+  \pgfmathtruncatemacro{\b}{2*\i+1}
+  
+  \butterfly{out_d2_\t}{out_d2_\b}{in_y_\t}{in_y_\b}
+}
+
+
+\foreach \i in {2,6}
+{
+  \foreach \j in {0,1}
+  {
+	  \pgfmathtruncatemacro{\y}{\i+\j}
+	  \node [omega_mul,right=2ex of in_d2_\y, label=above right:$\omega_2^\j$] {};
+  }
+}
+  \foreach \j in {0,...,3}
+  {
+	  \pgfmathtruncatemacro{\x}{4+\j}
+	  \node [omega_mul,right=2ex of in_d4_\x, label=above right:$\omega_4^\j$] {};
+  }
+
+\begin{pgfonlayer}{background}
+\draw[dft_contour] (current bounding box.south-|out_d2_0) -- (current bounding box.north-|out_d2_0);
+\draw[dft_contour] (current bounding box.south-|out_d4_0) -- (current bounding box.north-|out_d4_0);
+\draw[dft_contour] (current bounding box.south-|y_0) -- (current bounding box.north-|y_0);
+\end{pgfonlayer}
+
+\end{tikzpicture}
+\end{frame}
+
+\endgroup
+
+% \section{ДКТ}
+% % \setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+% % \setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+% \begin{frame}[allowframebreaks]{\insertsection}
+% 
+% $$
+% c_k = \sum\limits_{n=0}^{N?1} \sqrt{ 
+%        n = \bigl{ \frac{1}{N}\, if \,\, n = 0;
+%                   \frac{2}{N} \, else\,      \bigr} } 
+%        \times x_n \cos \bigl( ?\pi \frac{(2k + 1)n}{N}  \bigr)
+%        $$
+% \end{frame}
+
+% 
+% % \subsection{}
+% % \subsection{}
+% \subsection{}
+% \begin{frame}{\insertsubsection}
+% \end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makethanks
+\end{document}

@@ -1,0 +1,565 @@
+\input{commonpath}
+\input{\SRCROOTPATH/commonpres}
+
+\title{Построение конечного поля с~$2^n$ элементами}
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+\subsection{Конечные поля (поля Галуа)}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+
+\begin{block}{Конечное поле или поле Галуа}
+Поле, состоящее из конечного числа элементов.
+% Наиболее известным примером конечного поля является поле классов вычетов по простому модулю, т.е. факторкольцо \mathbb{Z}/(p), где p - простое число[1].
+\mbox{$\mathbb{F}_q$ или $\GF(q)$,} где $q$ "--- число элементов (мощность).
+% С точностью до изоморфизма конечное поле полностью определяется его мощностью, которая всегда является степенью какого-либо простого числа, т.е. 
+\end{block}
+
+$q=p^n$, где $p$ "--- простое число (\termin{характеристика} поля), $n \in \Naturalset$.
+
+
+С~точностью до изоморфизма:
+
+\indent\rlap{для $q=p$}\hspace*{6em}$\GF(q) = \mathbb{Z}_p$
+% Расширение конечного поля GF(p^m) может быть задано разными полиномами p(x) одинаковых степеней m. Ненулевыми элементами любого поля порядка p^m является полный набор возможных многочленов степени m - 1 и ниже, отличающийся для разных полиномов p(x) лишь порядком следования элементов p по степеням примитивного элемента.
+
+\indent\rlap{для $q=p^n$}\hspace*{6em}$\GF(q)$ 
+"--- расширение поля $\mathbb{Z}_p$
+% (поле вычетов многочленов по~модулю неприводимого многочлена степени $n$)
+% (изоморфно полю разложения многочлена $x^q - x$ над полем $\mathbb{Z}_p$).
+% Любое конечное поле из q = p^n элементов изоморфно полю разложения многочлена x^q - x над полем \mathbb{F}_p.[16]
+
+\end{frame}
+
+
+
+
+% \section{Кольцо многочленов над полем}
+\section{Многочлены над полем}
+
+\subsection{Определение}
+% \begingroup
+% \setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+% \setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+\begin{frame}{\insertsection}
+\setlength{\parskip}{0.2\parskip}
+
+Многочлен степени $n \in \Naturalset\cup\{0\}$ над полем $\mathcal{F}$
+% 
+$$p(x)=a_nx^n+a_{n-1}x^{n-1}+\ldots+a_1x+a_0$$
+% 
+% где 
+$$a_n,a_{n-1},\ldots,a_1,a_0 \in \mathbb{F}$$
+% "--- коэффициенты многочлена,
+% $\deg p(x) = n$ степень.
+% $x$ называется переменной.
+% , a_n — старший коэффициент (a_n\ne0). Каждое слагаемое a_kx^k в (В.8) называют членом многочлена, в частности, a_nx^n — старший член, a_0 — свободный член. 
+% Степень многочлена n — целое неотрицательное число (обозначается $\deg p(x)$). 
+% Многочлен нулевой степени (n=0) — это одночлен a_0x^0= a_0 (просто число). Если в выражении (В.8) все коэффициенты равны нулю, то получается нулевой многочлен.
+
+% Два многочлена $p(x)$ и $q(x)$ считаются равными, если равны их коэффициенты при одинаковых степенях переменной $x$.
+$p(x)=q(x)$, если равны их коэффициенты при одинаковых степенях $x$.
+
+$x^k \cdot x^m = x^{k+m} (k,m \in \Naturalset\cup\{0\}),
+~~    x^0 \equiv 1.$
+
+Множество всех многочленов $\mathcal{F}[x]$ "--- коммутативное кольцо
+(ассоциативно-коммутативное кольцо с~единицей "--- при другом наборе аксиом кольца).
+    
+\end{frame}
+% \endgroup
+
+\subsection{Делимость многочленов}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.5\parskip}
+% Для произвольных многочленов p(x) и q(x) из кольца P существуют многочлены s(x) и r(x) из того же кольца P, что
+$\forall p(x), q(x) \in \mathcal{F}[x] ~~ \exists s(x), r(x)\in \mathcal{F}[x]:$
+\\
+$p(x)=s(x)\cdot q(x)+r(x)$
+
+причём %степень многочлена $r(x)$ меньше степени многочлена $q(x)$ или же $r(x)=0$. 
+$\deg r(x) < \deg q(x)$ или $r(x)=0$. 
+
+Многочлен $s(x)$ называется \termin{частным} (неполным частным), а многочлен $r(x)$ "--- \termin{остатком} от деления $p(x)$ на $s(x)$.
+
+Частное и остаток определяются однозначно.
+
+Справедлива теорема Безу (и~её следствия):
+остаток от деления $f(x)$ на $(x-a)$ равен $f(a)$.
+\end{frame}
+
+\subsection{Неприводимые многочлены}
+\begin{frame}{\insertsubsection}
+Если для любого разложения $p(x)=s(x)\cdot q(x), ~~ p(x), s(x), q(x) \in \mathcal{F}[x]$
+
+либо $\deg s(x)=0$, либо $\deg q(x)=0$,
+
+многочлен $p(x)$ называется \termin{неприводимым} (простым) в кольце $\mathcal{F}[x]$ (или над полем $\mathcal{F}$).
+
+\end{frame}
+
+
+\subsection{Примеры}
+\begin{frame}{\insertsubsection}
+% Над полем $\mathbb{Z}_2$:
+% 
+% $x^2+1 = (x+1)(x+1)$
+% 
+% $x^2+x+1$ неприводим
+\renewcommand{\arraystretch}{1.5}
+
+\begin{tabularx}{1\linewidth}{l|X|l}
+
+
+ & $x^2+1$ & $x^2+x+1$  \\\hline
+Над  $\mathbb{Z}_2$ & $(x+1)(x+1)$ & неприводим \\\hline
+Над  $\mathbb{Z}_3$ & неприводим & $(x+2)(x+2)$ \\\hline
+Над  \Realset & неприводим & неприводим \\\hline
+Над  \Complexset & $(x+i)(x-i)$ & $(x+\frac{1+i\sqrt{3}}{2})(x+\frac{1-i\sqrt{3}}{2})$ \\\hline
+
+\end{tabularx}
+\end{frame}
+
+\section{Расширение поля}
+
+\subsection{Классы вычетов многочленов}
+
+\begin{frame}{\insertsubsection}
+
+Класс вычетов по модулю многочлена $g(x)$ содержит все многочлены $\mathcal{F}[x]$, которые имеют один и тот же остаток при делении на~$g(x)$.
+
+Если $g(x)$ неприводим в~$\mathcal{F}[x]$, множество классов вычетов (фактор-кольцо $\mathcal{F}[x]/g(x)$) "--- \termin{поле.}
+
+Поле $\mathcal{F}[x]/g(x)$ "--- расширение $\mathcal{F}$, полученное добавлением корня $g(x)$ (примитивное расширение) "--- фиктивного $c\notin \mathcal{F}$, что $g(c) = 0$.
+\end{frame}
+
+\subsection{Примитивные расширения \Realset}
+
+\begin{frame}{\insertsubsection}
+
+Многочлен $g(x) = x^2+1$ неприводим над~\Realset.
+
+Поле {\Complexset} "--- примитивное расширение \Realset, полученное добавлением фиктивного корня $x^2+1$  \mbox{"--- <<мнимой единицы>> $i\notin \Realset$.}
+
+\vfill
+
+
+\emph{$x$, $x+1$, $x+2$, $x^2+4$ и~$x^2+x+1$ также неприводимы над~\Realset.
+\\
+Как будут выглядеть примитивные расширения?}
+
+Не все многочлены без корней неприводимы: 
+\mbox{над $\Realset$
+$x^4+1 = (x^2 + \sqrt{2}x + 1)(x^2 - \sqrt{2}x + 1)$}
+
+Над $\Complexset$ неприводимы только линейные многочлены $x-a$;
+
+над $\Realset$ "--- линейные и~некоторые квадратичные многочлены $\implies$ расширения $\Realset$ изоморфны  $\Complexset$.
+
+
+\end{frame}
+
+
+
+\subsection{Примитивные расширения $\mathbb{Z}_2$}
+
+
+\begin{frame}{\insertsubsection}
+    \setlength{\abovedisplayskip}{0.em}
+    \setlength{\belowdisplayskip}{0.em}
+    
+Многочлен $g(x) = x^2+x+1$ неприводим над~$\mathbb{Z}_2$.
+
+Пусть $i\notin \mathbb{Z}_2$ "--- фиктивный корень $x^2+x+1$.
+
+$$i^2+i+1 = 0$$
+
+Элементы примитивного расширения
+$0, 1, i, i+1$.
+\\
+$i^2 = -(i+1) = i+1$
+
+% $\{0, 1, i, i+1\}$ "--- поле $\GF(4)$.
+
+\end{frame}
+
+\subsection{Поле $\GF(4)$}
+\begin{frame}{\insertsubsection}
+
+$\begin{array}{l|l|l|l@{\,}r|l@{\,}r}
+\multirow{2}{*}{\text{\footnotesize
+\begin{tabular}{@{}c@{}}Полиномиальное\\представление
+\end{tabular}%
+}}
+&\multirow{2}{*}{\text{\footnotesize
+\begin{tabular}{@{}c@{}}Числовое\\представление
+\end{tabular}%
+}}&\multicolumn{5}{c}{\text{\footnotesize Степени}}\\\cline{3-7}
+&&0&1&&2&\\\hline
+% 0&0&
+1&1&1&1&&1&\\
+i&2&1&i & (2)& i+1 &(3) \\
+i+1&3&1& i+1 &(3)&i &(2)\\
+\end{array}$
+
+\footnotesize
+
+Из обобщённой малой теоремы Ферма $a^{3}= {1}$ для всех ненулевых $a$.
+% Для ненулевых элементов поля:
+% $ a^{q-1}= \mathbf{1}$
+
+$i$ и~$i+1$ "--- примитивные элементы, наименьший~$i$:
+$\begin{array}{l@{~}l@{~}l@{~}l@{~}l}
+1&=&1&=&i^0\\
+2&=&i&=&i^1 \\
+3&=&i+1&=&i^2\\
+\end{array}$
+
+\end{frame}
+
+
+
+\subsection{Сложение и~умножение в~$\GF(4)$}
+\begin{frame}{\insertsubsection}
+
+\footnotesize
+\begin{tabularx}{\linewidth}{LK{0.4\linewidth}}
+
+\footnotesize
+Сложение "--- сложение многочленов с~учётом~$1+1=0$ \mbox{(побитовое по модулю~$2$)}
+&
+\footnotesize
+Умножение "--- умножение степеней примитивного элемента с~учётом~$i^3 = 1$
+\\[1em]
+
+
+$\begin{array}{l|c@{\,}c@{\,}c@{\,}c}
++&0&1&2&i+1\\\hline
+0  &0&1&i&i+1\\
+1  &1&0&i+1&i\\
+i  &i&i+1&0&1\\
+i+1&i+1&i&1&0\\
+\end{array}$
+
+&
+
+$\begin{array}{l|llll}
+\cdot
+ &0&1&i&i^2\\\hline
+0&0&0&0&0\\
+1&0&1&i&i^2\\
+i&0&i&i^2&1\\
+i^2&0&i^2&1&i\\
+\end{array}$
+
+\\[1em]
+
+
+$\begin{array}{l|llll}
++&0&1&2&3\\\hline
+0&0&1&2&3\\
+1&1&0&3&2\\
+2&2&3&0&1\\
+3&3&2&1&0\\
+\end{array}$
+
+&
+
+$\begin{array}{l|llll}
+\cdot
+ &0&1&2&3\\\hline
+0&0&0&0&0\\
+1&0&1&2&3\\
+2&0&2&3&1\\
+3&0&3&1&2\\
+\end{array}$
+
+\end{tabularx}
+
+\end{frame}
+
+
+\section{Конечные поля $\GF(2^n)$}
+
+\begingroup
+\subsection{Разрежённые полиномы, неприводимые по~модулю 2 (порождающие табличные)}
+% http://pmpu.ru/vf4/gruppe/galois/vspom6
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1em}{-1.8em}
+\footnotesize
+$\begin{array}{@{}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c}
+x^2&+&x&+&1\\
+x^3&+&x&+&1\\
+x^4&+&x&+&1\\
+x^5&+&x&+&1\\
+x^6&+&x&+&1\\
+x^7&+&x^3&+&1\\
+% x^8&+&x^4&+&x^3&+&x^2&+&1; \quad x^8&+&x^4&+&x^3&+&x&+&1\\
+x^8&+&x^4&+&x^3&+&x^2&+&1 &(RS)\\
+x^8&+&x^4&+&x^3&+&x&+&1 &(AES)\\
+x^9&+&x^4&+&1\\
+\end{array}$
+$\begin{array}{c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c}
+x^{10}&+&x^3&+&1\\
+x^{11}&+&x^2&+&1\\
+x^{12}&+&x^3&+&1\\
+x^{13}&+&x^4&+&x^3&+&x&+&1\\
+% \hspace{2em}
+x^{14}&+&x^5&+&1\\
+x^{15}&+&x&+&1\\
+x^{16}&+&x^{5}&+&x^3&+&x&+&1\\
+\multicolumn{4}{c}{\ldots}\\
+x^{32}&+&x^{7}&+&x^3&+&x^2&+&1\\
+\end{array}$
+$\begin{array}{c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{\,}c@{}}
+\multicolumn{4}{c}{\ldots}\\
+x^{64}&+&x^4&+&x^3&+&x&+&1\\
+\multicolumn{4}{c}{\ldots}\\
+x^{128}&+&x^7&+&x^2&+&x&+&1\\
+\multicolumn{4}{c}{\ldots}\\
+x^{256}&+&x^{10}&+&x^5&+&x^2&+&1\\
+\multicolumn{4}{c}{\ldots}\\
+x^{512}&+&x^8&+&x^5&+&x^2&+&1\\
+\end{array}$
+
+% Многочлен $x^{p^m} - x$ равен произведению всех нормированных неприводимых над $GF(p)$ многочленов, степени которых делят $m$.
+
+Наименьший примитивный элемент расширения: %табличных порождающих многочленов \hfill "---
+ $i~(2)$ (для большинства).
+
+Для используемого в~AES $x^8+x^4+x^3+x+1$ примитивный элемент $i+1~(3)$.
+% AES, примитивен i+1
+
+\end{adjustwidth}
+\end{frame}
+\endgroup
+
+
+\subsection{Таблица степеней GF(8), порождающий полином $x^3+x+1$}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=1\linewidth,valign=c]{09_gf8}\centering
+\end{frame}
+
+\subsection{Таблица степеней GF(16)}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=1\linewidth,valign=c]{09_gf16}\centering
+\end{frame}
+
+
+\section{Примитивные расширения \Realset}
+
+\subsection{$x$, $x+1$, $x+2$, $x^2+4$}
+
+\begin{frame}{\insertsubsection}
+\termin{$x$, $x+1$, $x+2$}
+
+Корни $x$, $x+1$, $x+2$ уже есть в~{\Realset} "--- расширение невозможно.
+
+\termin{$g(x) = x^2+4$}
+
+{$\Realset[x]/g(x)$}: пары $a + b \cdot j,$ где $a, b \in {\Realset},$ \mbox{$j$ "--- фиктивный корень уравнения $x^2+4 = 0$ ($j^2 = -4$).}
+
+Изоморфно {\Complexset}: соответствие при $j \leftrightarrow 2i$ или при $j \leftrightarrow -2i$:
+\setlength{\parskip}{0.\parskip}
+\begin{itemize}
+\item соответствие взаимно однозначное;
+\item образ суммы равен сумме образов;
+\item образ произведения равен произведению образов.
+\end{itemize}
+% Кроме того, $0 = 0 + 0j \leftrightarrow 0 = 0 + 0i$ и $1 = 1 + 0j \leftrightarrow 1 = 1 + 0i$.
+Кроме того, $a + 0j \leftrightarrow a + 0i,$ в~частности $0 \leftrightarrow 0$ и $1 \leftrightarrow 1$.
+
+
+\end{frame}
+
+\subsection{$g(x) = x^2+x+1$}
+\begin{frame}{\insertsubsection}
+$\Realset[x]/g(x)$: пары $a + b \cdot j,$ где $a, b \in {\Realset},$ \mbox{$j$ "--- фиктивный корень уравнения $x^2+x+1 = 0$ ($j^2 = -j - 1$).}
+
+Изоморфно {\Complexset}: 
+$j \leftrightarrow -\frac{1}{2} - \frac{\sqrt{3}}{2}i$
+% $ \Big(  \Big)$ 
+или 
+$j \leftrightarrow -\frac{1}{2} + \frac{\sqrt{3}}{2}i$.
+
+Пусть $j \leftrightarrow -\frac{1}{2} - \frac{\sqrt{3}}{2}i$, то есть $-\frac{\sqrt{3}}{3}-  \frac{2\sqrt{3}}{3}j \leftrightarrow i$: 
+$
+\begin{array}{c@{~~\leftrightarrow~~}c}
+a + b \cdot j                                                   & \left(a-\frac{1}{2}b\right) - \frac{\sqrt{3}}{2}b\cdot i \\
+\left(\alpha -\frac{\sqrt{3}}{3}\beta\right)  - \frac{2\sqrt{3}}{3}\beta \cdot j & \alpha + \beta \cdot i
+\end{array}
+$
+% ~~ $a + b \cdot j ~~\leftrightarrow~~ (a-\frac{1}{2}b) - \frac{\sqrt{3}}{2}b\cdot i$
+\setlength{\parskip}{0.\parskip}
+\begin{itemize}
+\item соответствие взаимно однозначное;
+\item образ суммы равен сумме образов;
+\item образ произведения равен произведению образов.
+\end{itemize}
+Кроме того, $a + 0j \leftrightarrow a + 0i,$ в~частности $0 \leftrightarrow 0$ и $1 \leftrightarrow 1$.
+
+\end{frame}
+
+
+
+\subsection{$g(x) = x^4+1 = (x^2 + \sqrt{2}x + 1)(x^2 - \sqrt{2}x + 1)$}
+\begin{frame}{\insertsubsection}
+$\Realset[x]/g(x)$ "--- не является полем, это кольцо с~делителями нуля
+
+$\Realset[x]/g(x)$: \textcolor{red}{\emph{четвёрки} $a + b \cdot j + c \cdot j^2 + d \cdot j^3,$} 
+где $a, b, c, d \in {\Realset},$ 
+\mbox{$j$ "--- фиктивный корень  $x^4+1 = 0$ ($j^4 = -1$);}
+$\Complexset$ "--- \emph{пары} $\alpha + \beta \cdot i$.
+
+Соответствие $j \leftrightarrow \frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2} i$ не взаимно однозначно:
+$\left\{
+\begin{array}{@{}l}
+-1 + \sqrt{2}j = -1 + (1+i) = i, \\
+j^2 = i,
+\end{array}
+\right.
+$
+но $-1 + \sqrt{2}j \neq j^2$ в~$\Realset[x]/g(x)$.
+\\
+не вз. одн. $j \leftrightarrow - \frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2} i$; 
+$j \leftrightarrow \frac{\sqrt{2}}{2} - \frac{\sqrt{2}}{2} i$;
+$j \leftrightarrow -\frac{\sqrt{2}}{2} - \frac{\sqrt{2}}{2} i$.
+
+Изоморфизма не может существовать:
+уравнение $x^2 = -1$\\
+в~{\Complexset} имеет два различных корня: 
+% $\left\{
+% \begin{array}{@{}l}
+% x_1 = i, \\
+% x_2 = -i;
+% \end{array}
+% \right.
+% $
+$x_{1,2} = \pm i$;\\
+в~$\Realset[x]/g(x)$ "--- четыре: 
+% $
+% \left\{\begin{array}{@{}l}
+% x_1 = j^2, \\
+% x_2 = -j^2, \\
+% x_3 = \frac{\sqrt{2}}{2} j + \frac{\sqrt{2}}{2} j^3,
+% x_4 = -\frac{\sqrt{2}}{2} j - \frac{\sqrt{2}}{2} j^3.
+% \end{array}
+% \right.
+% $
+$
+\left\{\begin{array}{@{}l}
+x_{1,2} = \pm j^2, \\
+x_{3,4} = \pm \frac{\sqrt{2}}{2} (j + j^3). \\
+\end{array}
+\right.
+$
+
+\end{frame}
+
+\begin{frame}{\insertsubsection}
+
+Более того: уравнение $x^4 = -1$
+
+в~$\Complexset$ имеет четыре различных корня:
+% $
+% \left\{\begin{array}{@{}l}
+% x_1 = + \frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2} i, \\
+% x_2 = - \frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2} i, \\
+% x_3 = - \frac{\sqrt{2}}{2} - \frac{\sqrt{2}}{2} i, \\
+% x_4 = + \frac{\sqrt{2}}{2} - \frac{\sqrt{2}}{2} i; \\
+% \end{array}
+% \right.
+% $
+$
+\left\{\begin{array}{@{}l}
+x_{1,2} = \pm \frac{\sqrt{2}}{2} (1+i), \\
+x_{3,4} = \pm \frac{\sqrt{2}}{2} (1-i); \\
+\end{array}
+\right.
+$
+
+
+в~$\Realset[x]/g(x)$ "--- как минимум восемь: % (не удалось найти все): 
+% $
+% \left\{\begin{array}{@{}l}
+% x_1 = j, \\
+% x_2 = -j, \\
+% x_3 = j^3, \\
+% x_4 = -j^3, \\
+% x_3 = \frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2} j^2,
+% x_4 = -\frac{\sqrt{2}}{2}  - \frac{\sqrt{2}}{2} j^2.
+% \end{array}
+% \right.
+% $
+$
+\left\{\begin{array}{@{}l}
+x_{1,2} = \pm j, \\
+x_{3,4} = \pm j^3, \\
+x_{5,6} = \pm \frac{\sqrt{2}}{2} (1 + j^2), \\
+x_{7,8} = \pm \frac{\sqrt{2}}{2} (1 - j^2). \\
+\end{array}
+\right.
+$
+\end{frame}
+\begin{frame}{\insertsubsection}
+
+Нетривиальные ($\neq 0$) делители нуля:
+\\
+$\Big(1 + \sqrt{2} j + j^2\Big)\Big(a + bj + (-a-\sqrt{2}b)j^2 + (\sqrt{2}a+b)j^3\Big) = 0 ~~ \forall a, b \in \Realset$
+\\
+$\Big(1 - \sqrt{2} j + j^2\Big)\Big(a + bj + (-a+\sqrt{2}b)j^2 + (-\sqrt{2}a+b)j^3\Big) = 0 ~~ \forall a, b \in \Realset$
+\\
+в~частности, $(1 + \sqrt{2} j + j^2)(1 - \sqrt{2} j + j^2) = 0$.
+
+У делителей нуля нет обратного ($\alpha^{-1}\alpha\beta=?$) $\implies$ %$\Realset[x]/g(x)$ "--- 
+не поле.
+
+\hrulefill
+
+
+В~поле рациональных чисел $\Rationalset$ $g(x) = x^4+1$ неприводим.
+
+$\Rationalset[x]/g(x)$ "--- поле, но не изоморфное $\Complexset$:
+\mbox{$\Rationalset[x]/g(x)$ счётно, как и~$\Rationalset$; а~$\Complexset$ континуально.}
+
+\end{frame}
+
+
+
+
+
+\subsection{$g(x) = x^2-2x+2$}
+\begin{frame}{\insertsubsection}
+$\Realset[x]/g(x)$: пары $a + b \cdot j,$ где $a, b \in {\Realset},$ \mbox{$j$ "--- фиктивный корень уравнения $x^2-2x+2 = 0$ ($j^2 = 2j - 2$).}
+
+Изоморфно {\Complexset}: 
+$j \leftrightarrow 1 - i$
+или 
+$j \leftrightarrow 1 + i$.
+
+Пусть $j \leftrightarrow 1 + i$, то есть $-1 + j \leftrightarrow i$: 
+$
+\begin{array}{c@{~~\leftrightarrow~~}c}
+a + b \cdot j                                                   & \left(a+b\right) + b\cdot i \\
+\left(\alpha -\beta\right)  +\beta \cdot j & \alpha + \beta \cdot i
+\end{array}
+$
+\setlength{\parskip}{0.\parskip}
+\begin{itemize}
+\item соответствие взаимно однозначное;
+\item образ суммы равен сумме образов;
+\item образ произведения равен произведению образов.
+\end{itemize}
+Кроме того, $a + 0j \leftrightarrow a + 0i,$ в~частности $0 \leftrightarrow 0$ и $1 \leftrightarrow 1$.
+
+\end{frame}
+
+
+\makethanks
+\end{document}

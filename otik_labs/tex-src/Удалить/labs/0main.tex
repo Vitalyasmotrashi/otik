@@ -1,0 +1,66 @@
+% \chapter{Лабораторный практикум ОТИК}
+% \label{sec:app:labs}
+\begingroup
+\def\SRCLABSPATH{\SRCROOTPATH/labs}
+
+\def\BU{7}
+
+
+\def\bsingle{7}
+\def\bdouble{14}
+\def\bquad{28}
+
+
+\input{\COMMONPATH/mixin-complex/labcommands-defs}
+
+\input{\COMMONPATH/mixin-complex/labreglament-defs}
+
+\chapter[Регламент]{Регламент курса}
+\begingroup
+ \label{sec_app_regl_total}
+   \let\nsubsection\nsection
+    \input{\SRCLABSPATH/2regl-total}
+\endgroup
+
+
+
+
+
+\chapter[Лабораторный практикум]{Лабораторный практикум по основам теории информации и~кодирования}
+\label{sec_app_labs}
+\begingroup
+\input{\COMMONPATH/mixin-complex/labchapter-defs}
+
+
+\begingroup
+\input{\SRCLABSPATH/2regl-labs}
+\endgroup
+\clearpage
+
+% \chapter{!!!}
+% 
+% 
+% % ? если номера главы нет, принудительно ставим
+% \makeatletter
+% \renewcommand\thesection{\thechapter\@arabic\c@section}
+% \makeatother
+% 
+% \input{\SRCLABSPATH/1reglament}
+
+\def\alllabsotik{Л1--Л5}
+
+\input{\SRCLABSPATH/oevm}
+
+
+\input{\SRCLABSPATH/hex-edit}
+\input{\SRCLABSPATH/letters-stat}
+\input{\SRCLABSPATH/hex-prog}
+\input{\SRCLABSPATH/letters-huff}
+% %\input{\SRCLABSPATH/chains-stat}
+\input{\SRCLABSPATH/chains-lz}
+\input{\SRCLABSPATH/hm}
+% % \input{\SRCLABSPATH/9lib}
+% %\input{\SRCLABSPATH/letters-ac}
+
+\endgroup
+

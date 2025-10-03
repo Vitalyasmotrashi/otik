@@ -1,0 +1,42 @@
+\input{\COMMONPATH/classes/widepres11}
+
+\graphicspath{{\SRCROOTPATH/fig/}}
+\def\IMGPATH{\SRCROOTPATH/img/}
+
+
+\newcommand\repoUrl{\url{https://gitlab.com/illinc/otik}}
+
+\let\originsertdate\insertdate
+\def\insertdate{\originsertdate{} --- актуальную версию можно найти на {\repoUrl}}
+
+% \def\MsgAsX{C}
+
+\DeclareMathOperator*{\round}{round}
+
+
+\newcommand{\makethanks}{%
+\section*{}
+% \begin{frame}{Спасибо за внимание!}
+% 
+% \insertinstitute\\ \AlmaMaterUrl{}\bigskip
+% 
+% \insertauthor\\ {\MyEmail}\\
+% \url{https://gitlab.com/illinc/raspisanie}\bigskip
+% 
+% \end{frame}
+\begin{frame}{Спасибо за внимание!}
+
+\insertinstitute\\ \AlmaMaterUrl{}\bigskip
+
+\insertauthor\bigskip
+
+ОТИК\\
+{\repoUrl}\bigskip
+
+\end{frame}
+
+}
+
+
+\newcommand{\hbigskip}{\hspace*{4em}}
+\newcommand{\hmedskip}{\hspace*{2em}}

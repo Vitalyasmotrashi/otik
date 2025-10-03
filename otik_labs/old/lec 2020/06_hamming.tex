@@ -1,0 +1,456 @@
+\input{commonpres}
+
+\title{Код Хэмминга}
+% Предмет и основные разделы кибернетики. Формальное представление знаний. Виды информации. Хранение, измерение, обработка и передача информации. Базовые понятия теории информации. Способы измерения информации. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+
+
+
+
+
+
+
+
+\section{Коды, исправляющие одиночную ошибку}
+% http://edu.sernam.ru/book_scin.php?id=38	Бриллюэн Л. Наука и теория информации
+
+
+\subsection{\inserttitle}
+\begin{frame}{\insertsubsection}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+\begin{enumerate}
+\item 
+Информация передаётся блоками. 
+
+\item В~блоке ($n$
+битов) никогда не~встретится более чем одна ошибка.
+
+\item Ошибка "--- инверсия бита.
+
+\end{enumerate}
+
+\hrulefill
+
+% \item 
+% Информация передаётся блоками. 
+% К каждым $m$ информационным (независимым) битам добавляется $k$ проверочных (значение рассчитывается по информационным).
+Биты блока разделяются на
+% \vspace{-0.5\baselineskip}
+\begin{itemize}
+
+\item \termin{информационные} (независимые) 
+\item и~\termin{проверочные} (значение рассчитывается по информационным).
+
+\end{itemize}
+
+
+% Предположим, что среди $n$ позиций никогда не встретится более чем одна ошибка. 
+% 
+% Из $n$ позиций выбираем $m$ позиций для передачи информации, а остальные $k$ "--- для проверки. 
+% Эти $k$ двоичных цифр представляют $2^k$ различных двоичных чисел, которые должны указывать:
+% 
+% 1) либо, что ошибки нет,
+% 
+% 2) либо, если ошибка есть, то в какой позиции.
+% Всего получается $n+1$ указаний, откуда следует условие:
+% 
+Общий размер блока после кодирования
+% $$n = (m\text{ для передачи}) + (k\text{ для проверки})$$
+$$n = (m\text{ информационных}) + (k\text{ проверочных})$$
+% 
+\begin{tikzpicture}
+    \matrix (m) [matrix of nodes,column 1/.style={anchor=west}]
+    {
+    "--*ошибки нет; \\
+    "--*ошибка в $i$-й позиции%, $i \in [0...n-1]$
+    . \\
+    };
+
+    \draw [decoration={brace,amplitude=0.5em},decorate,thick]
+        (m-1-1.north -| m.east) -- (m-2-1.south -| m.east);
+        
+    \node[right= of m, text width = 15ex] (np1) {$n+1$ указаний \only<1->{
+
+    $2^k \geqslant n+1$}};
+    
+%     \only<2->{\node[below = of np1] {$2^k \geqslant n+1$};}
+\end{tikzpicture}
+% 
+% \uncover<2->{\hfill
+% $
+% 2^k \geqslant n+1
+% $
+% 
+% Код наиболее эффективен в случае знака равенства.
+% 
+% % \hfill
+% % \includegraphics[width=0.4\linewidth,valign=c]{07_hamming_count}\centering
+% % 
+% }
+
+\end{frame}
+
+\begingroup
+% \colorlet{csByte}{white}
+\subsection{Длины кодов (оптимальные)}
+% \begin{frame}{\insertsubsection}
+% %            \footnotesize
+%            \scriptsize
+%        \only<1>{\colorlet{csByte}{white}}
+%        \only<2->{\colorlet{csByte}{csMarker}}
+% \begin{tabularx}{\linewidth}{R|R|R|R}
+%  Проверочных битов ($k$)& Всего битов ($n=2^k-1$)&Информационных битов ($m =n-k$) \uncover<2->{& Информационных байтов ($m/8$)}  \\\hline
+%           1&         1&         0  \uncover<2->{&  0.00} \\
+%           2&         3&         1  \uncover<2->{&  0.12} \\
+% \rowcolor{csByte}          3&         7&         4  \uncover<2->{&  0.50} \\
+%           4&        15&        11  \uncover<2->{&  1.38} \\
+%           5&        31&        26  \uncover<2->{&  3.25} \\
+%           6&        63&        57  \uncover<2->{&  7.12} \\
+% \rowcolor{csByte}          7&       127&       120  \uncover<2->{&  15.00} \\
+%           8&       255&       247  \uncover<2->{&  30.88} \\
+%           9&       511&       502  \uncover<2->{&  62.75} \\
+%          10&      1023&      1013  \uncover<2->{&  126.62} \\
+%          11&      2047&      2036  \uncover<2->{&  254.50} \\
+%          12&      4095&      4083  \uncover<2->{&  510.38} \\
+%          13&      8191&      8178  \uncover<2->{&  1022.25} \\
+%          14&     16383&     16369  \uncover<2->{&  2046.12} \\
+% \rowcolor{csByte}         15&     32767&     32752  \uncover<2->{&  4094.00} \\
+%          16&     65535&     65519  \uncover<2->{&  8189.88} \\
+% \end{tabularx}
+% \end{frame}
+
+\begin{frame}{\insertsubsection}
+%            \footnotesize
+           \scriptsize
+     \colorlet{csByte}{csMarker}
+\begin{tabularx}{\linewidth}{R|R|R|R}
+ Проверочных битов ($k$)& Всего битов ($n=2^k-1$)&Информационных битов ($m =n-k$) & Информационных байтов ($m/8$)  \\\hline
+          1&         1&         0  &  0.00 \\
+          2&         3&         1  &  0.12 \\
+\rowcolor{csByte}          3&         7&         4  &  0.50 \\
+          4&        15&        11  &  1.38 \\
+          5&        31&        26  &  3.25 \\
+          6&        63&        57  &  7.12 \\
+\rowcolor{csByte}          7&       127&       120  &  15.00 \\
+          8&       255&       247  &  30.88 \\
+          9&       511&       502  &  62.75 \\
+         10&      1023&      1013  &  126.62 \\
+         11&      2047&      2036  &  254.50 \\
+         12&      4095&      4083  &  510.38 \\
+         13&      8191&      8178  &  1022.25 \\
+         14&     16383&     16369  &  2046.12 \\
+\rowcolor{csByte}         15&     32767&     32752  &  4094.00 \\
+         16&     65535&     65519  &  8189.88 \\
+\end{tabularx}
+\end{frame}
+
+
+
+
+
+
+
+\endgroup
+
+\section{Код Хэмминга}
+\subsection{Бит чётности и~группы}
+\begin{frame}{\insertsubsection}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+\begin{enumerate}
+\item 
+Бит чётности позволяет обнаружить одиночную ошибку в~группе:
+$$
+c = \bigoplus_{b_i \in G} b_i
+~\text{, соответственно,}~
+\bigoplus_{b_i \in  \{c\} \cup G } b_i = c \oplus \bigoplus_{b_i \in  G } b_i = 0
+$$
+при одиночной ошибке в~$\{c\} \cup G$ получим $\bigoplus_{b_i \in  \{c\} \cup G } b_i = 1$.
+
+\item Несколько пересекающихся контрольных групп позволяют уточнить положение ошибки.
+
+\hrulefill
+
+% \uncover<2->{
+\item Набор групп должен быть различным для каждого бита (для~локализации ошибки до конкретного бита).\label{item_var}
+\item Контрольный бит не должен входить более чем в~одну группу (для~упрощения расчёта).\label{item_check}
+\item Каждый информационный бит должен входить как минимум в~две группы 
+(из \enumilike{\ref{item_var}} и \enumilike{\ref{item_check}}).
+% }
+\end{enumerate}
+
+\end{frame}
+
+
+\begingroup
+
+\colorlet{csTotal}{magenta!40}
+\colorlet{cs0}{blue!40}
+\colorlet{cs1}{green!60}
+\colorlet{cs2}{lime!90}
+\colorlet{cs3}{yellow!95}
+\colorlet{csMarker}{yellow!10}
+
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+
+\newcommand{\cx}[1]{\cellcolor{#1}$\times$}
+
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+% \newcolumntype{R}{>{\raggedright\arraybackslash}X}%
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}m{#1}}%
+
+\subsection{Несистематический код Хэмминга}
+\begin{frame}{\insertsubsection}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+% \setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+% \setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+\begin{itemize}
+\item 
+Набор контрольных групп "--- единицы натурального двоичного кода номера бита (с~1, чтобы каждый входил хотя бы в~одну группу).
+{
+\footnotesize
+\begin{tabularx}{\linewidth}{|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|}
+  \hline
+  \cellcolor{cs0}1&\cellcolor{cs1}2&3&\cellcolor{cs2}4&5&6&7&\cellcolor{cs3}8&9&10&11&12&13&14&15\\\hline
+  
+  \cellcolor{cs0}$\times$&\cellcolor{cs1}&\cellcolor{cs0}$\times$&\cellcolor{cs2}&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&\cellcolor{cs3}&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$\\\hline
+  
+  &\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&\cellcolor{cs2}&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&\cellcolor{cs3}&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$\\\hline
+  
+  &&&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs3}&&&&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$\\\hline
+  
+  
+  &&&&&&&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$\\\hline
+  
+\end{tabularx}
+
+}
+
+% КС1: $b_1 \oplus b_3 \oplus b_5 \oplus b_7  \oplus b_9 \oplus b_{11}  \oplus b_{13} \oplus b_{15}\ldots = 0$
+% 
+% КС2: $b_2 \oplus b_3 \oplus b_6 \oplus b_7  \oplus b_{10} \oplus b_{11}  \oplus b_{14} \oplus b_{15}\ldots = 0$
+% 
+% КС3: $b_4 \oplus b_5 \oplus b_6 \oplus b_7  \oplus b_{12} \oplus b_{13}  \oplus b_{14} \oplus b_{15}\ldots = 0$
+% 
+% КС4: $b_8 \oplus b_9 \oplus b_{10} \oplus b_{11}  \oplus b_{12} \oplus b_{13}  \oplus b_{14} \oplus b_{15}\ldots = 0$
+
+\begin{tabular}{@{}l@{}}
+Для 15 бит\\
+(11 инф-х\\
++ 4 кон-х)
+\end{tabular}
+$\begin{array}{lc@{~\oplus~}c@{~\oplus~}c@{~\oplus~}c@{~\oplus~}c@{~\oplus~}c@{~\oplus~}c@{~\oplus~}c@{~}r@{}}
+\text{КС1:}& b_1 & b_3 & b_5 & b_7  & b_9 & b_{11}  & b_{13} & b_{15}& = 0\\
+\text{КС2:}& b_2 & b_3 & b_6 & b_7  & b_{10} & b_{11}  & b_{14} & b_{15}& = 0\\
+\text{КС3:}& b_4 & b_5 & b_6 & b_7  & b_{12} & b_{13}  & b_{14} & b_{15}& = 0\\
+\text{КС4:}& b_8 & b_9 & b_{10} & b_{11}  & b_{12} & b_{13}  & b_{14} & b_{15}& = 0\\
+\end{array}$
+
+\item Биты $1, 2, 4,...2^s$ "--- контрольные (входят только в~одну группу):
+\\
+$b_1 = b_3 \oplus b_5 \oplus b_7  \oplus b_9 \oplus b_{11}  \oplus b_{13} \oplus b_{15}\ldots$
+\\
+$b_2 = b_3 \oplus b_6 \oplus b_7  \oplus b_{10} \oplus b_{11}  \oplus b_{14} \oplus b_{15}\ldots$
+\\
+$\ldots$
+
+
+\item 
+При наличии ошибки несошедшиеся контрольные суммы образуют натуральный двоичный код инвертированного бита $\to$ исправление.
+\end{itemize}
+
+
+\end{frame}
+
+% \subsection{Коды, исправляющие одиночную ошибку}
+\subsection{Систематический код Хэмминга}
+\begin{frame}%{Коды, исправляющие одиночную ошибку{} $n = 2^k-1$}
+{\insertsubsection}
+\footnotesize
+
+Перестановка столбцов кода Хэмминга образует другой код Хэмминга
+
+
+\begin{tabularx}{\linewidth}{|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|}
+  \hline
+  \cellcolor{cs0}1&\cellcolor{cs1}2&3&\cellcolor{cs2}4&5&6&7&\cellcolor{cs3}8&9&10&11&12&13&14&15\\\hline
+  
+  \cellcolor{cs0}$\times$&\cellcolor{cs1}&\cellcolor{cs0}$\times$&\cellcolor{cs2}&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&\cellcolor{cs3}&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$\\\hline
+  
+  &\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&\cellcolor{cs2}&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&\cellcolor{cs3}&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$\\\hline
+  
+  &&&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs3}&&&&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$\\\hline
+  
+  
+  &&&&&&&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$\\\hline
+  
+\end{tabularx}
+
+\only<1>{
+Систематический код  Хэмминга (простейший):
+
+\begin{tabularx}{\linewidth}{|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|}
+  \hline
+\rowcolor{csMarker}\cellcolor{cs0}1&\cellcolor{cs1}2&\cellcolor{cs2}3&\cellcolor{cs3}4&5&6&7&8&9&10&11&12&13&14&15\\\hline
+  \cellcolor{cs0}1&\cellcolor{cs1}2&\cellcolor{cs2}4&\cellcolor{cs3}8&3&5&6&7&9&10&11&12&13&14&15\\\hline
+  
+  \cellcolor{cs0}$\times$&\cellcolor{cs1}&\cellcolor{cs2}&\cellcolor{cs3}&\cellcolor{cs0}$\times$&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$\\\hline
+  
+  &\cellcolor{cs1}$\times$&\cellcolor{cs2}&\cellcolor{cs3}&\cellcolor{cs1}$\times$&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$\\\hline
+  
+  &&\cellcolor{cs2}$\times$&\cellcolor{cs3}&&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&&&&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$\\\hline
+  
+  
+  &&&\cellcolor{cs3}$\times$&&&&&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$\\\hline
+  
+\end{tabularx}
+}
+\only<2>{
+Систематический код  Хэмминга (Л.\,Бриллюэн):
+
+\begin{tabularx}{\linewidth}{|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|}
+  \hline
+\rowcolor{csMarker}1&2&3&4&5&6&7&8&9&10&11&\cellcolor{cs0}12&\cellcolor{cs1}13&\cellcolor{cs2}14&\cellcolor{cs3}15\\\hline
+15&7&11&13&14&3&5&9&6&10&12&\cellcolor{cs0}1&\cellcolor{cs1}2&\cellcolor{cs2}4&\cellcolor{cs3}8\\\hline
+\cx{cs0}&\cx{cs0}&\cx{cs0}&\cx{cs0}&&\cx{cs0}&\cx{cs0}&\cx{cs0}&&&&\cx{cs0}&\cellcolor{cs1}&\cellcolor{cs2}&\cellcolor{cs3}\\\hline
+\cx{cs1}&\cx{cs1}&\cx{cs1}&&\cx{cs1}&\cx{cs1}&&&\cx{cs1}&\cx{cs1}&&&\cx{cs1}&\cellcolor{cs2}&\cellcolor{cs3}\\\hline
+\cx{cs2}&\cx{cs2}&&\cx{cs2}&\cx{cs2}&&\cx{cs2}&&\cx{cs2}&&\cx{cs2}&&&\cx{cs2}&\cellcolor{cs3}\\\hline
+\cx{cs3}&&\cx{cs3}&\cx{cs3}&\cx{cs3}&&&\cx{cs3}&&\cx{cs3}&\cx{cs3}&&&&\cx{cs3}\\\hline
+% &&&&&&&&&&&&&&\\\hline
+% &&&&&&&&&&&&&&\\\hline
+\end{tabularx}
+
+% Л.\,Бриллюэн:
+% \includegraphics[width=1\linewidth,valign=c]{07_hamming_4of15}
+}
+
+% \includegraphics[width=1\linewidth,valign=c]{07_hamming_bits}\centering
+\end{frame}
+
+\section{Дополнения кода Хэмминга}
+% \subsection{Длина закодированного блока оригинального кода Хэмминга $n = 2^k-1$}
+
+
+\subsection{Коды, исправляющие одиночную ошибку и~обнаруживающие двойную $n = 2^k$}
+
+\begin{frame}{\insertsubsection}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+\setlength{\belowdisplayskip}{0pt} \setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayskip}{0pt} \setlength{\abovedisplayshortskip}{0pt}
+
+Длина блока Хэмминга $n=2^k-1$ бит $\to$
+% то есть 
+% % до целого числа байтов не хватает одного бита.
+% блок занимает $2^{k-3}$ байтов,
+один бит не используется.
+% % Этот бит можно и
+% Задействовав этот бит, можно обнаружить (но не исправить) ошибку в~двух битах блока $n=2^k$.
+$$
+b_0 = \bigoplus_{i = 1}^{n-1} b_i
+\text{~"--- дополнительный бит чётности}
+\left(\bigoplus_{i = 0}^{n-1} b_i = 0\right)
+$$
+
+% \end{frame}
+% 
+% \begin{frame}%{Коды, исправляющие одиночную ошибку и~фиксирующие двойную $n = 2^k$}
+% {\insertsubsection}
+% 
+\scriptsize
+% \setlength{\parskip}{0.5\parskip}
+
+
+% После кодирования добавляется разряд, дополняющий код до чётности единиц. 
+
+\begin{tabularx}{\linewidth}{|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|X|}
+  \hline
+  \cellcolor{csTotal}0&\cellcolor{cs0}1&\cellcolor{cs1}2&3&\cellcolor{cs2}4&5&6&7&\cellcolor{cs3}8&9&10&11&12&13&14&15\\\hline
+  
+  \cellcolor{csTotal}&\cellcolor{cs0}$\times$&\cellcolor{cs1}&\cellcolor{cs0}$\times$&\cellcolor{cs2}&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&\cellcolor{cs3}&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$&&\cellcolor{cs0}$\times$\\\hline
+  
+  \cellcolor{csTotal}&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&\cellcolor{cs2}&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&\cellcolor{cs3}&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$&&&\cellcolor{cs1}$\times$&\cellcolor{cs1}$\times$\\\hline
+  
+  \cellcolor{csTotal}&&&&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs3}&&&&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$&\cellcolor{cs2}$\times$\\\hline
+  
+  
+  \cellcolor{csTotal}&&&&&&&&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$&\cellcolor{cs3}$\times$\\\hline
+  
+  \cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$&\cellcolor{csTotal}$\times$\\\hline
+  
+\end{tabularx}
+
+\begin{tabularx}{\linewidth}{|>{\columncolor{cs3}}P{27ex}|>{\columncolor{csTotal}}P{13ex}|R|}\hline
+\textbf{Количество единиц в~контрольных группах} & \textbf{Общее количество единиц} & \textbf{Вывод} \\\hline
+  
+Чётное во всех & Чётное & Данные верны \\\hline
+Чётное во всех & Нечётное & Ошибка в дополнительном контрольном разряде $b_0$\\\hline
+Нечётное в~некоторых & Нечётное &  Однократная ошибка в коде Хэмминга $b_1\ldots b_n$\\\hline
+Нечётное в~некоторых & Чётное & Двойная ошибка \\\hline
+
+\end{tabularx}
+
+%  во всех группах количество 1 чётное, общее "--- чётное: данные верны
+%  
+%  в некоторых группах количество 1 "---  нечётное, общее "--- нечётное: однократная ошибка в коде Хэмминга
+%  
+%   во всех группах количество 1 чётное, общее "--- нечётное: ошибка в дополнительном контрольном разряде
+%   
+%    в некоторых группах количество 1 "---  нечётное, общее "--- чётное: двойная ошибка
+% 
+% 
+% 
+%  - Данные верны, если во всех контрольных группах количество единиц - четное, и общее количество единиц - тоже четное.
+% 
+% - Произошла однократная ошибка, если в некоторых контрольных группах количество единиц - нечетное, и общее количество единиц - нечетное.
+% 
+% - Ошибка в дополнительном контрольном разряде, если во всех контрольных группах количество единиц - четное, а общее количество единиц - нечетное.
+% 
+% - Двойная ошибка, если в некоторых контрольных группах количество единиц - нечетное, а общее количество единиц - четное. 
+
+\end{frame}
+\endgroup
+
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{frame}
+% \frametitle{Литература}
+% 
+% \begin{itemize}
+% \item Вентцель Е.\,С. Теория вероятностей: Учеб. для вузов. — 6-е изд. стер. — М.: Высш. шк., 1999.— 576 c. 
+% 
+% \item Пахомов\,С. Сравнение 64-битных архиваторов WinRAR 4.2, WinZip 17.0 и 7-Zip 9.30
+% 
+% \end{itemize}
+% \end{frame}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makethanks
+\end{document}

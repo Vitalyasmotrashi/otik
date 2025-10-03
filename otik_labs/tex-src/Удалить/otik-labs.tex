@@ -1,0 +1,115 @@
+\input{commonpath}
+\input{\COMMONPATH/classes/book}
+
+\newcommand\repoUrl{https://gitlab.com/illinc/otik}
+\newcommand\bookUrl{\url{https://gitlab.com/illinc/otik/-/raw/master/otik-labs.pdf?inline=false}}
+
+
+% \setlength{\parskip}{1ex}
+\setlength{\parindent}{2em}
+
+
+\def\blackandwhiteschemas{0}
+
+\newcommand{\colordarklet}[2]
+{
+  \ifthenelse{\equal{\blackandwhiteschemas}{1}}
+  {
+%       \colorlet{#1}{black}
+      \colorlet{cl#1}{black}
+  }
+  {
+%       \colorlet{#1}{#2}
+      \colorlet{cl#1}{#2}
+  }
+}
+\colordarklet{Textdescr}{lime!50!black}
+
+\usepackage[normalem]{ulem} % https://tex.stackexchange.com/questions/23711/strikethrough-text
+
+
+
+
+
+
+
+\input{\COMMONPATH/names/main_v8}
+
+
+\makeatletter
+\hypersetup{pdftitle={\@title}}
+
+\author{\MyFioShort}
+
+
+
+\renewcommand\maketitle{
+    \begin{center}
+    \thispagestyle{trueempty}
+    \MyDepartmentNormal
+
+    \AlmaMaterOfficialLong
+
+
+    \vfill
+            {\Large {\bfseries {\@title}} \par
+            
+            }
+%     \vspace{1em}
+%     с~приложением %в~виде 
+%     методических указаний к~лабораторным работам \par
+    
+    \vspace{4em}
+    
+%     Студенты с~незачтённым курсом \mbox{ОргЭВМ/ОргЭВМ\,и\,Асм}  
+    Студенты, изучающие по индивидуальному плану ОТИК раньше, \mbox{чем ОргЭВМ} (что противоречит рабочей программе ОТИК) 
+    \mbox{\textbf{не~могут быть допущены}} к~выполнению лабораторных работ по~ОТИК
+    \mbox{до демонстрации Л0} 
+    \mbox{(коды, используемые в~ЭВМ по умолчанию)}
+
+    \vspace{1.5em}
+
+    % {\Competencia\par}
+
+    \vspace{4em}
+        {{  \@author} \par}
+    %        \MyEmail
+
+    \vspace{4em}
+
+    Актуальную версию можно найти на \url{\repoUrl}\par
+   
+        
+    \vfill
+    \vfill
+        \the\year
+    \end{center}
+    \clearpage
+}
+\makeatother
+
+
+\begin{document}
+
+\title{Основы теории информации и~кодирования}
+
+\maketitle
+
+
+Дерево оптимального префиксного кода должно одновременно обладать тремя свойствами:
+
+\begin{anumerate}
+\item длина ветви $a$ в~рёбрах должна стремиться к~$I_{\text{BP}}(a)$ в~битах;
+
+\item сбалансированностью: для каждого родительского узла веса обеих дочерних ветвей должны стремиться к~равенству;
+
+\item самые длинные ветви (длинные коды) соответствуют самым редким символам (следует из (a)).
+\end{anumerate}
+
+\appendix
+\settocdepth{section}
+
+\input{\SRCROOTPATH/labs/0main}
+
+
+\end{document}

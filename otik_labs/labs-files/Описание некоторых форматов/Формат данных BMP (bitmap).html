@@ -1,0 +1,439 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head profile="http://gmpg.org/xfn/11">
+
+	<title>Формат данных BMP (bitmap)</title>
+
+	<meta name="description" content="Существует множество  различных форматов файлов. Начнём же с одного из самых простых графических форматов - BMP.">
+	<meta name="keywords" content="bitmap, c++">	
+
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="yandex-verification" content="58e9491411e8e4cb">
+	
+	<meta http-equiv="Content-Language" content="ru">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="-1">
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta name="robots" content="all">
+	<meta name="resource-type" content="document">
+	
+		
+	<link rel="stylesheet" href="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/common.css" type="text/css" media="screen">
+	<link rel="shortcut icon" href="http://gamesmaker.ru/img/site/favicon.ico" type="image/x-icon">
+	
+		
+	<script type="text/javascript" src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/utils.js"></script>
+	
+			<script type="text/javascript" src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/fancy.js"></script>
+		<script>onReady("fancy();");</script>
+		<link rel="stylesheet" href="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/jquery.css" type="text/css" media="screen">
+		
+		
+</head>
+<body id="view">
+	<div id="debug"></div>
+	<div id="wrap">
+		<div id="header">
+			<h1 id="logo"><a href="http://gamesmaker.ru/">games<span>maker</span><span class="slogan">Все о создании игр и не только</span></a></h1>
+				
+			<div id="user">
+				<ul>
+					<li class="home"><a href="http://gamesmaker.ru/login/">Войти</a></li>
+					<li><a href="http://gamesmaker.ru/remind/">Забыл?</a></li>
+					<li class="last"><a href="http://gamesmaker.ru/registration/">Регистрация</a></li>
+					<li class="border">&nbsp;</li>
+				</ul>
+			</div>
+			
+			<ul class="top-menu">
+								<li><a href="http://gamesmaker.ru/forum/"><span>Форум</span></a></li>
+				<li><a href="http://gamesmaker.ru/books/"><span>Книги</span></a></li>
+				<li><a href="http://gamesmaker.ru/news/"><span>Новости</span></a></li>
+				<li><a href="http://gamesmaker.ru/contacts/"><span>Контакты</span></a></li>
+			</ul>
+		</div>
+		<div id="content-wrap">
+			<div id="content" class="right">
+				<div class="post">
+	<p class="date">3 февраля 2010 в 21:12</p>
+	<h1>Формат данных BMP (bitmap)</h1>
+	<div class="post-content">
+		<img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/240x160x95.jpg" alt="Формат данных BMP (bitmap)" class="photo"><p>В
+ сегодняшнем уроке мы рассмотрим первый  на&nbsp;нашем пути файловый 
+формат. Различные форматы файлов предназначены  для&nbsp;хранения разной
+ информации. Каждый формат задаёт способ организации данных  
+в&nbsp;файле.</p>
+<p>Нам предстоит познакомиться  с&nbsp;множеством различных форматов 
+файлов: изображениями, трёхмерными моделями, аудио-файлами, 
+видео-файлами. Начнём же  с&nbsp;одного  из&nbsp;самых простых 
+графических форматов - BMP.</p>
+<p>BMP - bitmap - битовое отображение. Понятие "отображение" взято  
+из&nbsp;математики.  В&nbsp;математике отображение стоит очень близко  
+к&nbsp;понятию функции.  Для&nbsp;простоты считайте, что слово bitmap - 
+это картинка (хотя это  и&nbsp;не так).</p>
+<p><b>Информация  о&nbsp;файле BMP (bmp file header)</b></p>
+<p>У каждого файла bitmap есть заголовок  из&nbsp;14 байт. Поля этого заголовка:</p>
+<p>2 байта. Строка BM  (в&nbsp;Windows).<br>
+4 байта. Размер файла  в&nbsp;байтах.<br>
+2 байта. Зарезервированное поле. Нужно инициализировать нулём.<br>
+2 байта. Зарезервированное поле. Нужно инициализировать нулём.<br>
+4 байта. Адрес  с&nbsp;которого начинается собственно изображение. Или  по&nbsp;другому - смещение  к&nbsp;началу изображения.</p>
+<p>Давайте создадим изображение 100x100 пикселей. Каждый пиксель занимает 32 бита. Файловый заголовок будет выглядеть вот так:</p>
+<p>BM<br>
+14+40+100*100*4<br>
+0<br>
+0<br>
+14+40</p>
+<p>Важное замечание:  на&nbsp;самом деле эти числа хранятся  
+как&nbsp;последовательность байтов. Надеюсь, это понятно. Здесь  
+(и&nbsp;в следующем примере) я расположил их  в&nbsp;столбик  
+для&nbsp;удобства восприятия.</p>
+<p>Разберёмся  со&nbsp;вторым полем. 14 - размер файлового заголовка. 40
+ - размер заголовка изображения  (о&nbsp;нём ниже), 100*100 - количество
+ пикселей.  И&nbsp;кроме того, так  как&nbsp;мы договорились, что каждый
+ пиксель будет занимать 32 бита (4 байта),  то&nbsp;нужно количество 
+пикселей умножить  на&nbsp;четыре.</p>
+<p>Последнее поле: непосредственно изображение начинается сразу после 
+файлового заголовка (14 байт)  и&nbsp;заголовка изображения (40 байт).</p>
+<p><b>Информация об изображении BMP (заголовок изображения)</b></p>
+<p>Существует несколько версий BMP. Определить версию можно  
+по&nbsp;размеру заголовка изображения. Мы будем пользоваться версией 
+Windows V3, которая занимает 40 байт. Другие версии занимают 12, 64, 
+108, 124 байта.</p>
+<p>В WinAPI  для&nbsp;хранения bmp версии Windows V3 используется структура BITMAPINFOHEADER.</p>
+<p>Поля заголовка Windows V3:</p>
+<p>4 байта. Размер заголовка. Всегда задаётся 40 байт.<br>
+4 байта. Ширина изображения  в&nbsp;пикселях.<br>
+4 байта. Высота изображения  в&nbsp;пикселях.<br>
+2 байта. Данное поле всегда содержит единицу.<br>
+2 байта. Глубина цвета - количество битов  в&nbsp;пикселе.<br>
+4 байта. Метод сжатия.<br>
+4 байта. Размер изображения. Здесь указывается размер непосредственно изображения - без учёта размера заголовков.<br>
+4 байта. Горизонтальное разрешение  в&nbsp;пикселях  на&nbsp;метр (количество пикселей  в&nbsp;одном метре).<br>
+4 байта. Вертикальное разрешение  в&nbsp;пикселях  на&nbsp;метр (количество пикселей  в&nbsp;одном метре).<br>
+4 байта. Количество цветов  в&nbsp;палитре.<br>
+4 байта. Количество важных цветов  в&nbsp;палитре.</p>
+<p>Теперь посмотрим  как&nbsp;будет выглядить заголовок изображения  в&nbsp;нашем случае:</p>
+<p>40<br>
+100<br>
+100<br>
+1<br>
+32<br>
+0<br>
+100*100*4<br>
+2795<br>
+2795<br>
+0<br>
+0</p>
+<p>Для метода сжатия мы выбрали 0 - без сжатия. Возможны другие 
+значения.  Из&nbsp;интересных: BI_JPEG (значение - 4) - сжатие 
+используемое  в&nbsp;jpeg-изображениях  и&nbsp;BI_PNG (значение - 5) - 
+сжатие используемое  в&nbsp;png-изображениях.</p>
+<p>Горизонтальное  и&nbsp;вертикальное разрешение мы задали равным 2795.
+  В&nbsp;большинстве графических редакторов  при&nbsp;создании 
+изображения задаётся разрешение 71 пиксель  на&nbsp;дюйм (ppi - pixel 
+per inch)). Так вот, 71ppi это  и&nbsp;есть 2795 пикселя  на&nbsp;метр. 
+Разрешение используется  для&nbsp;придания изображению физической длины 
+ (для&nbsp;вывода  на&nbsp;принтер например).</p>
+<p>После заголовков расположена палитра цветов. Если её нету,  
+то&nbsp;после заголовков сразу начинается изображение. Изображения  
+с&nbsp;палитрами мы пока рассматривать  не&nbsp;будем.</p>
+<p><b>Данные изображения BMP</b></p>
+<p>Изображение состоит  из&nbsp;пикселей. Формат пикселей задаётся 
+глубиной цвета (смотрите выше).  В&nbsp;нашем примере мы использовали 32
+ бита  на&nbsp;пиксель. 32-ух битный цвет обычно состоит  
+из&nbsp;четырёх каналов: альфа (прозрачность), красный, зелёный, синий: 
+ARGB (Alpha, Red, Green, Blue). Иногда альфа-канал  
+не&nbsp;используется,  в&nbsp;этом случае изображение всё равно может 
+занимать 32 бита, просто  при&nbsp;вычислениях  не&nbsp;обращают 
+внимания  на&nbsp;значения одного канала.  В&nbsp;этом случае названия 
+каналов записываются так: XRGB.</p>
+<p>Каждый канал занимает 8 бит (1 байт)  и&nbsp;может принимать 256 значений:  от&nbsp;нуля до 255  (от&nbsp;0x00 до 0xff).</p>
+<p>В bmp изображение хранится построчно снизу вверх, т.е. первыми 
+записываются нижние строки, затем верхние. Удостоверьтесь  в&nbsp;этом: 
+загрузите одно  из&nbsp;изображений  из&nbsp;первого упражнения  
+и&nbsp;сохраните только половину строк этого изображения  в&nbsp;другой 
+файл.</p>
+<p>При 32-ухбитной глубине цвета каналы  в&nbsp;bmp записываются так: 
+BGRA. Именно  в&nbsp;таком порядке: синий, зелёный, красный, альфа.</p>
+<p>Размер строки данных  в&nbsp;изображении bmp должнен быть кратен 
+четырём  (в&nbsp;байтах). Если это  не&nbsp;так,  то&nbsp;строка 
+дополняется нулями. Это происходит если используется 1,2,4,8,16,24 бита 
+ на&nbsp;канал. Например,  у&nbsp;нас есть изображение шириной  в&nbsp;3
+ пикселя  и&nbsp;мы используем 16-битный цвет. Ширина строки: 16*3 = 48 
+(6 байт).  Но&nbsp;длина строки должна быть кратной четырём, поэтому 
+добавляются ещё два байта  и&nbsp;длина строки  в&nbsp;данном примере 
+будет равна восьми байтам. Хотя  в&nbsp;последних двух байтах каждой 
+строки  и&nbsp;не будет хранится полезной информации. Нужно учитывать 
+условие кратности размера строки четырём  при&nbsp;работе  с&nbsp;не 
+32-ух битными изображениями.</p>
+<p>Теперь продолжним  с&nbsp;нашим примером  и&nbsp;с помощью кода 
+создадим изображение. Каждый пиксель будет инициализироваться случайным 
+цветом:</p>
+<div class="code">
+<pre>std::ofstream os("temp.bmp", std::ios::binary);
+
+unsigned char signature[2] = { 'B', 'M' };
+unsigned int fileSize = 14 + 40 + 100*100*4;
+unsigned int reserved = 0;
+unsigned int offset = 14 + 40;
+
+unsigned int headerSize = 40;
+unsigned int dimensions[2] = { 100, 100 };
+unsigned short colorPlanes = 1;
+unsigned short bpp = 32;
+unsigned int compression = 0;
+unsigned int imgSize = 100*100*4;
+unsigned int resolution[2] = { 2795, 2795 };
+unsigned int pltColors = 0;
+unsigned int impColors = 0;
+
+os.write(reinterpret_cast&lt;char*&gt;(signature), sizeof(signature));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;fileSize), sizeof(fileSize));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;reserved), sizeof(reserved));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;offset),   sizeof(offset));
+
+os.write(reinterpret_cast&lt;char*&gt;(&amp;headerSize),  sizeof(headerSize));
+os.write(reinterpret_cast&lt;char*&gt;(dimensions),   sizeof(dimensions));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;colorPlanes), sizeof(colorPlanes));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;bpp),         sizeof(bpp));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;compression), sizeof(compression));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;imgSize),     sizeof(imgSize));
+os.write(reinterpret_cast&lt;char*&gt;(resolution),   sizeof(resolution));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;pltColors),   sizeof(pltColors));
+os.write(reinterpret_cast&lt;char*&gt;(&amp;impColors),   sizeof(impColors));
+
+unsigned char x,r,g,b;
+
+for (int i=0; i &lt; dimensions[1]; ++i)
+{
+	for (int j=0; j &lt; dimensions[0]; ++j)
+	{
+		x = 0;
+		r = rand() % 256;
+		g = rand() % 256;
+		b = rand() % 256;
+		os.write(reinterpret_cast&lt;char*&gt;(&amp;b),sizeof(b));
+		os.write(reinterpret_cast&lt;char*&gt;(&amp;g),sizeof(g));
+		os.write(reinterpret_cast&lt;char*&gt;(&amp;r),sizeof(r));
+		os.write(reinterpret_cast&lt;char*&gt;(&amp;x),sizeof(x));
+	}
+}
+
+os.close();</pre>
+</div>
+<p>В результате выполнения данного кода  в&nbsp;папке  с&nbsp;вашим 
+проектом (если вы запускали программу через отладчик (F5)) или  
+в&nbsp;папке Debug решения (если вы запускали исполняемый файл .exe) 
+будет создан файл temp.bmp, который можно открыть  в&nbsp;любом 
+простмотрщике картинок. Изображение состоит  из&nbsp;цветных точек.</p>
+<p>На этом всё.</p>
+	</div>
+<div class="clear"></div>
+<div class="share42init"></div>
+<script type="text/javascript" src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/share42.js"></script>
+<script type="text/javascript">share42('/img/site/')</script>
+
+
+
+
+<div class="clear"></div>
+<div id="similar">
+<b>Также читайте:</b>
+<a href="http://gamesmaker.ru/programming/c/iteratory-v-c/">Итераторы  в&nbsp;C++</a>
+<a href="http://gamesmaker.ru/programming/c/stl-konteyner-vektor-dinamicheskiy-massiv-c/">STL контейнер Vector (вектор) – динамический массив c++</a>
+<a href="http://gamesmaker.ru/programming/c/izuchaem-map-associativnyy-massiv-c/">Изучаем map (ассоциативный массив) C++</a>
+<a href="http://gamesmaker.ru/programming/c/realizaciya-odnosvyaznyh-i-dvusvyaznyh-spiskov-2/">Реализация односвязных  и&nbsp;двусвязных списков - 2</a>
+</div>
+
+<div class="clear"></div>
+<div id="comments">
+	<div id="info">
+			<span id="add"><a href="http://gamesmaker.ru/login/" target="_blank">написать комментарий</a></span>
+			<span id="comm"><a href="#comments">комментарии: 1</a></span>	
+	</div>
+	<div class="clear"></div>
+	
+	<div class="content">
+				<div id="comm-320" class="comment">
+			<a href="#" class="user"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость</a>
+			<a href="#comm-320" class="link" title="Ссылка на комментарий">#</a>
+			<p class="cdate">3 сентября 2014 в 19:43</p>
+			<div class="comm-content"><p>спасибо  за&nbsp;материал!!!!</p>
+</div>
+			<div class="clear"></div>
+		</div>
+				<div class="nocomment">
+			<p><a href="http://gamesmaker.ru/login/">авторизуйтесь</a><br> или войдите через</p><div align="center"><div id="uLogin2" data-ulogin="display=small;providers=vkontakte,odnoklassniki,mailru,facebook;hidden=other;verify=1;callback=multiauth;optional=email,first_name,last_name;redirect_uri="></div></div><p></p>
+		</div>
+			</div>
+	<form onsubmit="sendcomm();return false;" id="sendcommform" enctype="multipart/form-data">
+	<input value="91" name="object_id" type="hidden">		
+		<table>
+			<tbody><tr>
+				<td><div id="bbcodes" align="left">
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/bold.gif" onclick="instag(0);" title="Жирный"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/italic.gif" onclick="instag(1);" title="Курсив"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/underline.gif" onclick="instag(2);" title="Подчеркнутый"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/s.gif" onclick="instag(3);" title="Перечеркнутый"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/sub.gif" onclick="instag(4);"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/sup.gif" onclick="instag(5);" title="Степень"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/code.gif" onclick="instag(6);" title="Исходный код"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/image.gif" onclick="tag_image();" title="Рисунок"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/youtube.ico" onclick="tag_youtube();" title="Видео с YouTube"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/link.gif" onclick="tag_url();" title="Ссылка"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/quote.gif" onclick="instag(7);" title="Цитата"></a>
+<a href="javascript:{}"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/spoiler.gif" onclick="instag(12);" title="Спойлер"></a>
+</div></td>
+				<td id="comm-type">Новый комментарий</td>
+				<td id="comm-user">
+					<a href="javascript:{}" class="link" title="Отменить" onclick="write_comm();"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/icon-16-logout.png"></a>
+					<a href="#" class="user"></a>
+					<p class="cdate"></p>
+				</td>
+			</tr>
+				<tr>
+					<td colspan="3"><input style="margin-right: 0px; padding-right: 0px;" name="email" id="email" maxlength="64" type="text"><img title="Максимальная длина текста в поле - 64" style="position: relative; left: 0px; top: 0px; z-index: 999; cursor: pointer; vertical-align: bottom; border: 0px none; width: 14px; height: 19px; display: inline;" class="ife_marker" src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/marker.png" id="email_ife_marker_0"> <label for="email">электронная почта <span class="info">необязательно</span></label> <p class="errors"></p></td>
+				</tr>
+			<tr>
+				<td colspan="3"><textarea style="margin-right: 0px; padding-right: 0px;" id="message" name="message" maxlength="4000" onkeyup="ismaxlength(this);" onclick="ismaxlength(this);"></textarea><img title="Максимальная длина текста в поле - 4000" style="position: relative; left: 0px; top: 0px; z-index: 999; cursor: pointer; vertical-align: bottom; border: 0px none; width: 14px; height: 19px; display: inline;" class="ife_marker" src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/marker.png" id="message_ife_marker_1"></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="subscribe"><input name="subscribe" id="subscribe" value="1" type="checkbox"> <label for="subscribe">Вы хотите получать уведомления на e-mail о новых сообщениях в этой теме?</label></td>
+				<td class="submit"><input value="Сохранить" type="submit"></td>
+			</tr>
+		</tbody></table>
+	</form>
+</div>
+</div>					
+			</div>
+			<div id="leftbar" class="left">
+				<ul class="sidemenu">
+					<li><h2>Полезное</h2>
+						<ul>
+							<li><a href="http://gamesmaker.ru/forum/">Форум</a>
+							</li><li><a href="http://gamesmaker.ru/books/">Книги</a>
+							</li><li><a href="http://gamesmaker.ru/news/">Новости</a>
+						</li></ul>
+					</li>
+				</ul>
+																						<ul class="sidemenu">
+					<li><h2>Конструкторы игр</h2>
+											<ul>
+													<li><a href="http://gamesmaker.ru/konstruktory-igr/game-maker/">Game Maker</a></li>
+												</ul>
+										</li>
+				</ul>
+								<ul class="sidemenu">
+					<li><h2>3d движки</h2>
+											<ul>
+													<li><a href="http://gamesmaker.ru/3d-game-engines/blitz3d/">Blitz3d</a></li>
+													<li><a href="http://gamesmaker.ru/3d-game-engines/ogre3d/">Ogre3d</a></li>
+													<li><a href="http://gamesmaker.ru/3d-game-engines/unity3d/">Unity3d</a></li>
+												</ul>
+										</li>
+				</ul>
+								<ul class="sidemenu">
+					<li><h2>2d движки</h2>
+											<ul>
+													<li><a href="http://gamesmaker.ru/2d-game-engines/private/">Собственная разработка</a></li>
+													<li><a href="http://gamesmaker.ru/2d-game-engines/box2d/">Box2d</a></li>
+													<li><a href="http://gamesmaker.ru/2d-game-engines/hge/">Haaf's Game Engine(hge)</a></li>
+												</ul>
+										</li>
+				</ul>
+								<ul class="sidemenu">
+					<li><h2>Игровая индустрия</h2>
+											<ul>
+													<li><a href="http://gamesmaker.ru/industry/interview/">Интервью</a></li>
+													<li><a href="http://gamesmaker.ru/industry/common/">Общее</a></li>
+												</ul>
+										</li>
+				</ul>
+								<ul class="sidemenu">
+					<li><h2>Игровой дизайн</h2>
+											<ul>
+													<li><a href="http://gamesmaker.ru/gamedesign/levels/">Дизайн уровней</a></li>
+												</ul>
+										</li>
+				</ul>
+								<ul class="sidemenu">
+					<li><h2>Программирование игр</h2>
+											<ul>
+													<li><a href="http://gamesmaker.ru/programming/c/">C++ для начинающих</a></li>
+													<li><a href="http://gamesmaker.ru/programming/directx/">DirectX</a></li>
+													<li><a href="http://gamesmaker.ru/programming/opengl/">OpenGL</a></li>
+													<li><a href="http://gamesmaker.ru/programming/algorithm/">Алгоритмы</a></li>
+													<li class="current"><a href="http://gamesmaker.ru/programming/graphics/">Графика</a></li>
+													<li><a href="http://gamesmaker.ru/programming/ai/">Игровая логика и ИИ</a></li>
+													<li><a href="http://gamesmaker.ru/programming/common/">Общее</a></li>
+												</ul>
+										</li>
+				</ul>
+																	
+			<a href="javascript:{}" onclick="toggle_menu_side();" class="java" id="menu_toggler">сделать меню справа</a>				<div class="online">
+	<h2>Сейчас на сайте</h2>
+	<p>Гостей: 8<br>
+	Зарегистрированных: 0<br>
+		</p>
+</div>					<div class="lcomments">
+	<h2>Последнее с форума</h2>
+			<a href="http://gamesmaker.ru/forum/topic/912/#post-912"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">f100d &#8594; Мощнейший флуд телефона  от&nbsp;Flood Club<br><span>Приветствуем участников данной площадки!  Предлагаем Вашему вниманию услугу "телефонный флуд&amp;qu...</span></a>
+		<div class="clear"></div>
+			<a href="http://gamesmaker.ru/forum/topic/911/#post-911"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">DMZH &#8594; Great Traffic Aggressor [Android]<br><span>Great Traffic Aggressor   Googl Play      http://www.youtube.com/
+
+      Флориан Поп был обычным офи...</span></a>
+		<div class="clear"></div>
+			<a href="http://gamesmaker.ru/forum/topic/891/#post-910"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/26x26x95_002.jpg">Sdelkin &#8594; Продажа аккаунтов разных сервисов<br><span>Обновлены цены. Подвоз товаров фейсбук!
+</span></a>
+		<div class="clear"></div>
+			<a href="http://gamesmaker.ru/forum/topic/909/#post-909"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Skaner &#8594; 2D HTML5 Engine J2DS<br><span>   Характеристики - Жанровая направленность: 2D игры любого жанра  и&nbsp;типа; - Платформа: HTML5; ...</span></a>
+		<div class="clear"></div>
+			<a href="http://gamesmaker.ru/forum/topic/899/#post-908"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">darkwinddev &#8594; [2d] Beaver time [puzzle] [Android &amp; Windows]<br><span>Написал статью  на&nbsp;хабрахабр  о&nbsp;технических моментах разработки
+</span></a>
+		<div class="clear"></div>
+			<a href="http://gamesmaker.ru/forum/topic/849/#post-907"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">kysovue &#8594; Комплексный прогон сайтов ru  и&nbsp;en<br><span>Всем привет,  с&nbsp;25.08.15  по&nbsp;01.09.15 скидка -30%  на&nbsp;любой тариф!
+</span></a>
+		<div class="clear"></div>
+			<a href="http://gamesmaker.ru/forum/topic/581/page/3/#post-906"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/26x26x95.jpg">Edvard007 &#8594; Анонимность  в&nbsp;Сети  от&nbsp;профессионалов | Доступные цены<br><span>Предоставляем пин-коды  от&nbsp;18.08.2015  на&nbsp;сутки бесплатного пользования нашим прокси-серви...</span></a>
+		<div class="clear"></div>
+	</div>
+					<div class="lcomments">
+	<h2>Последние комментарии</h2>
+			<a href="http://gamesmaker.ru/2d-game-engines/hge/sozdanie-kosmicheskoy-strelyalki-v-hge-chast-1/#comm-475"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость &#8594; Создание космической стрелялки  в&nbsp;HGE – часть 1<br><span>http://viagra8ordernow.com/ ,    http://cialis8ordernow.com/ ,
+</span></a>
+			<a href="http://gamesmaker.ru/3d-game-engines/unity3d/osobennosti-besplatnogo-krossplatformennogo-dvizhka-unity3d/#comm-474"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость &#8594; Особенности бесплатного кроссплатформенного движка Unity3d<br><span>Показать подробности (показать)
+[spoiler=Показать подробности]
+
+[/spoiler]
+</span></a>
+			<a href="http://gamesmaker.ru/3d-game-engines/unity3d/osobennosti-besplatnogo-krossplatformennogo-dvizhka-unity3d/#comm-473"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость &#8594; Особенности бесплатного кроссплатформенного движка Unity3d<br><span>[s][/s]
+</span></a>
+			<a href="http://gamesmaker.ru/2d-game-engines/hge/sozdanie-kosmicheskoy-strelyalki-v-hge-chast-1/#comm-472"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость &#8594; Создание космической стрелялки  в&nbsp;HGE – часть 1<br><span>http://viagra8discountprice.com/ ,    http://cialis8discountprice.com/ ,
+</span></a>
+			<a href="http://gamesmaker.ru/programming/c/vvedenie-v-winapi-chast-pervaya-sozdanie-okna/#comm-469"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость &#8594; Введение  в&nbsp;WinAPI. Часть первая. Создание окна.<br><span>Зачёт!
+</span></a>
+			<a href="http://gamesmaker.ru/books/osnovy-razrabotki-igr-na-unity-3d/#comm-464"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость &#8594; Основы разработки игр  на&nbsp;Unity 3D<br><span>На самом деле её переводил Кличко
+</span></a>
+			<a href="http://gamesmaker.ru/gamedesign/levels/pravila-horoshego-3d-shutera-ot-1go-lica/#comm-461"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость &#8594; Правила хорошего 3д шутера  от&nbsp;1го лица<br><span>Скоро выйдет игрухааа
+</span></a>
+			<a href="http://gamesmaker.ru/gamedesign/levels/pravila-horoshego-3d-shutera-ot-1go-lica/#comm-460"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/0.jpg">Гость &#8594; Правила хорошего 3д шутера  от&nbsp;1го лица<br><span>Отлично
+</span></a>
+	</div>
+				
+				<div class="lcomments">
+				<h2>Наши друзья</h2>
+												<noindex><p><a href="http://www.gamedev.ru/top/" rel="nofollow"><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/a.gif" style="border: 0;" alt="Топ Разработка игр" height="31" width="88"></a></p></noindex>
+				</div>
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div id="footer-margin"></div>
+		<div id="footer">
+			<p class="copyright"><span>© 2010—2015 Games Maker<br>При полном или частичном копировании информации ссылка на gamesmaker.ru обязательна.</span></p>
+			<ul><li><a href="http://gamesmaker.ru/forum/">Форум</a><span>·</span></li><li><a href="http://gamesmaker.ru/books/">Книги</a><span>·</span></li><li><a href="http://gamesmaker.ru/news/">Новости</a><span>·</span></li><li><a href="http://gamesmaker.ru/contacts/">Контакты</a></li></ul>
+		</div>
+	</div>
+	<noindex><script type="text/javascript" src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/metrika.js"></script><noscript><div><img src="%D0%A4%D0%BE%D1%80%D0%BC%D0%B0%D1%82%20%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85%20BMP%20%28bitmap%29_files/21060079.gif" style="position:absolute; left:-9999px;" alt=""></div></noscript></noindex>
+
+</body></html>

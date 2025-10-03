@@ -1,0 +1,866 @@
+
+
+% \subsection{Простые коды}
+% 
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-0.5em}{-1.9em}
+% \footnotesize
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+% \setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{3ex}
+% \setlength{\parskip}{0.3\parskip}
+% $x \in A_1 ~\leftrightarrow~ y \in A_2$
+% без сжатия, защиты от помех \rlap{и~шифрования}
+% \medskip
+% 
+% Простейший базовый код (%не имеет названия, 
+% подразумевается):
+% 
+% \begin{enumerate}\setcounter{enumi}{-1}
+% % \item 
+% % сектор на диске $\leftrightarrow$ блок байтов в~памяти
+% 
+% \item
+% байт памяти $\leftrightarrow$ беззнаковое целое число $0\ldots B-1$
+% (обычно:
+% октет $\leftrightarrow$  $0...255$)
+% \\
+% натуральный двоичный код $\Longrightarrow$
+% биты байта имеют номер.
+% % \item   $N$ байтов $\leftrightarrow$ 
+% % беззнаковое целое число $0...B^N$ 
+% % (%натуральный двоичный код + 
+% % порядок байтов);
+% \end{enumerate}
+% 
+% Порядок байтов 
+% % (обычно подразумевается прямой; сеть "--- обратный):
+% (если файл читается и~записывается на одной платформе 
+% "--- не~важен и~также подразумевается):
+% \begin{enumerate}
+% \item   $N$ байтов $(\chi_0, \ldots \chi_{N-1})$, 
+% $N=2^s$ 
+% $\leftrightarrow$ 
+% беззнаковое целое число $0\ldots B^N-1$;
+% \item   $N$ битов, $N$ произвольное $\leftrightarrow$ 
+% беззнаковое целое число $0\ldots 2^N-1$.
+% \end{enumerate}
+% 
+% Простые коды (фиксированной ширины): беззнаковое целое (код) $\leftrightarrow$ ?
+% \begin{enumerate}\setcounter{enumi}{2}
+% \item   $0...127$ $\leftrightarrow$ символ из таблицы ASCII;
+% \item знаковые числа;
+% \item числа~с~плавающей или фиксированной запятой;
+% \item нестандартные цифровые коды (ДДК, Грея, Джонсона)
+% и~т. д.
+% \end{enumerate}
+% 
+% % \item кодировки Unicode ();
+% 
+% \end{adjustwidth}
+% \end{frame}
+
+
+% \section{Кодирование чисел}
+
+\subsection{Натуральный двоичный код}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.5em}{-1.5em}
+\small
+\setlength{\parskip}{0.3\parskip}
+Целые неотрицательные числа:
+% % Целые числа 
+от $0$ до $2^N-1$.   %\hfill (для $N = 4:$)
+% Разряды двоичного представления числа = биты
+
+\vfill
+
+Для $N = 4$ "--- целые от $0$ до $2^4-1=16-1 = 15$:
+
+% \renewcommand{\arraystretch}{2}
+\begin{tabularx}{1\linewidth}{XXXXXXXX}
+\hline
+
+0 & 1 & 2 & 3 & 4 & 5 & 6 & 7  \\
+0000 & 0001 & 0010 &  0011  & 0100 & 0101 & 0110 & 0111 \\\hline
+
+8 & 9 & A (10) & B (11) & C (12) & D (13) & E (14) & F (15) \\
+1000 & 1001 & 1010 &  1011 & 1100 & 1101 & 1110 & 1111 \\\hline
+
+\end{tabularx}
+
+\vfill
+
+
+% \hrulefill
+
+Циклическая арифметика по модулю $2^N$ : \hfill $2^N \equiv 0$
+\\
+то есть $(2^N-1) + 1 = 0$, \hfill $max+1 =min$.
+
+Беззнаковый сумматор "--- сложение и~вычитание «в~столбик».
+
+\vfill
+
+
+Взвешенный код: 
+\hfill $x
+=1 \cdot \mathlst{bit[0]} 
++ 2 \cdot \mathlst{bit[1]}
++ \ldots + 2^{N-1} \cdot \mathlst{bit[N-1]}=$
+$= \alpha_0 \cdot \mathlst{bit[0]} + \ldots +\alpha_{N-1} \cdot \mathlst{bit[N-1]} $.
+
+\end{adjustwidth}
+\end{frame}
+
+
+% \section{Прочие цифровые коды}
+
+\subsection{Дополнительный  код}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-3.5em}{-3.5em}
+\small
+\setlength{\parskip}{0.5\parskip}
+
+Целые знаковые числа: от $(-2^{N-1})$ до $+ (2^{N-1}-1)$.
+% % $0$ и~ближайшие к~0 положительные 
+% $0$, $+1$, $+2, \ldots $
+% представляются как беззнаковые $0$, $1$, $2, \ldots $;
+% 
+% 
+% используется {\terminblue беззнаковый сумматор:}
+% % % ($0$, положительные и~отрицательные), 
+% % ($0$ и~соседние), 
+% % {\terminblue циклическая арифметика по~модулю~$2^N$:  }
+% % \hfill
+% % $(-1) = 0 - 1 \equiv 2^N - 1 = \hex{111\ldots111}$,
+% % % \hfill
+% % \\
+% % $(-2) \equiv 2^N - 2 = \hex{111\ldots110}$,
+% % \hfill$\ldots$\hfill
+% % $(-2^{N-1})\equiv 2^N -2^{N-1} \equiv 2^{N-1} = \hex{100\ldots000}$ \\ считается отрицательным: $\min  = -2^{N-1}$
+% % % 
+% % \hfill$\implies$\hfill
+% % $\max = + (2^{N-1}-1)$.
+% % 
+
+% $
+% \begin{array}{@{}c@{~=~}c@{~\equiv~}c@{~=~}l@{}}
+% (-1) & 0 - 1 & 2^N - 1 & \hex{111\ldots111}\\
+% (-2) & 0 - 2 & 2^N - 2 & \hex{111\ldots110}\\
+% \multicolumn{4}{c}{\ldots}\\
+% (-2^{N-1}) & 2^N -2^{N-1} & 2^{N-1} & \hex{100\ldots000}
+% \end{array}
+% $
+
+{\terminblue 
+$0$, $+1$, $+2, \ldots $
+"--- как беззнаковые $0$, $1$, $2, \ldots $;
+используется беззнаковый сумматор ($2^N \equiv 0$):}
+% 
+$
+\begin{array}{@{}c@{~=~}l|c@{~\equiv~}c@{~=~}c@{~=~}l@{}}
+% \multicolumn{2}{c|}{0, +1, +2, \ldots \text{представляются}}         &   \multicolumn{4}{c}{\text{}}\\
+% \multicolumn{2}{c|}{\text{как беззнаковые $0$, $1$, $2, \ldots$}}    &   \multicolumn{4}{c}{\text{используется беззнаковый сумматор}}\\
+% %
+0  & \hex{000\ldots000} & \multicolumn{4}{c}{}\\
++1  & \hex{000\ldots001} & -1 =  0 - 1  & \multicolumn{1}{c}{2^N - 1} && \hex{111\ldots111}   \\
++2  & \hex{000\ldots010} & -2 =  0 - 2  & \multicolumn{1}{c}{2^N - 2} && \hex{111\ldots110}   \\
+% \multicolumn{6}{c}{\ldots}\\
+\multicolumn{2}{c|}{\ldots} & \multicolumn{4}{c}{\ldots}\\
++(2^{N-1}-1)  & \hex{011\ldots111} & -(2^{N-1}-1) & 2^N - (2^{N-1}-1) & 2^{N-1} + 1 & \hex{100\ldots001}   \\
+\multicolumn{2}{c|}{} & -2^{N-1} & 2^N -2^{N-1} & 2^{N-1} & \hex{100\ldots000}
+\end{array}
+$
+
+\vfill
+
+% Целые числа от $-2^{N-1}$ до $+2^{N-1}-1$:
+% % ($+2^{N-1}-1+1 =-2^{N-1} $):
+% 
+% % % \renewcommand{\arraystretch}{2}
+% % \begin{tabularx}{1\linewidth}{XXXXXXXX}
+% % \hline
+% % 
+% % $-8$ & $-7$ & $-6$ & $-5$ & $-4$ & $-3$ & $-2$ & $-1$ \\
+% % 1000 & 1001 & 1010 &  1011 & 1100 & 1101 & 1110 & 1111 \\\hline
+% % 
+% % $0$ & $+1$ & $+2$ & $+3$ & $+4$ & $+5$ & $+6$ & $+7$  \\
+% % 0000 & 0001 & 0010 &  0011  & 0100 & 0101 & 0110 & 0111 \\\hline
+% % 
+% % \end{tabularx}
+
+\begin{tabularx}{1\linewidth}{XXXXXXXXX}
+\hline
+
+% $-8$ & $-7$ & $-6$ & $-5$ & $-4$ & $-3$ & $-2$ & $-1$ \\
+% 1000 & 1001 & 1010 &  1011 & 1100 & 1101 & 1110 & 1111 \\\hline
+
+$0$ & $+1$ & $+2$ & $+3$ & $+4$ & $+5$ & $+6$ & $+7$  \\
+0000 & 0001 & 0010 &  0011  & 0100 & 0101 & 0110 & 0111 \\\hline
+
+ & $-1$ & $-2$ & $-3$ & $-4$ & $-5$ & $-6$ & $-7$ &$-8$\\
+& 1111 & 1110 &  1101 & 1100 & 1011 & 1010 & 1001 & 1000\\\hline
+
+\end{tabularx}
+
+\vfill
+
+$(-x) = 0 - x = (-1-x) + 1 = (\sim x) + 1$; \hfill $max+1 =min$.
+
+
+\vfill
+
+Циклическая арифметика; сложение и~вычитание те же, что и~для беззнаковых.
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+\subsection{Код со смещением}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.5em}{-1.5em}
+
+Целые числа (возможно "--- знаковые)
+% в~%произвольном 
+% диапазоне $[a, b]$
+$x \in [a, b]$ 
+
+% "--- для $x \in [a, b]$ 
+записываем %беззнаковое число 
+$%y = 
+(x - a) \in [0, b-a]$ натуральным двоичным кодом.
+
+Значения $a, b$ и~разрядность кода $N$ взаимозависимы.
+
+\bigskip
+
+Обычно первичны $x_{\min} = a$ и~разрядность $N$; вычисляется $x_{\max} = b$:
+
+$0 \leqslant x - a \leqslant 2^N - 1$
+\hfill $\implies$ \hfill
+$a \leqslant x  \leqslant 2^N + a - 1$
+\hfill $\implies$ \hfill
+$b = 2^N + a - 1$
+
+
+% \bigskip
+% 
+% Невзвешенный: $x$ не может быть напрямую записан как $= \alpha_0 \cdot \mathlst{bit[0]} + \ldots +\alpha_{N-1} \cdot \mathlst{bit[N-1]} $.
+% ^^^ или всё-таки можно — со свободным членом?
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+% \subsection{Формат %Представление %в~формате 
+% с~фиксированной запятой}
+% \begin{frame}{\insertsubsection}
+% 
+% Вещественные числа в~небольшом диапазоне с~постоянной абсолютной погрешностью
+% % Разряды двоичного представления числа = биты
+% 
+% % \renewcommand{\arraystretch}{1.5}
+% \begin{tabularx}{1\linewidth}{XXXXXXXX}
+% \hline
+% 
+% 0 & 0,125 & 0,25 & 0,375 & 0,5 & 0,625 & 0,75 & 0,875  \\
+% 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7  \\
+% 0000 & 0001 & 0010 &  0011  & 0100 & 0101 & 0110 & 0111 \\
+% \hline
+% 
+% 1 & 1,125 & 1,25 & 1,375 & 1,5 & 1,625 & 1,75 & 1,875  \\
+% 8 & 9 & A & B & C & D & E & F \\
+% 1000 & 1001 & 1010 &  1011 & 1100 & 1101 & 1110 & 1111 \\
+% \hline
+% 
+% \end{tabularx}
+% \end{frame}
+
+% \section{Простые коды (2)}
+\input{\SRCROOTPATH/pres-sections/ieee754_floats.tex}
+
+
+
+
+
+
+
+% 
+% 
+% \subsection{Кодовые таблицы}
+% \begin{frame}{\insertsubsection}
+% 
+% Конечное число символов
+% 
+% \includegraphics[width=1\linewidth,valign=t]{ASCII_Code_Chart}
+% \end{frame}
+
+% \section{Кодовые таблицы}
+
+\newcommand{\cm}[1]{\textcolor{red}{#1}}
+\newcommand{\g}[1]{\textcolor{gray}{#1}}
+
+% \makeatletter
+% 
+% \newcommand*{\@rowstyle}{}
+% 
+% \newcommand*{\rowstyle}[1]{% sets the style of the next row
+%   \gdef\@rowstyle{#1}%
+%   \@rowstyle\ignorespaces%
+% }
+% 
+% \newcolumntype{=}{% resets the row style
+%   >{\gdef\@rowstyle{}}%
+% }
+% 
+% \newcolumntype{+}{% adds the current row style to the next column
+%   >{\@rowstyle}%
+% }
+% 
+% \makeatother
+
+
+
+
+\section{Простые коды (2)}
+
+
+
+
+% \section{Рефлексные коды}
+
+
+
+\subsection{Единичный код}
+\begin{frame}{\insertsubsection}
+\small
+
+Избыточный невзвешенный\\
+рефлексный 
+(при переходе между кодовыми комбинациями изменяется только один бит)\\
+нециклический ($max + 1 \neq min$)
+двоичный код
+
+Для $N$ битов "--- целые $0$ до $N$:
+
+{
+% \footnotesize
+\begin{tabularx}{1\linewidth}{XXXXXXXX}
+\hline
+0 & 1 & 2 & 3 & 4  \\
+0000 & 0001 & 0011 &  0111  & 1111  \\
+     & 0010 & 0101 &  1011  &       \\
+     & 0100 & 1001 &  1101  &       \\
+     & 1000 & 0110 &  1110  &       \\
+     &      & 1010 &        &       \\
+     &      & 1100 &        &       \\
+
+
+\hline
+
+\end{tabularx}
+}
+
+% \end{adjustwidth}
+\end{frame}
+
+
+\subsection{ASCII и~Unicode}
+\begin{frame}{\insertsubsection}
+% \small
+\footnotesize
+\setlength{\parskip}{0.\parskip}
+% Конечное число символов
+
+ASCII "--- %кодовая таблица (
+128 символов
+%) 
+и~семибитная ($\sim$однобайтовая) кодировка
+\\
+%\includegraphics[width=1\linewidth,valign=t]{ASCII_Code_Chart}
+\includegraphics[width=1\linewidth,valign=t]{ASCII_Code_Chart_cropped}
+
+Unicode "--- {\UnicodeSymCount} символ (в~версии~{\UnicodeVersion}) и~набор кодировок: UTF-8, UTF-16 (UTF-16BE, UTF-16LE) и UTF-32 (UTF-32BE, UTF-32LE)
+
+% (1 байт)  0aaa aaaa 
+% (2 байта) 110x xxxx 10xx xxxx
+% (3 байта) 1110 xxxx 10xx xxxx 10xx xxxx
+% (4 байта) 1111 0xxx 10xx xxxx 10xx xxxx 10xx xxxx
+% (5 байт)  1111 10xx 10xx xxxx 10xx xxxx 10xx xxxx 10xx xxxx
+% (6 байт)  1111 110x 10xx xxxx 10xx xxxx 10xx xxxx 10xx xxxx 10xx xxxx
+
+\begin{tabularx}{1\linewidth}{@{}L@{~}l@{~}ll@{~}l@{}}
+\hline  
+UTF-8 (до 4 %6 
+байт) &
+1 байт & 0aaa aaaa                           &
+2 байта& 110x xxxx 10xx xxxx                 \\
+\end{tabularx}
+\begin{tabularx}{1\linewidth}{@{}Ll@{~}l@{~}l@{~}l@{~}l@{~}l@{}}
+3 байта & 1110\,xxxx & 10xx\,xxxx & 10xx\,xxxx &            &            &                  \\
+4 байта & 1111\,0xxx & 10xx\,xxxx & 10xx\,xxxx & 10xx\,xxxx &            &                    \\
+\g{5 байт} &  \g{1111\,10xx} & \g{10xx\,xxxx} & \g{10xx\,xxxx} & \g{10xx\,xxxx} & \g{10xx\,xxxx} &              \\
+\g{6 байт} &  \g{1111\,110x} & \g{10xx\,xxxx} & \g{10xx\,xxxx} & \g{10xx\,xxxx} & \g{10xx\,xxxx} & \g{10xx\,xxxx}\\
+\hline
+\end{tabularx}
+% \vspace{-\baselineskip}
+
+'я':  \hex{044F = 0100~0100~1111}, кодирование UTF-8 \hex{\cm{110}10001~\cm{10}001111 = D1~8F}
+
+\end{frame}
+
+
+
+
+\subsection{Строки}
+\begin{frame}{\insertsubsection}
+\setbeamertemplate{itemize/enumerate subbody begin}{\normalsize}
+
+Строка "--- цепочка символов (в~кодировке ASCII, UTF-8 и т.\,п.) переменной длины:
+
+\begin{enumerate}
+\item C-строки "--- цепочка символов + завершающий нулевой символ:
+\begin{itemize}
+\item в буфере переменного размера;
+\item в буфере фиксированного размера (ФС ext2/ext3 "--- имя~файла не~длиннее 255 байтов).
+\end{itemize}
+\item Pascal-строки "--- длина + цепочка символов (zip и~т.\,п.).
+\end{enumerate}
+
+\end{frame}
+
+
+
+
+
+
+\subsection{Коды Грея и~Джонсона}
+\begin{frame}{\insertsubsection}
+\small
+
+
+Код Грея "--- неизбыточный
+невзвешенный
+рефлексный 
+циклический
+двоичный код
+
+{
+% \footnotesize
+\begin{tabularx}{1\linewidth}{XXXXXXXX}
+\hline
+0 & 1 & 2 & 3 & 4 & 5 & 6 & 7  \\
+0000 & 0001 & 0011 &  0010  & 0110 & 0111 & 0101 & 0100 \\\hline
+
+8 & 9 & A & B & C & D & E & F \\
+1100 & 1101 & 1111 &  1110 & 1010 & 1011 & 1001 & 1000 \\\hline
+
+\end{tabularx}
+}
+
+
+
+Код Джонсона "--- избыточный невзвешенный
+рефлексный циклический двоичный код
+
+{
+% \footnotesize
+\begin{tabularx}{1\linewidth}{XXXXXXXX}
+\hline
+0 & 1 & 2 & 3 & 4 & 5 & 6 & 7  \\
+0000 & 0001 & 0011 &  0111  & 1111 & 1110 & 1100 & 1000 \\\hline
+
+\end{tabularx}
+}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+% \subsection{Код Грея}
+% % \subsection{Определение}
+% \begin{frame}{\insertsubsection}
+% % \begin{adjustwidth}{-0.5em}{-0.8em}
+% % \small
+% 
+% % % Невзвешенный д
+% % Двоичный рефлексный 
+% % код 
+% 
+% Неизбыточный
+% невзвешенный
+% рефлексный 
+% циклический
+% двоичный код
+% 
+% {
+% % \footnotesize
+% \begin{tabularx}{1\linewidth}{XXXXXXXX}
+% \hline
+% 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7  \\
+% 0000 & 0001 & 0011 &  0010  & 0110 & 0111 & 0101 & 0100 \\\hline
+% 
+% 8 & 9 & A & B & C & D & E & F \\
+% 1100 & 1101 & 1111 &  1110 & 1010 & 1011 & 1001 & 1000 \\\hline
+% 
+% \end{tabularx}
+% }
+% 
+% % \end{adjustwidth}
+% \end{frame}
+% 
+% % \subsubsection{Преобразования}
+% % \begin{frame}{\insertsubsubsection}
+% % \small
+% % % \pagebreak
+% % 
+% % Преобразование натурального двоичного  кода  в~код Грея:
+% % \texttt{Gray = Bin \textasciicircum (Bin >{}> 1)}, \\где \texttt{>{}>} "--- \termin{нециклический} логический 
+% % сдвиг
+% % 
+% % Преобразование кода Грея в~натуральный двоичный код:
+% % \\
+% % старший разряд записывается без изменения, каждый следующий символ кода Грея нужно инвертировать, если в~натуральном коде перед этим была получена «1», и~оставить без изменения, если %в~натуральном коде 
+% % был получен «0».
+% % 
+% % % \end{adjustwidth}
+% % \end{frame}
+% % 
+% % \subsubsection{Связь кода Грея и~натурального двоичного кода}
+% % \begin{frame}{\insertsubsubsection}
+% % \includegraphics[width=1\linewidth,valign=c]{08_bingray}\centering
+% % \end{frame}
+% 
+% 
+% \subsection{Код Джонсона}
+% \begin{frame}{\insertsubsection}
+% 
+% Избыточный невзвешенный
+% рефлексный циклический двоичный код
+% 
+% {
+% % \footnotesize
+% \begin{tabularx}{1\linewidth}{XXXXXXXX}
+% \hline
+% 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7  \\
+% 0000 & 0001 & 0011 &  0111  & 1111 & 1110 & 1100 & 1000 \\\hline
+% 
+% \end{tabularx}
+% }
+% 
+% % \end{adjustwidth}
+% \end{frame}
+
+
+
+% 
+% 
+% 
+% \begin{frame}[allowframebreaks]{Символы и~строки: задачи}
+% \footnotesize
+% \setlength{\parskip}{0.3\parskip}
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0.5ex}}
+% 
+% 
+% % \termin{Задача:} м
+% \begin{enumerate}
+% \item Можно ли составить для 4-битных байтов и~заданной таблицы символов кодировку UTF-4, полностью аналогичную UTF-8 (длина кода записывается в~первом байте)?
+% 
+% {
+% \scriptsize
+% \setlength{\tabcolsep}{1pt}
+% 
+% \begin{tabularx}{1\linewidth}{@{}X|CCCCCCCCCCCCCCCC@{}}
+% 
+%   & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & A  & B & C  & D  & E  & F\\\hline
+% 0 & NUL & HT & LF & «~» & , & . & 0 & 1 & 2 & 3 & 4  & 5 & 6 & 7 & 8 & 9\\\hline
+% 1 & а & б & в & г & д & е & ё & ж & з & и & й & к & л & м & н & о \\\hline
+% 2 & п & р & с & т & у & ф & х & ц & ч & ш & щ & ъ & ы & ь & э & ю \\\hline
+% 3 & я & ! & ( & ) & * & + & - & / & : & ; & < & = & > & ? &   &   \\\hline
+% 
+% \end{tabularx}
+% 
+% }
+% 
+% \item Сколько байтов на символ потребуется для кодировки фиксированной длины заданной таблицы?
+% 
+% \item Составить кодировку UNTF-4, где длина кода может быть записана в~первой или в~двух первых тетрадах [возможно, не единичным кодом] и/или отлична структура следующих тетрад.
+% 
+% Закодировать строку  «аб шщ я 02» (C-представление).
+% 
+% % \item Закодировать в~UTF-4:
+% % \begin{itemize}
+% % \item цифры '0' и '3';
+% % \item букву 'я';
+% % \item строку «дыр бул щыл» (C-представление).
+% % \end{itemize}
+% 
+% \item Возможно ли обнаружить ошибку декодирования UNTF-4-строки с~середины символа? UTF-8-строки?
+% 
+% \pagebreak
+% 
+% \item Каково максимальное число символов, представимых в~UTF-4? 
+% В~UTF-6? [6 бит "--- первоначальный размер байта в~IBM Stretch]
+% % ^ 0xxxxx ~ 2^5 символов
+% % 110xxx 10xxxx ~ 2^7
+% % 1110xx 10xxxx 10xxxx ~ 2^10
+% % 11110x 10xxxx 10xxxx 10xxxx ~ 2^13 — всё
+% % итого  2^13+2^10+2^7+2^5 =  9376
+% 
+% % \end{enumerate}
+% % 
+% % \end{frame}
+% % 
+% % \begin{frame}{Символы и~строки: задачи 2/2}
+% % \footnotesize
+% % \setlength{\parskip}{0.3\parskip}
+% % % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0.5ex}}
+% 
+% 
+% \item Закодировать строку  «Аа. Шш, я? 02\{\}» (C-представление) в~кодировке~UTF-6 для заданной таблицы символов.
+% 
+% {
+% \scriptsize
+% \setlength{\tabcolsep}{1pt}
+% 
+% \begin{tabularx}{1\linewidth}{@{}X|CCCCCCCCCCCCCCCC@{}}
+% 
+%   & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & A  & B & C  & D  & E  & F\\\hline
+% 0 & NUL & HT & LF & «~» & , & . & 0 & 1 & 2 & 3 & 4  & 5 & 6 & 7 & 8 & 9\\\hline
+% 1 & а & б & в & г & д & е & ё & ж & з & и & й & к & л & м & н & о \\\hline
+% 2 & п & р & с & т & у & ф & х & ц & ч & ш & щ & ъ & ы & ь & э & ю \\\hline
+% 3 & я & ! & ( & ) & * & + & - & / & : & ; & < & = & > & ? & [ & ] \\\hline
+% 4 & А & Б & В & Г & Д & Е & Ё & Ж & З & И & Й & К & Л & М & Н & О \\\hline
+% 5 & П & Р & С & Т & У & Ф & Х & Ц & Ч & Ш & Щ & Ъ & Ы & Ь & Э & Ю \\\hline
+% 6 & Я & " & \{ & \} &  &  &  &  &  &  &  &  &  &  &   &   \\\hline
+% 
+% \end{tabularx}
+% 
+% }
+% \end{enumerate}
+% 
+% \end{frame}
+
+
+% \section{Кодовые таблицы для каналов связи}
+
+\subsection{Код Морзе}
+\begin{frame}{\insertsubsection{} (Фридрих Герке)}
+\setlength{\parskip}{0.25\parskip}
+
+% Тире втрое длиннее точки, разделитель равен длительности точки, 
+% пробел втрое длиннее точки 
+
+\vspace{-2em}
+\begin{tikzpicture}
+
+\node[outer sep = 0mm] (tab) {\includegraphics[width=1\linewidth,valign=t]{morze-b}};
+\node[anchor=north east,outer sep = 0mm, left = -1em of tab.north east] {\includegraphics[width=0.2\linewidth,valign=t]{19521}};
+\end{tikzpicture}
+\tiny
+Каждой букве или знаку соответствует определённая комбинация кратковременных (точка) и~втрое более длинных (тире) импульсов тока, разделённых бестоковым интервалом, равным длительности точки. 
+
+Для разделения букв в словах и цифр в многозначных числах применяется тройной бестоковый интервал, заканчивающий каждую комбинацию. 
+
+Для разделения слов в тексте служит пятикратный бестоковый интервал. 
+
+\footnotesize
+
+$A_2 = \{ \cdot, -, \text{межсимвольный интервал}, \text{межсловный интервал} \}$
+
+\end{frame}
+
+
+
+% \subsection{МТК-2}
+\subsection{Код Бодо}
+\begin{frame}{\insertsubsection{} (Дональд Мюррей)}
+Международный телеграфный код №2 (ITA2) +\\
++ 00000 = МТК-2\\
+\includegraphics[width=1\linewidth,valign=t]{mtk-2}
+% http://cat.convdocs.org/docs/index-3335.html?page=13
+
+фиксированной ширины 5, режимы
+
+\end{frame}
+
+
+% 
+% \begingroup
+% \setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+% \setlength{\parskip}{0.5\parskip}
+% 
+% 
+% 
+% \section{Двоично-десятичное кодирование (ДДК)}
+% 
+% \begin{frame}{\insertsection}
+% \begin{adjustwidth}{-0.8em}{-1.3em}
+% % \small
+% 
+% Основной системой счисления является \termin{десятичная.}
+% 
+% Каждая значащая десятичная цифра представляется %четырьмя двоичными знаками "--- 
+% тетрадой (16~кодовых значений) и~содержит десять значений сигнала $S$ от~0 до~9.
+% 
+% Например:  
+% $10_{10} \to 0001\, 0000$; $99_{10} \to 1001\, 1001$ \mbox{(код прямого замещения).}
+% 
+% \end{adjustwidth}
+% \end{frame}
+% 
+% 
+% \subsection{Взвешенные коды}
+% \setlength{\leftmargini}{0pt}
+% \begin{frame}{\insertsubsection}
+% % \small
+% \setlength{\abovedisplayskip}{0.5\parskip}
+% \setlength{\belowdisplayskip}{\parskip}
+% 
+% Пусть биты тетрады "--- $b_3, b_2, b_1, b_0$, \termin{веса} битов "--- $q_3$-$q_2$-$q_1$-$q_0$.
+% 
+% Код называется \termin{взвешенным,} если %значение вычисляется %по формуле
+% $$S = q_0\cdot b_0 + q_1\cdot b_1 + q_2\cdot b_2 + q_3\cdot b_3$$
+% Коды, получаемые друг из друга  перестановкой весов $q_i$, образуют \termin{кодовую группу.}
+% 
+% Веса кода прямого замещения "--- 8-4-2-1.
+% 
+% 
+% \end{frame}
+% 
+% \subsection{Свойства}
+% \begin{frame}[allowframebreaks]{Свойства}
+% \begin{itemize}
+% \item \termin{Взвешенность}
+% полезна для реализации логических и~арифметических операций.
+% 
+% \tmbCircled{-} Если при передаче будет искажен старший разряд (с~б\'{о}льшим весом), ошибка будет гораздо больше, чем при искажении младшего разряда.
+% 
+% \item \termin{Упорядоченность}
+% 
+% $
+% 0_2<1_2<2_2<...<9_2
+% $
+% или
+% $
+% 0_2>1_2>2_2>...>9_2
+% $
+% 
+% где $0_2,1_2,2_2,...,9_2$ "--- двоичные представления десятичных цифр $0,1,2,...,9$ 
+% (для сравнений).
+% 
+% Только ДДК, не имеющие отрицательных весов.
+% 
+% 
+% \item \termin{Чётность}:\\чётным десятичным цифрам соответствуют либо только чётные, либо только нечётные их двоичные представления;
+% % \\нечётным десятичным, соответственно, только нечётные либо только чётные двоичные представления 
+% нечётным "---  нечётные либо чётные соответственно
+% (умножение, деление, округление).
+% 
+% \item \termin{Дополнительность (самодополняемость)} если $A_{10}+B_{10}=9$, то $A_2 = \overline{B_2}$ (побитовая инверсия) "--- операции с~учётом знаков.
+% 
+% Все взвешенные ДДК с~положительными весами, где сумма весов равна 9.
+% 
+% \item \termin{Однозначность} "--- каждой десятичной цифре соответствует только одна из 16 двоичных тетрад (нецелесообразно).
+% 
+% Ни одна кодовая группа с~положительными весами не однозначна, кроме 8-4-2-1.
+% 
+% \item \termin{Единственность} "--- между десятичной цифрой и~комбинацией двоичных цифр установлено взаимно однозначное соответствие (упрощает кодирование и~декодирование) "--- выбор одного представления и~исключение прочих.
+% \end{itemize}
+% \end{frame}
+% 
+% % \subsection{Кодовые группы взвешенных ДДК по свойствам}
+% % \subsubsection{Кодовые группы однозначных взвешенных ДДК}
+% % \begin{frame}{\insertsubsubsection}
+% % \renewcommand{\arraystretch}{2}
+% % \begin{tabularx}{1\linewidth}{XXXXX}
+% % 
+% % 8,4,2,1& 	8,-4,2,1& 	8,-6,4,1& 	8,-4,3,2& 	8,-5,4,2\\
+% % 8,4,2,-1& 	8,4,3,-2& 	8,-6,5,3& 	7,-6,5,3& 	8,-4,-2,1\\
+% % 8,4,-2,1& 	8,6,-4,1& 	8,4,-3,2& 	8,-4,2,-1& 	8,5,-4,2\\
+% % 8,-4,3,-2& 	7,6,-5,3& 	8,4,-3,-2& 	8,5,-4,-2& 	8,6,-4,-1\\
+% % 8,7,-4,-2& 	  
+% % \end{tabularx}
+% % \end{frame}
+% % 
+% % \subsubsection{Взвешенные ДДК со свойствами единственности и~дополнительности}
+% % \begin{frame}{\insertsubsubsection}
+% % \renewcommand{\arraystretch}{2}
+% % \begin{tabularx}{1\linewidth}{XXXXX}
+% % 5,2,1,1& 4,3,1,1& 4,2,2,1& 3,3,2,1\\
+% % 6,3,1,-1& 	7,3,1,-2& 	6,4,1,-2& 	6,5,1,-3& 	7,5,1,-4\\
+% % 6,2,2,-1& 	5,3,2,-1& 	6,3,2,-2& 	8,3,2,-4& 	4,4,2,-1\\
+% % 6,4,2,-3& 	8,4,2,-5& 	6,5,2,-4& 	4,4,3,-2& 	5,4,3,-3\\
+% % 8,4,3,-6& 	7,5,3,-6& 	8,4,-2,-1& 	8,6,-1,-4\\ 	  
+% % \end{tabularx}
+% % \end{frame}
+% % 
+% % % \subsection{Кодовые группы взвешенных ДДК со свойствами единственности, упорядоченности и~дополнительности}
+% % % \begin{frame}{\insertsubsection}
+% % % "5,2,1,1", "4,3,1,1", "3,3,2,1","4,2,2,1"  
+% % % \end{frame}
+% % 
+% % \subsubsection{Взвешенные ДДК со свойствами единственности, упорядоченности и~дополнительности}
+% % \begin{frame}{\insertsubsubsection}
+% % 
+% % 5,2,1,1
+% % 
+% % 4,3,1,1
+% % 
+% % 3,3,2,1
+% % 
+% % 4,2,2,1
+% % \end{frame}
+% 
+% \subsection{Код Эмери}
+% % \subsubsection{Взвешенные, единственностные, чётные, упорядоченные, дополнительные}
+% \subsubsection{Взвешенные ДДК со свойствами единственности, чётности, упорядоченности и~дополнительности}
+% \begin{frame}{\insertsubsubsection}
+% Группа 4,2,2,1 "---  коды Эмери 
+% 
+% 2,4,2,1 "--- код Айкена (Айкена"--~Эмери)
+% 
+% % \small
+% \footnotesize
+% \begin{tabularx}{1\linewidth}{XXXXX}
+% \hline
+% 0 & 1 & 2 & 3 & 4 \\
+% 0000 & 0001 & 0010, 1000 &  0011, 1001 & 0100, 1010 \\\hline
+% 
+% % 5 & 6 & 7 & 8 & 9 \\
+% % 0101, 1011 & 0110, 1100 &  0111, 1101 &  1110 & 1111 \\\hline
+% 
+% 9 & 8 & 7 & 6 & 5 \\
+% 1111 & 1110 &  1101, 0111 &   1100, 0110 &  1011, 0101  \\\hline
+% 
+% \end{tabularx}
+% 
+% \end{frame}
+% 
+% % \subsection{Недостатки взвешенных кодов}
+% % \begin{frame}{\insertsubsection}
+% % Если при передаче будет искажен старший разряд (разряд с~б\'{о}льшим весом), ошибка будет значительно больше, чем при искажении младшего разряда.
+% % % С~этой точки зрения лучше применять невзвешенный код, у~которого ошибки, вызванные помехами, были бы одинаковыми для любого разряда.
+% % \end{frame}
+% 
+% \endgroup
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

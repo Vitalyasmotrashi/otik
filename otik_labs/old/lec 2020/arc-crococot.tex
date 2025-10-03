@@ -1,0 +1,87 @@
+\input{arc-commonheader.tex}
+
+
+\geometry{margin=10mm, left =10mm, paperwidth=200mm,paperheight=1600mm}
+
+
+\begin{document}
+
+\input{arc-commonencode.tex}
+
+\initencodesection{крококот}{
+  let \c{1} = К;
+  let \c{2} = О;
+  let \c{3} = Р;
+  let \c{4} = Т;
+}{3,3,1,1}
+
+
+\noindent
+\begin{tikzpicture}
+  \intinit 0 [0,\N-1], {}  
+  \intsubdiv[\intsubdivlabel]{1}  
+  \intsubdiv[\intsubdivlabel]{3}  
+  \intsubdiv{2}  
+  \intsubdiv{1}  
+  \intsubdiv{2}  
+  \intsubdiv{1}  
+  \intsubdiv{2}  
+  \intsubdiv{4}  
+  
+  \finalbit{1}
+\end{tikzpicture}
+
+
+\def\finalcode{010011010100111}
+\def\msglen{8}
+
+
+
+\input{arc-concldecode.tex}
+
+
+
+
+\noindent
+\begin{tikzpicture}
+  \intinit [0,\N-1], [0,\N-1], {} 
+  
+
+%   for \bit in {0,1,0,0,1,1,0,1,0,1,0,0,1,1,1}{
+%     \readbit{\bit}
+%   }
+%   \tikzmath{
+%   for \bit in {0,1,0,0,1,1,0,1,0,1,0,0,1,1,1}{
+%     {\readbit{\bit}};
+%   };
+%   }  
+
+  \readbit{0}
+  \readbit{1}
+  \readbit{0}
+  \readbit{0}
+  \readbit{1}
+  \readbit{1}
+  \readbit{0}
+  \readbit{1}
+  \readbit{0}
+  \readbit{1}
+  \readbit{0}
+  \readbit{0}
+  \readbit{1}
+  \readbit{1}
+  \readbit{1}
+  
+  \readbit{0}
+%   \readbit{0}
+%   \readbit{0}
+%   \readbit{0}
+
+\end{tikzpicture}
+
+
+
+
+
+
+\end{document}

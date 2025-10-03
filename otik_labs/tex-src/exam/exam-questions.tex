@@ -1,0 +1,458 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Список вопросов и билеты по 2 вопроса
+% расстояния подобраны методом тыка
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage[
+  a4paper, mag=1000, %nohead,includefoot,
+  margin=0mm, %headsep=20mm, footskip=0mm
+]{geometry}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+% \usepackage{cyrtimes}	% Times, Arial и Courier одновременно
+\usepackage{graphicx}
+\usepackage{enumitem}	% Настраиваемые списки
+\newcommand\No{№}
+\usepackage{mathtools}  % amsmath with extensions
+\usepackage{amssymb}  % (otherwise \mathbb does nothing)
+\DeclareMathOperator{\sal}{sal}
+\DeclareMathOperator{\sar}{sar}
+\DeclareMathOperator{\shl}{shl}
+\DeclareMathOperator{\shr}{shr}
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+
+\usepackage[pdftex,unicode=true,colorlinks]{hyperref}
+    \hypersetup{citecolor=blue,linkcolor=blue,urlcolor=blue}
+
+
+\makeatletter
+% %     ^
+% % ** /!\ Название курса ************************************************* /!\
+% %   ----
+
+\global\@namedef{courseheading}{Основы теории информации и~кодирования}
+
+\makeatother
+
+\newcounter{count_questions}	% счётчик вопросов
+\setcounter{count_questions}{0}	% начинать с 0 нужно для правильной коррекции перехода через максимум
+
+\newcounter{count_questionsA}	% количество первых вопросов
+
+\newcounter{count_tasks}	% счётчик задач
+\setcounter{count_tasks}{0}	% начинать с 0 нужно для правильной коррекции перехода через максимум
+
+\newcounter{idx_ticket}		% счётчик билетов
+\setcounter{idx_ticket}{1}
+
+
+% формирование имени для текста вопроса по № вопроса
+\newcommand\mkitemname[1]{q\arabic{#1}}
+\newcommand\mkitemtaskname[1]{task\arabic{#1}}
+
+\makeatletter
+% Печать текста вопроса по счётчику-№ вопроса (1, 2, 3,... count_questions)
+% аргумент -- счётчик-№ вопроса
+\newcommand\printquestion[1]{\expandafter\@nameuse{\mkitemname{#1}}}
+\newcommand\printtask[1]{\expandafter\@nameuse{\mkitemtaskname{#1}}}
+
+% Вопрос в списке вопросов ====================================================
+% аргумент -- текст вопроса
+% формирование переменной с текстом вопроса по номеру (начальный — 1)
+\newcommand\question[1]{%
+  \stepcounter{count_questions}%
+  \global\expandafter\@namedef{\mkitemname{count_questions}}{#1}%
+  \item 
+  #1.
+}
+\newcommand\task[1]{%
+  \stepcounter{count_tasks}%
+  \global\expandafter\@namedef{\mkitemtaskname{count_tasks}}{#1}%
+  \item 
+  #1.
+}
+% =============================================================================
+\makeatother
+
+
+% Один билет; аргументы -- текст 1-го и 2-го вопросов + задача!=========================
+\newcommand\ticket[3]{
+\begin{minipage}[c][0.3\textheight]{0.85\linewidth}
+\setlength{\parskip}{0.7cm}
+\setlength{\parindent}{0cm}
+\begin{center}
+\textbf{\small 
+% МОСКОВСКИЙ ИНСТИТУТ ЭЛЕКТРОННОЙ ТЕХНИКИ
+Национальный исследовательский университет «МИЭТ»
+}
+\vspace{-0.8cm}
+
+\noindent\hrulefill
+
+\textbf{\largeЭКЗАМЕНАЦИОННЫЙ БИЛЕТ \No\arabic{idx_ticket}}\addtocounter{idx_ticket}{1}
+\end{center}
+\vspace{-0.6cm}
+
+{\footnotesize{}по курсу} <<\courseheading>>
+
+\begin{enumerate}
+\item #1.
+\item #2.
+\item #3.
+\end{enumerate}
+
+\vfill
+
+\noindent\hrulefill
+% \vspace{-1cm}
+
+{%
+\footnotesize%
+%Билет рассмотрен и~утверждён на заседании института СПИНТех 25.05.22
+% Билет рассмотрен и утвержден на заседании УС Института СПИНТЕХ 21.12.2022
+% Билет рассмотрен и~утверждён на заседании УС института СПИНТех 07.06.2023 %среда, весна (Д)
+% Билет рассмотрен и~утверждён на заседании УС института СПИНТех 18.12.2023 
+Билет рассмотрен и~утверждён на заседании УС института СПИНТех 9.12.2024 %(понедельник!!! ???)
+\par
+% Директор СПИНТех\,\hrulefill\,Гагарина Л.\,Г.
+Директор СПИНТех\,\rlap{\includegraphics[width=48mm]{tmp/gagar_facsimile}}\hrulefill\,Гагарина Л.\,Г.
+
+
+}
+\end{minipage}\centering
+
+}
+% =============================================================================
+
+% Добавление значения #2 к счётчику вопросов #1 с учётом максимального значения счётчика #1 — count_questions
+% \newcommand\addtoquestioncounter[2]{
+% \addtocounter{#1}{#2}
+% \ifnum \value{#1}>\value{count_questions}
+%   \addtocounter{#1}{-\value{count_questions}}	% если перевалили за максимум — коррекция
+% \fi
+% }
+\newcommand\addtoquestionAcounter[2]{
+\addtocounter{#1}{#2}
+\ifnum \value{#1}>\value{count_questionsA}
+  \addtocounter{#1}{-\value{count_questionsA}}	% если перевалили за максимум — коррекция
+\fi
+}
+\newcommand\addtoquestionBcounter[2]{
+\addtocounter{#1}{#2}
+\ifnum \value{#1}>\value{count_questions}
+  \addtocounter{#1}{-\value{count_questions}}	% если перевалили за максимум — коррекция:  [count_questions+d → d]
+  \addtocounter{#1}{+\value{count_questionsA}}	% начинаем с count_questionsA+1:  [d → count_questionsA+d]
+\fi
+}
+
+% Добавление значения #2 к счётчику задач #1 с учётом максимального значения счётчика #1 — #3
+\newcommand\addtotaskcounter[3]{
+\addtocounter{#1}{#2}
+\ifnum \value{#1}>\value{#3}
+  \addtocounter{#1}{-\value{#3}}	% если перевалили за максимум — коррекция
+\fi
+}
+
+
+% Один билет ==================================================================
+% аргументы -- счётчик-№ вопроса 1, счётчик-№ вопроса 2, значение-приращение № вопроса 1, значение-приращение № вопроса 2
+\newcommand\printticket[4]{
+  \ticket{\printquestion{#1}}{\printquestion{#2}}{\printtask{idx_ticket_task}}
+  \addtoquestionAcounter{#1}{#3}
+  \addtoquestionBcounter{#2}{#4}
+  \addtotaskcounter{idx_ticket_task}{1}{count_tasks}
+}
+% =============================================================================
+
+
+% Страница с двумя последовательными билетами и линией разреза ================
+% аргументы -- счётчик-№ вопроса 1, счётчик-№ вопроса 2, значение-приращение № вопроса 1, значение-приращение № вопроса 2
+\newcommand\ticketpage[4]{\null
+\vfill
+
+\printticket{#1}{#2}{#3}{#4}
+\vspace{8mm}
+
+\vfill
+
+\noindent\hrulefill
+
+\null
+\vfill
+
+\printticket{#1}{#2}{#3}{#4}
+\vspace{8mm}
+
+\vfill
+
+\clearpage
+}
+% =============================================================================
+
+
+% Печать нескольких последовательных страниц ==================================
+
+\usepackage{forloop}	% Цикл с параметром
+
+\newcounter{idx_ticket_question_first}	% счётчик для 1-го вопроса билета
+\newcounter{idx_ticket_question_second}	% счётчик для 2-го вопроса билета
+\newcounter{idx_ticket_task}	% счётчик для задачи
+\setcounter{idx_ticket_task}{1}
+
+\newcounter{idx_page}	% счётчик цикла for — номер страницы
+
+% Печать серии из нескольких последовательных страниц
+% аргументы: 
+% смещение 1-го вопроса (№ в списке первого вопроса первого билета серии)/шаг 1-го вопроса (отличие № первого вопроса первого и второго билета серии)
+% смещение 2-го вопроса/шаг 2-го вопроса
+% количество страниц (кол-во билетов/2)
+\def\ticketlist #1/#2 #3/#4 #5 {%
+  \setcounter{idx_ticket_question_first}{#1}
+  \setcounter{idx_ticket_question_second}{#3}
+
+  \forloop[1]{idx_page}{0}{\value{idx_page}<#5}{
+  \ticketpage{idx_ticket_question_first}{idx_ticket_question_second}{#2}{#4}
+  }
+}
+% =============================================================================
+% только номера, для обнаружения коллизий
+\def\tickettest #1/#2 #3/#4 #5 {%
+  \setcounter{idx_ticket_question_first}{#1}
+  \setcounter{idx_ticket_question_second}{#3}
+
+  \forloop[1]{idx_page}{0}{\value{idx_page}<#5}{
+  (\arabic{idx_ticket_question_first},\arabic{idx_ticket_question_second},\arabic{idx_ticket_task}) 
+  \addtoquestionAcounter{idx_ticket_question_first}{#2}
+  \addtoquestionBcounter{idx_ticket_question_second}{#4}
+  \addtotaskcounter{idx_ticket_task}{1}{count_tasks}
+  (\arabic{idx_ticket_question_first},\arabic{idx_ticket_question_second},\arabic{idx_ticket_task}) 
+  \addtoquestionAcounter{idx_ticket_question_first}{#2}
+  \addtoquestionBcounter{idx_ticket_question_second}{#4}
+  \addtotaskcounter{idx_ticket_task}{1}{count_tasks}
+  }
+}
+
+\usepackage[small,indentafter]{titlesec}
+\titlespacing*{\section}{0ex}{3.5ex plus 1ex minus .2ex}{2.3ex plus 0ex}
+\titleformat{\section}{\filright\bfseries}{\thesection.}{.5em}{}
+
+\usepackage{titletoc}
+\titlecontents{section}[1.5cm]{}{\thecontentslabel.~}{}{\titlerule*[9pt]{.}{\contentspage}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% \strut
+% \vspace{1cm}
+
+% Собственно список вопросов
+% \hfil\begin{minipage}{0.9\linewidth}
+%\newgeometry{margin=30mm}
+\newgeometry{margin=20mm}
+\setlength{\leftmargini}{1.5cm}
+\raggedright
+
+{
+\Large
+
+\textbf{\courseheading}
+\title{\courseheading}
+\medskip
+
+}
+{
+\footnotesize
+
+% \noindent\hrulefill
+
+% \tableofcontents
+\makeatletter
+    \@starttoc{toc} % без заголовка, только элементы оглавления
+\makeatother
+
+% \noindent\hrulefill
+
+}
+%~ {
+%~ \footnotesize
+
+%~ \noindent\hrulefill
+
+%~ Это версия документа от \today{}
+%~ % 
+%~ Актуальная версия доступна по~адресу 
+%~ \url{https://gitlab.com/illinc/otik/-/raw/master/2022-exam/exam_q_list.pdf?inline=false}.
+
+%~ % \noindent\hrulefill
+
+%~ }
+
+
+%~ \bigskip
+
+
+%~ \addcontentsline{toc}{section}{Методические рекомендации студентам}
+%~ % \section{Методические рекомендации студентам}
+%~ \textbf{Методические рекомендации студентам}
+%~ \begin{enumerate}%[wide]
+%~ \item Экзамен по ОТИК состоится:
+%~ \begin{itemize}
+%~ \item ПИН-41	26.01.2022;
+%~ \item ПИН-43	27.01.2022;
+%~ \item ПИН-44	28.01.2022;
+%~ \item ПИН-45	29.01.2022
+%~ \end{itemize}
+%~ \mbox{с~9 до 12 часов}.
+
+%~ \item Регистрация на экзамен и~распределение билетов согласно требованиям
+%~ к~организации и~проведению экзаменационной сессии
+%~ осеннего семестра 2021/2022 г.
+%~ производится в~системе ОРИОКС.
+
+
+%~ \item Экзамен 
+%~ проводится с использованием видеосвязи.
+
+
+
+%~ \item Адрес видеочата \url{https://meet.jit.si/miet_illinc}.
+
+%~ \item Неявка на экзамен отмечается литерой «н» в~соответствующей графе.
+
+%~ \item Ответ на теоретические вопросы билета оценивается от~0 до~15 баллов. 
+%~ \item Решение задачи билета оценивается от~0 до~15 баллов. 
+
+%~ \item В целом балльная оценка за экзамен составляет от~0 до~30 баллов.
+
+%~ \end{enumerate}
+
+\clearpage
+
+\phantomsection\addcontentsline{toc}{section}{Вопросы и задачи}
+\textbf{Контрольные (экзаменационные) вопросы по~курсу <<\courseheading>>}
+
+\begin{enumerate}%[itemsep=0cm]
+\question{Вероятностный подход к измерению информации}
+\question{Энтропия источника данных, первая теорема Шеннона для сжатия}
+\question{Энтропийное кодирование, модель источника}
+\question{Код Шеннона"--~Фано}
+\question{Код Хаффмана}
+\question{Арифметическое кодирование}
+
+\question{Кодирование длин повторений (RLE). «Наивный» RLE. RLE с~флаг-битом сжатая/несжатая цепочка}
+\question{Кодирование длин повторений (RLE). «Наивный» RLE. RLE с~односимвольным префиксом сжатой цепочки в несжатом тексте}
+
+
+\question{Семейство алгоритмов словарного сжатия LZ77. Концепт Зива---Лемпеля от 1977 года}
+\question{Семейство алгоритмов словарного сжатия LZ77. LZ77 с~флаг-битом ссылка/символ}
+\question{Семейство алгоритмов словарного сжатия LZ77. LZ77 с~односимвольным префиксом ссылки в несжатом тексте}
+
+
+
+% окончание первых (в билете) вопросов
+\setcounter{count_questionsA}{\value{count_questions}}	% счётчик с 1
+
+
+\question{Семейство алгоритмов словарного сжатия LZ78. Концепт Зива---Лемпеля от 1978 года}
+\question{Семейство алгоритмов словарного сжатия LZ78. LZW}
+
+
+% % \question{Сжатие с потерями}
+% % \question{Дискретное преобразование Фурье (ДПФ)}
+% % \question{Быстрое ДПФ (БПФ)}
+% % \question{Дискретное косинусное преобразование}
+% % \question{Преобразование Хаара}
+% \question{Ёмкость канала передачи данных, первая теорема Шеннона для канала}
+% % \question{Условная энтропия и~относительная информация двух источников данных, вторая теорема Шеннона}
+% % \question{Двоичный симметричный канал}
+% \question{Простейшие помехоустойчивые коды}
+% \question{Код Хэмминга}
+% % % \question{Алгебры, группоиды, полугруппы, моноиды}
+% % % \question{Группы}
+% % % \question{Циклические группы и~примитивные элементы}
+% % % \question{Кольца, тела}
+% % % \question{Поля}
+% % \question{Кольца, тела, поля}
+% % \question{Кольцо многочленов над полем}
+% % % \question{Делимость многочленов}
+% % % \question{Неприводимые многочлены}
+% % \question{Делимость многочленов. Неприводимые многочлены}
+% % \question{Конечные поля}
+% % \question{Полиномиальные коды}
+% % % \question{Циклические полиномиальные коды}
+% % % \question{Циклические коды Рида"--~Соломона}
+% % % \question{Двоично-десятичное кодирование (ДДК)}
+% % % \question{Свойства двоично-десятичных кодов}
+% % % \question{Коды Эмери}
+% % \question{Натуральный двоичный код. Двоично-десятичное кодирование (ДДК), виды, примеры}
+% % \question{Код Грея}
+% % % \question{Единичный код}
+% % % \question{Код Джонсона}
+% % \question{Единичный код, код Джонсона}
+
+\question{Структура текстовых файлов. ASCII. Расширения ASCII, кодировки русского языка}
+\question{Структура текстовых файлов. Unicode. UTF-8, UTF-16, UTF-32}
+% \question{}
+% \question{}
+% \question{}
+% \question{}
+% \question{}
+% \question{}
+
+\end{enumerate}
+\newcounter{idx_questionB_start}
+\setcounter{idx_questionB_start}{\value{count_questionsA}}
+\addtocounter{idx_questionB_start}{1}
+
+
+\clearpage
+
+\textbf{Контрольные (экзаменационные) задачи по~курсу <<\courseheading>>}
+\begin{enumerate}%[itemsep=0cm]
+
+\task{Сожмите сообщение $m=\hex{0123 4567 89AB CDEF FEDC BA98}$ алгоритмом Хаффмана (в~байте, то есть в~символе кодирования, 4~бита)}
+
+\task{Сожмите сообщение $m=\hex{0123 4567 89AB CDEF 0000 0000 FFFF}$ алгоритмом RLE с~флаг-битом сжатая/несжатая цепочка (в~байте, то есть в~символе кодирования, 4~бита)}
+\task{Сожмите сообщение $m=\hex{0123 4567 89AB CDEF 0000 0000 FFFF}$ алгоритмом RLE с~односимвольным префиксом сжатой цепочки в несжатом тексте (в~байте, то есть в~символе кодирования, 4~бита)}
+
+\task{Сожмите сообщение $m=\hex{0123 4567 89AB CDEF 0123 4567 89AB CDEF 89AB CDEF}$ алгоритмом LZ77-концептом 1977 г. (в~байте, то есть в~символе кодирования, 4~бита)}
+\task{Сожмите сообщение $m=\hex{0123 4567 89AB CDEF 0123 4567 89AB CDEF 89AB CDEF}$ алгоритмом LZ77 с~флаг-битом ссылка/символ (в~байте, то есть в~символе кодирования, 4~бита)}
+\task{Сожмите сообщение $m=\hex{0123 4567 89AB CDEF 0123 4567 89AB CDEF 89AB CDEF}$ алгоритмом LZ77 с~односимвольным префиксом ссылки в несжатом тексте (в~байте, то есть в~символе кодирования, 4~бита)}
+
+\task{Сожмите сообщение $m=\hex{0123 4567 89AB CDEF 89AB CDEF}$ алгоритмом LZ78-концептом 1978 г. (в~байте, то есть в~символе кодирования, 4~бита)}
+\task{Сожмите сообщение $m=\hex{0123 4567 89AB CDEF 89AB CDEF}$ алгоритмом LZW (в~байте, то есть в~символе кодирования, 4~бита)}
+
+
+
+
+\end{enumerate}
+
+
+% \end{minipage}
+\restoregeometry
+\pagestyle{empty}	% Страницы без нумерации
+
+% \clearpage
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+\setlength{\leftmargini}{2cm}
+
+\phantomsection\addcontentsline{toc}{section}{Экзаменационные билеты}
+
+% Билеты
+
+% % только номера, для обнаружения коллизий
+% \let\ticketlist\tickettest
+% 
+% % печать модулей, для проверки взаимной простоты
+% \setcounter{idx_page}{\value{count_questions}} % idx_page потом всё равно обнуляется; а счётчики вопросов и задач — нет!
+% \addtocounter{idx_page}{-\value{count_questionsA}}
+% Всего вопросов \arabic{count_questions}: первых \arabic{count_questionsA}, вторых \arabic{idx_page}, задач \arabic{count_tasks} "--- взаимно просты?
+
+% Смещение/шаг 1-го вопроса, смещение/шаг 2-го вопроса, количество страниц (кол-во билетов/2)
+% теперь первые вопросы берутся только из диапазона 1..count_questionsA, вторые — из (count_questionsA+1=idx_questionB_start)...count_questions
+\ticketlist 1/1 \value{idx_questionB_start}/1 15
+
+\end{document}

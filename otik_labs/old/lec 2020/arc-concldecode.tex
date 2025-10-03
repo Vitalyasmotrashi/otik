@@ -1,0 +1,280 @@
+
+
+\section{Декодирование: \finalcode, \msglen{} символов}
+
+% При декодировании рабочих отрезка два:
+% 
+% \begin{itemize}
+% 
+% \item отрезок, соответствующий раскодированной части сообщения ($\textcolor{red}{[l_{c}, t_{c})}$);
+% 
+% \item отрезок, соответствующий прочитанной части кода ($\textcolor{decodegreen}{[l_{b}, t_{b})} \subseteq \textcolor{red}{[l_{c}, t_{c})}$).
+% 
+% \end{itemize}
+% 
+% 
+% При чтении очередного бита кода отрезок~$\textcolor{decodegreen}{[l_b,t_b)}$ делится пополам.
+% 
+% Если $\textcolor{decodegreen}{[l_b, t_b)}$ целиком помещается в~подотрезок  $\textcolor{red}{[l_c, t_c)}$, соответствующий какому-либо символу, $\textcolor{red}{[l_c, t_c)}$ заменяется на этот подотрезок, а~символ присоединяется к~раскодированной части сообщения.
+% 
+% Масштабирование выполняется, только когда оба отрезка (или, что то же самое, б\'{о}льший $\textcolor{red}{[l_c, t_c)}$) помещаются в~одной из половин~$[0, N-1]$.
+% \bigskip
+
+
+Входной поток бесконечен: $\finalcode{}00000...$
+\bigskip
+
+
+\def\decodebitsinangle{-20}  
+
+
+\renewcommand{\inthpoints}{
+%   \inthpointsbystyles{0/\lbin-1/emptypointstyle, \lbin/\hbin/greenpointstyle, \hbin+1/\N-1/emptypointstyle}
+  \inthpointsbystyles{0/\lbin-1/emptyfillstyle, \lbin/\hbin/greenfillstyle, \hbin+1/\N-1/emptyfillstyle}
+
+  \tikzmath{
+    \l = \lsym;
+    \h = \hsym;
+  } 
+%   \drawalphsubdiv
+}
+
+
+\def\oldsyms{}
+\newcommand{\printsyms}{
+  \text{%
+    \oldsyms%
+    \ifthenelse{\equal{\symcount}{0}}{}{%
+      \foreach \i in {1,...,\symcount}{\symbols{\i}}
+    }
+  }
+}
+
+% !отображение
+% % \def\decodelabel{$\textcolor{red}{[\lsym,\hsym],}~\textcolor{decodegreen}{[\lbin,\hbin],}$~\printsyms}
+% % \def\decodelabel{$\textcolor{decodegreen}{[\lbin, \hbin]}\subseteq\textcolor{red}{[\lsym, \hsym],}$~\printsyms}
+\def\decodelabel{\tikzmath{\tbin=\hbin+1;\tsym=\hsym+1;}$\textcolor{decodegreen}{[\lbin, \tbin)}\subseteq\textcolor{red}{[\lsym, \tsym),}$~\printsyms}
+\def\decodelabelB{\tikzmath{\tbin=\hbin+1;\tsym=\hsym+1;}$\textcolor{decodegreen}{\mathbf{[\lbin, \tbin)}}\subseteq\textcolor{red}{[\lsym, \tsym),}$~\printsyms}
+\def\decodelabelC{\tikzmath{\tbin=\hbin+1;\tsym=\hsym+1;}$\textcolor{decodegreen}{[\lbin, \tbin)}\subseteq\textcolor{red}{\mathbf{[\lsym, \tsym)},}$~\printsyms}
+
+
+\def\intinit [#1,#2], [#3,#4], #5 
+{
+%   \small
+  \tikzmath{	% значения между слайдами не сохраняются
+    \lbin = #1;
+    \hbin = #2;
+    \lsym = #3;
+    \hsym = #4;
+  }  
+  \def\oldsyms{#5}
+  \codelabelat{\decodelabel}{0.3}
+  
+  \inthpoints
+  \drawalphsubdiv
+
+}
+
+\renewcommand{\makenormalizelabels}{
+  \tikzmath{
+      let \normlabels{0} = ;
+      let \normlabels{1} = ;
+      let \normlabels{2} = ;
+      let \normlabels{3} = ;
+  }
+}
+
+\newcommand{\decodenormalizelen}{
+  \tikzmath{
+    \l = \lsym;
+    \h = \hsym;
+  } 
+  \normalizelen
+}
+
+\newcommand{\readbit}[2][]{
+  \tikzmath{
+    int \centerfloor;
+    \centerfloor = 0.5*(\lbin+\hbin);
+  }
+  \foreach \l/\h/\lbl in {\lbin/\centerfloor+1/0, \centerfloor+1/\hbin+1/1} {
+    \path[draw=decodegreen] (\l,\yticklevel)  to[out=\decodebitsinangle,in=180-\decodebitsinangle] node[decodegreen] [sloped,below,scale=\tickarcfontscale] {$\lbl$} (\h,\yticklevel);
+  }
+  \tikzmath{
+    int \newbit;
+    \newbit = #2;
+    if 0==\newbit then 
+    { 
+    \hbin = \centerfloor;
+    } 
+    else 
+    {       
+    \lbin = \centerfloor+1;
+    };    
+  } 
+  \moveyticklevel
+  \foreach \x in {\lbin,\hbin+1} {
+    \draw[scaleline] (\x, \oldyticklevel) -- (\x, \newyticklevel);
+  }
+  \def\codepos{\subdivcodepos}
+  \autocodelabel{\decodelabelB}
+  \node[codenode, left = 0mm of lastcode]  {\textbf{\newbit}};
+
+  
+  \inthpoints
+  
+  
+  \drawalphsubdiv
+
+  \ifthenelse{\equal{\decodenextsymindex}{0}}{
+  }{
+    \extractsym{\decodenextsymindex}
+%   \node[codenode, left = 6mm of lastcode]  {{\decodenextsymindex~\lbin~\hbin}};
+
+    \decodenormalizelen
+    \decodenormalizelen
+    \decodenormalizelen
+    \decodenormalizelen
+    \decodenormalizelen
+    \decodenormalizelen
+    \decodenormalizelen
+
+    \drawalphsubdiv
+    \ifthenelse{\equal{\decodenextsymindex}{0}}{
+    }{
+      \extractsym{\decodenextsymindex}
+      \decodenormalizelen
+      \decodenormalizelen
+      \decodenormalizelen
+      \decodenormalizelen
+      \decodenormalizelen
+      \decodenormalizelen
+      \decodenormalizelen
+      
+      \drawalphsubdiv
+      \ifthenelse{\equal{\decodenextsymindex}{0}}{
+      }{
+	\extractsym{\decodenextsymindex}
+	\decodenormalizelen
+	\decodenormalizelen
+	\decodenormalizelen
+	\decodenormalizelen
+	\decodenormalizelen
+	\decodenormalizelen
+	\decodenormalizelen
+	
+      }      
+    }
+  }
+  
+  
+}
+
+\newcommand{\extractsym}[2][\intshortlabel]{
+  \tikzmath{
+    \symcount = \symcount + 1;
+%     \i = #2;
+%     \symbolindices{\symcount} = \i;
+    let \symbols{\symcount} = \c{#2};
+    \l = \lsym;
+    \h = \hsym;
+  } 
+  \calcalphsubdiv{#2}
+  \tikzmath{
+    \lsym = \l;
+    \hsym = \h;
+  }   
+  \moveyticklevel
+  \foreach \x in {\l,\h+1} {
+    \draw[scaleline] (\x, \oldyticklevel) -- (\x, \newyticklevel);
+  }
+  \def\codepos{\subdivcodepos}
+  \autocodelabel{\decodelabelC}
+  
+  \inthpoints
+  
+  
+%   \freescale
+}
+
+\renewcommand{\intscale}[3][\intshortlabel]{
+  \tikzmath{
+    real \hscalestart, \binsubdivlen;
+    \hscalestart = #2;
+    if (\hscalestart>0.249)*(\hscalestart<0.251) then 
+    { 
+      \binsubdivlen = 0.25;
+    } 
+    else  
+    {
+      \binsubdivlen = 0.5;
+    };
+  } % \tikzmath
+
+  \binlines[\binsubdivlen]{#3}
+  
+  \def\codepos{\scalecodepos}
+  \halfscale[\lbin,\hbin+1, \lsym,\hsym+1]{\hscalestart}{\decodelabel}
+  
+  \inthpoints
+  \drawalphsubdiv
+  
+}
+
+\renewcommand{\halfscalevalues}[2][]{
+  \tikzmath{
+    real \hscalestart;
+    \hscalestart = #2;    
+    %
+    \lbin = (\lbin - \hscalestart * \xtickfinal) * 2;
+    \hbin = (\hbin - \hscalestart * \xtickfinal) * 2 + 1;
+    %
+    \lsym = (\lsym - \hscalestart * \xtickfinal) * 2;
+    \hsym = (\hsym - \hscalestart * \xtickfinal) * 2 + 1;
+  } 
+}
+
+% % \newcommand{\freescale}[1][]{
+% %   \tikzmath{
+% %     real \hscalecoeff;
+% %     \hscalecoeff = \N / (\hsym - \lsym + 1);
+% %     int \intscaleshift;
+% %     \intscaleshift = \lsym;
+% %     %
+% %     int \newlbin, \newhbin, \oldlbin, \oldhbin;
+% %     \newlbin = (\lbin - \intscaleshift) * \hscalecoeff;
+% %     \newhbin = (\hbin - \intscaleshift) * \hscalecoeff + 1;
+% %     %
+% % %     \lsym = 0;
+% % %     \hsym = \N-1;
+% %   } % \tikzmath
+% %   
+% % %   \def\codepos{\scalecodepos}
+% % %   \halfscale[\lbin,\hbin+1, \lsym,\hsym+1]{\hscalestart}{$[\lbin,\hbin], [\lsym,\hsym],~\printsyms$}
+% %   
+% %   \moveyticklevel
+% % 
+% % %   \ifthenelse{\isempty{#1}}{}{
+% %     \foreach \x/\newx in {\lbin/\newlbin,\hbin+1/\newhbin+1, \lsym/0,\hsym+1/\N} {
+% %       \draw[scaleline] (\x, \oldyticklevel) -- (\newx, \newyticklevel);
+% %     }
+% % %   }
+% %   
+% %   \begin{pgfonlayer}{background}
+% %     \fill[yellow,%opacity=0.1,
+% %     path fading = south, blend mode=multiply] (\lsym, \oldyticklevel) -- (0, \newyticklevel) -- (\xtickfinal, \newyticklevel) -- (\hsym+1, \oldyticklevel);
+% %   \end{pgfonlayer}  
+% %   
+% %   \tikzmath{
+% %     \lbin = \newlbin;
+% %     \hbin = \newhbin;
+% %     \lsym = 0;
+% %     \hsym = \N-1;
+% %   }
+% %   
+% %   \autocodelabel{\decodelabel}
+% %   \inthpoints
+% %   \drawalphsubdiv
+% %   
+% % }
+

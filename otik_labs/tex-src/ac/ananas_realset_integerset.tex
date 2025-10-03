@@ -1,0 +1,232 @@
+\input{commonpath}
+\input{\ARITHMETICPATH/common_preamble}
+
+% \geometry{margin=10mm, left =10mm, paperwidth=1600mm,paperheight=800mm} % без комментариев
+\geometry{margin=10mm, left =10mm, paperwidth=1600mm,paperheight=1200mm}
+
+
+\begin{document}
+\input{\ARITHMETICPATH/common_encode}
+
+\setlength{\parindent}{0mm}
+
+Геометрическая интерпретация арифметического кодирования сообщения $C = \text{АНАНАС}$.
+Все величины вещественные; расчёты абсолютно точные.
+
+Алфавит $A = \{\text{А}, \text{Н}, \text{С} \}$ упорядочен по убыванию частот $\nu = \left\{\frac{1}{2}, \frac{1}{3}, \frac{1}{6} \right\}$ (при совпадении частот использовался бы изначальный алфавитный порядок).
+
+Начальный рабочий полуинтервал $[l_0, t_0) = [0, 1)$.
+
+На шаге $i$ предыдущий полуинтервал $[l_{i-1}, t_{i-1})$ разбивается на три (по числу символов алфавита) части, длины которых пропорциональны частотам символов.
+% Границы частей $l_{i-1}, l_{i-1}+\frac{1}{2}\Delta, l_{i-1}+\frac{5}{6}\Delta, l_{i-1}+\frac{6}{6}\Delta = t_{i-1}$
+В~соответствии с~символом $c_i$ сообщения из этих частей выбирается следующий полуинтервал $[l_{i}, t_{i}) \subseteq [l_{i-1}, t_{i-1})$:
+$
+[l_{i}, t_{i}) = 
+\left\{
+\begin{array}{@{}llllll}
+\big[l_{i-1}, & l_{i-1}+\frac{1}{2}\Delta_{i-1} \big), &&& &c_i = \text{А},\\
+\big[l_{i-1}+\frac{1}{2}\Delta_{i-1}, & l_{i-1}+\left(\frac{1}{2}+\frac{1}{3}\right)\Delta_{i-1} \big) &=& \big[l_{i-1}+\frac{1}{2}\Delta_{i-1}, & l_{i-1}+\frac{5}{6}\Delta_{i-1} \big), & c_i = \text{Н},\\
+\big[l_{i-1}+\frac{5}{6}\Delta_{i-1}, & l_{i-1}+\left(\frac{5}{6}+\frac{1}{6}\right)\Delta_{i-1} \big) &=& \big[l_{i-1}+\frac{5}{6}\Delta_{i-1}, & t_{i-1} \big), & c_i = \text{С},\\
+\end{array}\right.
+$
+где $\Delta_{i-1} = t_{i-1} - l_{i-1}$.
+
+Получаем последовательность полуинтервалов: 
+$
+\begin{array}{cccccccccccccc}
+[0, 1) &\supseteq&[l_1, t_1)&\supseteq&[l_2, t_2)&\supseteq&[l_3, t_3) &\supseteq&[l_4, t_4)&\supseteq&[l_5, t_5)&\supseteq&[l_6, t_6).\\
+       &&           \text{А}          &&\text{АН}         &&\text{АНА}         &&\text{АНАН}       &&\text{АНАНА}      &&\text{АНАНАС}\\
+\end{array}
+$
+($l_i \in \Realset, t_i \in \Realset$).
+%
+В~последнем полуинтервале $[l_6, t_6)$ выбирается точка $z \in [l_6, t_6)$ такая, что её двоичное представление конечно (и~самое короткое из всех точек $[l_6, t_6)$): 
+здесь $z= 0,0100111$.
+Дробная часть $z$ (биты $0100111$) "--- код сообщения $z$.
+
+
+
+% \noindent
+\begin{tikzpicture}
+
+\def\ticksymbolcontrol{0.8}
+\tikzstyle{symlinestyle}=[red, line width=0.2ex]
+\holineStart
+\hlineRealStart
+
+\hlineRealStep{А/1/2,Н/5/6,С/1/1}{0/1}{1/2}{1/1/$1$}
+
+% \insertcommentbox{\l --- \t}
+
+\hlineRealStep{АА/1/2,АН/5/6,АС/1/1}{1/4}{5/12}{0/1/$0$, 1/1/$1$}
+% l2 = 0 + 1/2 ? 1/2 = 1/4
+% t2 = 0 + 1/2 ? 5/6 = 5/12.
+% d2 = 1/3 ? 1/2 = 1/6
+
+\hlineRealStep{АНА/1/2,АНН/5/6,АНС/1/1}{1/4}{1/3}{0/1/$0$, 1/1/$1$}
+%t3 = 1/4 + 1/12 = 1/3
+
+\tikzstyle{pilabelstyle}=[sloped, scale=0.5, above, rotate=90, anchor=west]
+\tikzstyle{labelbelowstyle}=[rotate=90, scale=0.5, anchor=east]
+\def\ticksymbolcontrol{0.3}
+\tikzstyle{symlinestyle}=[red]
+
+
+\hlineRealStep{АНАА/1/2,АНАН/5/6,АНАС/1/1}{7/24}{23/72}{0/1/$0$, 1/1/$1$}
+
+\hlineRealStep{АНАНА/1/2,АНАНН/5/6,АНАНС/1/1}{7/24}{11/36}{0/1/$0$, 1/1/$1$}
+% l5 = l4 = 7/24+5/6*1/72
+% t5 = 7/24 + 1/72 = 11/36
+
+
+\hlineRealStep{АНАНАА/1/2,АНАНАН/5/6,АНАНАС/1/1}{131/432}{11/36}{0/1/$0$, 1/1/$1$}
+%t5 = 7/24 + 1/72 = 11/36
+
+
+\hlineRealFinal{АНАНАС/1/1}{0/1/$0$, 1/1/$1$, 1/2/{$\frac{1}{2}=0,1$}, 1/4/{$\frac{1}{4}=0,01$}, 3/8/{$\frac{1}{4}+\frac{1}{8}=\frac{3}{8}=0,011$}, 5/16/{$\frac{1}{4}+\frac{1}{16}=\frac{5}{16}=0,0101$}, 9/32/{$\frac{1}{4}+\frac{1}{32}=\frac{9}{32}=0,01001$}, 19/64/{$\frac{9}{32}+\frac{1}{64}=\frac{19}{64}=0,010011$}, 39/128/{$\frac{19}{64}+\frac{1}{128}=\frac{39}{128}=0,0100111$}}
+
+\end{tikzpicture}
+
+\nolineIntInit
+
+Геометрическая интерпретация целочисленной реализации арифметического кодирования сообщения $C = \text{АНАНАС}$ и~соответствие целочисленных  \hex{\ell} и~\hex{t} точкам вещественного  полуинтервала $[0, 1)$. 
+Над осью "--- целочисленные изображения из $[0, N)$ (используется $N=\N$). Под осью "--- вещественные значения из $[0, 1)$.
+
+Бледно-синей широкой линией \tikz\draw[viewarealinestyle](0,0)--(0.01,0); показана та часть $[Q_0, Q_N)$ вещественного полуинтервала $[0, 1)$, которая в~данный момент изображается целочисленным полуинтервалом $[0, N)$.  
+Синим цветом отмечены также биты, совпадающие для всех вещественных точек, изображаемых $[0, N)$.   
+
+Для удобства целочисленных расчётов вещественные накопленные частоты  $\left\{0, \frac{1}{2}, \frac{5}{6}, 1 \right\} = \left\{\frac{0}{6}, \frac{3}{6}, \frac{5}{6}, \frac{6}{6} \right\}$ заменены на совокупность целочисленных накопленных частот $\omega = \left\{0, 3, 5, 6 \right\}$ и~общего знаменателя (делителя) $D=6$.
+Ненакопленные частоты символов также целочисленные: 
+$\left\{\frac{1}{2}, \frac{1}{3}, \frac{1}{6} \right\} = \left\{\frac{3}{6}, \frac{2}{6}, \frac{1}{6} \right\}
+\Longrightarrow
+\nu = \left\{3, 2, 1 \right\}
+~
+\left(\text{и~}\displaystyle D = \sum_j%=1^T
+\nu_j \right)
+$.
+
+\begin{tabular}{|l|llll|}
+\hline
+j & 0 & 1 & 2 & 3 \\
+\hline
+$\xi_j \in A$ &   & А & Н & С \\
+$\nu_j \in \Naturalset$ && 3 & 2 & 1 \\
+$\omega_j \in \Naturalset\cup\{0\}$ & 0 & 3 & 5 & 6 \\
+\hline
+\end{tabular}
+$\displaystyle 
+D = \sum_{j=0}^T \nu_j = \omega_T = 6
+$,
+где $T=3$ "--- размер алфавита; 
+$\xi_1, \ldots \xi_T\in A$ "--- символы алфавита в~порядке убывания частот ($a_1, \ldots a_T$ "--- они же в~оригинальном алфавитном порядке);
+$\nu_1, \ldots \nu_T \in \Naturalset$ "--- целочисленные частоты (для больших файлов нормируются для экономии места в~заголовке и~достижения  $N>>4 D^2$, но так, что если символ $\xi_j$ встречается в~файле хотя бы один раз, $\nu_j>0$);
+$\omega_0, \omega_1, \ldots \omega_T \in \Naturalset$ "--- целочисленные накопленные частоты для расчёта границ символов: $\omega_0 = 0$, далее $\omega_j = \omega_{j-1} + \nu_j$.
+
+$N=\N: ~~ \frac{N}{2}=\NH, \frac{N}{4}=\NQ, \frac{3N}{4}=\NTQ$
+
+Целочисленные изображения \hex{\ell} и~\hex{t} не являются \emph{точными} изображениями $l_{i}$ и~$t_{i}$ вещественной реализации при $i>1$ (погрешность накапливается), но при декодировании погрешность компенсируется (при $N=2^\alpha>>4 D^2$%, где $D$ "--- общий знаменатель вещественных частот
+; $N$ должно быть одно и~то же про кодировании и~декодировании).
+
+Начальный рабочий целочисленный полуинтервал $[l, t) = [0, N)$, и~вначале он соответствует вещественному $[0, 1)$.
+
+На шаге $i$ выполняется:
+\begin{itemize}
+\item сокращение полуинтервала с~учётом символа $c_i = \xi_j$ (то есть порядковый номер символа в~сообщении $i$, а~номер этого же символа в~переупорядоченном по убыванию частот алфавите $j$) "---
+предыдущий полуинтервал $[l, t)$ разбивается на части, длины которых пропорциональны частотам символов, и~выбирается $j$-я, границы которой могут быть рассчитаны по формулам:
+
+$\Delta = t - l, ~
+\left\{\begin{array}{@{}l@{~}l@{~}l@{}}
+l &\to& l + \frac{\Delta\cdot \omega_{j-1}}{D}\\
+t &\to& l + \frac{\Delta\cdot \omega_{j}}{D}\\
+\end{array}\right.
+;$
+
+\item одно или несколько (или ни одного) \emph{масштабирований} (увеличений масштаба) "--- изменений вещественных границ $[Q_0, Q_N)$  целочисленного изображения $[0, N)$.  
+Размер $[Q_0, Q_N)$ при каждом масштабировании уменьшается вдвое; расстояния на его изображении $[0, N)$ "--- вдвое увеличиваются.
+
+\end{itemize}
+
+\begin{tikzpicture}
+\holineStart
+
+% \tikzstyle{ticklinestyle}=[]
+\tikzstyle{labelbelowstyle}=[]
+% \tikzstyle{labelabovestyle}=[]
+\tikzstyle{pilabelstyle}=[sloped, above]
+
+
+\tikzstyle{symlinestyle}=[red, line width=0.2ex]
+\def\ticksymbolcontrol{0.8}
+
+\hlineIntStart
+
+\hlineIntStepChar{А/1/2,Н/5/6,С/1/1}{0/1}{1/2}{/0/1/{$0,0$}, \N/1/1/{$1,0$}}
+\hlineIntStepScale{0}{{\ell=0}/0/1/{$0,0$}, {t=\N}/1/2/{$0,1000=0,011(1)$}, /1/1/{$1,0$}}
+
+% \insertcommentbox{\realLview, \realDview, \y}
+
+\hlineIntStepChar{АА/1/2,АН/5/6,АС/1/1}{1/2}{5/6}{0/0/1/{$0,0$}, /1/1/{$1,0$}, {\N}/1/2/{$0,1000=0,011(1)$}}
+
+\hlineIntStepScale{1}{/0/1/{$0,0$}, /1/1/{$1,0$}, {\ell=0}/1/4/{$0,01$}, {\N}/1/2/{$0,1000=0,011(1)$}, {t=\intt}/\realt/1/ }
+
+\hlineIntStepChar{АНА/1/2,АНН/5/6,АНС/1/1}{0/1}{1/2}{/0/1/{$0,0$}, /1/1/{$1,0$}, /1/4/{$0,01$}, {\N}/1/2/{$0,1000=0,011(1)$}}
+
+
+\hlineIntStepScale{0}{/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, {\ell=0}/1/4/{$0,\outbits{010}$}, {\N}/3/8/{$0,011=0,\outbits{010}(1)$}, {t=\intt}/\realt/1/}
+
+% \tikzstyle{labelbelowstyle}=[rotate=90, anchor=east]
+\def\ticksymbolcontrol{0.3}
+\tikzstyle{symlinestyle}=[red]
+
+
+
+\tikzstyle{labelabovestyle}=[rotate=90, anchor=west]
+\tikzstyle{labelbelowstyle}=[rotate=90, anchor=east]
+\tikzstyle{pilabelstyle}=[sloped, above, rotate=90, anchor=west]
+
+\hlineIntStepChar{АНАА/1/2,АНАН/5/6,АНАС/1/1}{1/2}{5/6}{/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, {0}/1/4/{$0,\outbits{010}$}, {\N}/3/8/{$0,011=0,\outbits{010}(1)$}%, {\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/
+}
+
+
+\tikzmath{
+    \yspaceInMm = 5;
+}
+
+\hlineIntStepScale{2}{/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, /1/4/{$0,\outbits{010}00$}, 
+/3/8/{$0,011 = 0,\outbits{010}11(1)$},  
+% /3/8/{$0,01100$},  
+{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, 
+{0}/9/32/{$0,\outbits{010}01$}, /\realLview+\realDview*0.5/1/{$0,\outbits{010}10$}, {\N}/\realLview+\realDview/1/{$0,\outbits{010}11=0,\outbits{010}10(1)$}
+}
+
+
+\tikzmath{
+    \yspaceInMm = 15;
+}
+
+\hlineIntStepChar{АНАНА/1/2,АНАНН/5/6,АНАНС/1/1}{0/1}{1/2}{/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, /1/4/{$0,01000$}, /3/8/{$0,01100$},
+{0}/9/32/{$0,\outbits{010}01$}, /\realLview+\realDview*0.5/1/{$0,\outbits{010}10$}, {\N}/\realLview+\realDview/1/{$0,\outbits{010}11$}}
+
+
+\hlineIntStepScale{0}{{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, 
+/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, {0}/\realLview/1/{$0,\outbits{01001}$}, {\N}/\realLview+\realDview/1/{$0,0101=0,\outbits{01001}(1)$}}
+
+% \tikzstyle{pilabelstyle}=[sloped, scale=0.5, above, rotate=90, anchor=west]
+
+\def\ticksymbolcontrol{-0.3}
+\tikzstyle{pilabelstyle}=[sloped, scale=0.5, below, rotate=90, anchor=east]
+
+\hlineIntStepChar{АНАНАА/1/2,АНАНАН/5/6,АНАНАС/1/1}{5/6}{1/1}{/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, {0}/\realLview/1/{$0,01001$}, {\N}/\realLview+\realDview/1/{$0,0101$}}
+
+
+
+\hlineIntStepScale{1}{{\ell=\intl}/\reall/1/, {t=\intt}/\realt/1/, 
+/0/1/{$0,0$}, /1/1/{$1,0$}, /1/2/{$0,1$}, {0}/\realLview/1/{$0,\outbits{010011}0$}, {\N}/\realLview+\realDview/1/{$0,0101=\outbits{010011}(1)$},
+/\realLview+\realDview*0.5/1/{$\finalval{0,\outbits{010011}1}$}
+}
+
+
+\end{tikzpicture}
+
+
+\end{document}

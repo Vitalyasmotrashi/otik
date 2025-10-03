@@ -1,0 +1,340 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+% Команда, заставляющая LaTeX не создавать выступающие за край страницы строки (overfull),
+% а вместо этого растягивать их сильнее, чем обычно (underfull).
+\setlength{\emergencystretch}{2pt} % Explanation: if TeX can't typeset a paragraph without bad boxes, and \emergencystretch is nonzero, it tries once again, but this time increasing the stretchability of the space by the value of this parameter.
+
+
+%подавление висячих строк.
+\clubpenalty=10000
+\widowpenalty=10000
+
+\interfootnotelinepenalty=10000 % не разрывать сноску между страницами
+
+
+\usepackage[pdftex,unicode=true,colorlinks]{hyperref}
+
+\usepackage{geometry}
+
+
+% \geometry{
+%   papersize={17.06cm,9.6cm},  hmargin=6mm% 16/9 — под весь экран, поля маленькие
+% }
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+% % % 
+% % % \newcommand{\shline}{%
+% % % \raisebox{0ex}[extend-above][extend-below]{}%
+% % % }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+
+% \begin{frame}[plain]
+% \widepressetfontsize{\scriptsize}
+\scriptsize
+
+% \sfseries
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+% \def\refinedW{W_1}
+\def\refinedW{V}
+
+
+% размеры
+\tikzstyle{espdnormalsize}  = [minimum height=5ex, text width=12em, inner sep = 0.2em]
+\tikzstyle{espdwide}        = [minimum height=5ex, text width=20em, inner sep = 0.2em, text width=19.6em, minimum width = 20em ]
+\tikzstyle{espdnarrow}      = [minimum height=5ex, text width=8em, inner sep = 0.2em]
+\tikzstyle{espddatafilesize}	= [minimum height=8em, minimum width=5ex, inner sep = 0.2em] % для цилиндра высота — это width!
+
+
+\tikzstyle{connector}=[espdconnector, minimum height=3ex, ]
+
+\tikzset{node distance = 1ex and 1em}
+
+\node[ espdblackcenter, espddata,                ] (L) {$L$};
+\node[ espdblackcenter, espddata, right = of L,  ] (S) {$S$};
+
+
+\node[ right = of S,  outer sep = 0em, inner sep = 0em] (LScomment) {$\begin{array}{@{}r@{~}c@{~}c@{~}c@{~}l@{}}
+\text{{такие, что}}& c_{i-S} &\ldots&c_{i-S+L-1}&{=}\\
+{}= E_{L} =& c_i &\ldots& c_{i+L-1}&\end{array}$};
+
+\node[espdfit, fit=(L)(S)(LScomment), inner sep = 0.5em, minimum width = 24em] (LS) {};
+
+\tikzset{node distance = 2ex and 2em}
+
+
+
+
+
+
+
+% \node[espdwide, espdblackleft, espdprocess, above = of LS  ] (initLS) {
+\node[espdwide, espdblackcenter, espdprocess, above = of LS  ] (initLS) {
+% \uline{Инициализация $\{L, S\}$ или следующая~$i$:}\medskip
+\uline{Инициализация $\{L, S\}$ или к~следующей~$i$:}\medskip
+% \uline{Инициализация $\{L, S\}$ или к~след.\,$i$:}\medskip
+%         \medskip
+    
+%     поиск   такого   $j \in W$, что совп. $L_{\min}$ \rlap{символов:}
+     поиск     $j \in W$, что совпадает $L_{\min}$ {символов:}
+   
+    $c_{j} \ldots c_{j+L_{\min}-1} = E_{\min} = c_i \ldots c_{i+L_{\min}-1}$
+    
+
+%     поиск \textbf{начала} $i-S$ слова $E_{\min}$ в~окне 
+% 
+%         (поиск  $E_{\min}$ в~$c_{i-w}\ldots c_{i-1}\ldots c_{i+L_{\min}-2}$).
+
+        % \smallskip
+        \medskip
+
+%         {Если не найдено: ~ запись $c_i$, ~ $i = i+1$;}
+% 
+%         % \smallskip
+% %         \medskip
+% 
+%         % иначе: $L = L_{\min}$, \hfill $S$ найденное: $c_{i-S} \ldots c_{i-S+L-1} = E_{\min} = c_i \ldots c_{i+L-1}$.
+% %         иначе: $L = L_{\min}$, ~ $S$ найденное
+%         иначе: $L = L_{\min}$, ~ $S = i-j \in [1, w]$ 
+
+        Если найдено: ~ $L = L_{\min}$, ~ $S = i-j$;
+                
+        иначе "--- запись $c_i$, ~ $i = i+1$
+}; 
+
+
+
+
+
+
+
+
+ 
+\node[espdwide, espdblackcenter, espdprocess, below = of LS.south west, anchor=north west, text width=18em, ] (refineL) {\uline{1. Уточнение $L$ для~текущего $S$:}
+
+    если $L<L_{\max}$ и~$c_{i-S+L} = c_{i+L}$,         то~$L = L+1$
+};
+
+\node[espdwide, espdblackcenter, espdprocess, below = of refineL.south-|LS, text width=23.6em, minimum width = 24em  ] (refineS) {\uline{2. Поиск лучшего $S$:} 
+% (м.\,б. не реализован):
+
+если $L<L_{\max}$ лучшее для текущего $S$
+%         \mbox{и~есть неисследованная} часть $\refinedW$ окна "--- 
+и~$\refinedW\neq\varnothing$:
+
+%         поиск \textbf{начала} $i-S$ слова $E_{L+1}$ в~$\refinedW$
+    поиск такого 
+%     $j \in \refinedW$, что совп. $L+1$ символов: $c_{j} \ldots c_{j+L} = E_{L+1} = c_i \ldots c_{i+L}$.
+    $j \in \refinedW$, что совпадает $L+1$ символов: $c_{j} \ldots c_{j+L} = E_{L+1} = c_i \ldots c_{i+L}$.
+        \medskip
+    
+        Если найдено:
+        $L = L + 1$, ~ $S = i-j$ 
+};
+
+ 
+
+\node[espdnormalsize, espdblackcenter, espdprocess, right = of LS ] (writeLS) {\uline{Запись $\{L, S\}$, ~ $i = i+L$}
+
+если $L=L_{\max}$ \mbox{или~%
+% лучших $S$ и~$L$ нет
+% для $i$ 
+не~найдено} \mbox{лучших $S$ и~$L$}
+% :
+
+% а) запись $\{L, S\}$, б)~$i = i+L$
+};
+
+
+ 
+\node[espdwide, espdblackcenter, espddata, above = of initLS , text width=18em ] (wnd) {Окно~$W$:
+% (включает начало слов $E_L$, но не обязательно  $E_L$ целиком)
+
+$(i-w), (i-w+1), \ldots (i-1)$};
+
+\node[espdnormalsize, espdblackcenter, espddata, right = of refineS ] (refinedwnd) {Неисследованная часть окна~$\refinedW \subset W$};
+\node[espdblackcenter, connector, above = of refinedwnd ] (to_refinedwnd_2) {$1$};
+
+
+
+\node[espdnarrow, espdblackcenter, espddata, right = of wnd  ] (wlen) {Размер окна $w \leqslant S_{\max}$};
+
+
+% \node[espdnarrow, espdblackcenter, espddata ] (i) at (wnd-|emin) {Текущая позиция $i$};
+% \node[espdnarrow, espdblackcenter, espddata ] (i) at (wnd-|C) {Текущая позиция $i$};
+\node[espdnarrow, espdblackcenter, espddata, left = of wnd  ] (i) {Текущая позиция $i$};
+
+
+
+% \node[espdnormalsize, espdblackcenter, espddata, left = of initLS] (emin) {Слово мин. длины: \mbox{$E_{{\min}} = c_i \ldots c_{i+L_{\min}-1}$}};
+% \node[espddatafilesize, espdblackcenter, espddatafile, left = of emin] (C)  {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+% \node[espddatafilesize, espdblackcenter, espddatafile, left = of initLS] (C)  {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+% \node[espddatafilesize, espdblackcenter, espddatafile] (C) at (initLS-|refineS)  {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+% % \node[espddatafilesize, espdblackcenter, espddatafile, above = of refineS.north west, anchor = south west] (C)  {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+% \coordinate[left = of initLS] (C_to_initLS_initLS);
+\coordinate (C_to_initLS_initLS) at (initLS-|i);
+\node[espddatafilesize, espdblackcenter, espddatafile, left = of C_to_initLS_initLS] (C)  {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+
+% \node[espdnormalsize, espdblackcenter, espddata, below = of refineS] (eword) {Слово длины $L+1$: \mbox{$E_{L+1} = c_i %c_{i+1}
+%     \ldots c_{i+L}$} };
+
+\node[espddatafilesize, espdblackcenter, espddatafile] (arch) at (C-|writeLS)  {Архив};
+
+
+
+
+\draw[espdstreamto] (i) -- (wnd);
+\draw[espdstreamto] (wlen) -- (wnd);
+\draw[espdstreamto] (wnd) -- (initLS);
+
+% \draw[espdstreamto] (i) -- (emin);
+% \draw[espdstreamto] (C) -- (emin);
+% \draw[espdstreamto] (emin) -- (initLS);
+% \draw[espdstreamto] (C) \coordinate[pos=0,333] (C_to_i) \coordinate[pos=0,667] (to_all_c_i) -- (initLS);
+\draw[espdstreamto] (i) -- (C_to_initLS_initLS);
+\draw[espdstreamto] (C) -- (initLS);
+
+% \draw[espdstreamto] (eword) -- (refineS);
+\draw[espdstreamto] (LS) -- (writeLS);
+
+\draw[espdstreamto] (writeLS) -- (arch);
+\draw[espdstreamto] (initLS) -- node[pos=0.5, auto] {запись $c_i$}  (arch);
+
+% \draw[espdstreamto] () -- ();
+
+
+\coordinate (initLS_to_L) at (initLS.south-|L);
+\coordinate (initLS_to_S) at (initLS.south-|S);
+\draw[espdstreamto] (initLS_to_L) -- (L);
+\draw[espdstreamto] (initLS_to_S) -- (S);
+
+\coordinate (refineL_to_L) at (refineL.north-|L);
+\coordinate (refineL_to_S) at (refineL.north-|S);
+\draw[espdstreamtofrom] (refineL_to_L) -- (L);
+\draw[espdstreamfrom] (refineL_to_S) -- (S);
+
+\coordinate[left = of refineS.north east] (refineS_to_LS);
+\draw[espdstreamtofrom] (refineS_to_LS) -- (refineS_to_LS|-LS.south);
+
+
+% \coordinate[left = of refineS] (C_to_refineS);
+% \draw[espdstreamto] (C.south-|C_to_refineS) -- (C_to_refineS) -- (C_to_refineS-|refineS.west);
+% \draw[espdstreamto] (C_to_refineS) |- (eword);
+
+% \coordinate[below = 1.5ex of C.south-|C_to_refineS] (C_to_initLS);
+% \draw[espdstreamto] (C_to_initLS) -- (C_to_initLS-|initLS.west);
+
+
+\coordinate[above = of C.north-|initLS.west] (initLS_to_i_initLS);
+\coordinate[right = of i.south] (initLS_to_i_i);
+
+\draw[espdstreamto] (initLS_to_i_initLS) -| (initLS_to_i_i);
+
+
+\coordinate[right = of writeLS] (writeLS_writeLS_to_i);
+\coordinate[above = of i] (writeLS_to_i_i);
+\draw[espdstreamto] (writeLS) -- (writeLS_writeLS_to_i) |- (writeLS_to_i_i) -- (i);
+
+\coordinate (writeLS_to_i_arrow1_2) at (arch-|writeLS_writeLS_to_i);
+% \coordinate (writeLS_to_i_arrow1_1) at (arch.south-|writeLS_writeLS_to_i);
+\coordinate[below = 1pt of writeLS_to_i_arrow1_2] (writeLS_to_i_arrow1_1);
+\draw[espdstreamto] (writeLS_to_i_arrow1_1) -- (writeLS_to_i_arrow1_2);
+
+
+% \coordinate (writeLS_to_i_arrow2_2) at (wnd|-writeLS_to_i_i);
+\coordinate (writeLS_to_i_arrow2_2) at (wnd.east|-writeLS_to_i_i);
+\coordinate[right = 1pt of writeLS_to_i_arrow2_2] (writeLS_to_i_arrow2_1);
+\draw[espdstreamto] (writeLS_to_i_arrow2_1) -- (writeLS_to_i_arrow2_2);
+
+
+\coordinate[left = of LS] (ci_to_all_x);
+\coordinate[below = 4ex of C-|ci_to_all_x] (ci_to_all_arrow);
+
+\draw[espdstreamto] (C-|ci_to_all_x) -- (ci_to_all_arrow);
+\draw[espdstreamto] (C-|ci_to_all_x) |- (refineL);
+\draw[espdstreamto] (C-|ci_to_all_x) |- (refineS);
+
+
+\draw[espdstreamto] (to_refinedwnd_2) -- (refinedwnd);
+\draw[espdstreamtofrom] (refinedwnd) -- (refineS);
+
+\coordinate[above = of initLS.south east] (to_refinedwnd_0);
+\node[espdblackcenter, connector, right = of to_refinedwnd_0 ] (to_refinedwnd_1) {$1$};
+\draw[espdstreamto] (to_refinedwnd_0) -- (to_refinedwnd_1);
+
+
+\node[
+% below = of C.south west, 
+below = of C.west|-C.south, 
+anchor=north west, 
+text width=12.5em, text badly ragged, inner xsep = 0em ] 
+(totalcomment) {
+
+%     Если реализован поиск первого подходящего, а~не~наилучшего совпадения "--- блока «Поиск лучшего $S$» нет, 
+% 
+%     $S$  не меняется от~инициализации до~записи  $\{L, S\}$.
+%     \medskip
+
+%     После изменения $i$ (записи как  $\{L, S\}$, так~и~$c_i$)
+%     следует попытка новой инициализации.
+%     % (новый эталон $E_{\min}$, новое окно).
+%     \medskip
+    
+    Для разных кодов семейства LZ77 и~разных реализаций \rlap{различаются:} \medskip
+    
+    а)~алгоритмы поиска;\medskip
+    
+    б)~способы записи ссылок $\{L, S\}$ и~символов $c_i$;\medskip
+    
+    в)~из разных (б) следуют разные $L_{\min}$, $L_{\max}$, $S_{\max}$;\medskip
+    
+    г)~обработка $2 \leqslant i \leqslant S_{\max}$
+%     \rlap{$2 \leqslant i<(S_{\max}+1)$}
+    
+    и~т.\,д.
+    
+
+};
+
+
+
+\end{tikzpicture}
+}
+% \end{frame}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

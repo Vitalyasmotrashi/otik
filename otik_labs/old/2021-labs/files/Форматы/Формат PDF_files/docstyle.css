@@ -1,0 +1,20 @@
+
+.Normal {font-size:12pt; font-family:"Times New Roman";} 
+.MsoBodyText {text-align:justify; font-size:12pt; font-family:"Times New Roman"; 
+  color:black;}
+ .MsoBodyTextIndent {tab-stops:90.0pt; font-size:12pt; font-family:"Times New Roman", Times, serif;} 
+.Strong {font-weight:bold;}
+.MsoCaption {font-size:12.0pt; font-family:"Times New Roman"; font-weight:bold;}
+ .MsoBodyText {text-align:justify; font-size:12pt; font-family:"Times New Roman", Times, serif; color:black;} 
+.MsoBodyTextIndent2 {text-indent:35.45pt; font-size:12pt; font-family:"Times New Roman", Times, serif;} 
+.caption {font-size:12pt; font-family:"Times New Roman"; font-weight:bold;} 
+.BodyText {tab-stops:36.0pt 43.2pt 57.6pt 187.2pt; font-size:12.0pt; font-family:"Times 
+  New Roman";}
+.MsoBodyTextIndent3 {text-indent:42.55pt; tab-stops:155.95pt; font-size:12pt; 
+  font-family:"Times New Roman";}
+ .BodyText2 {text-align:justify; text-indent:35.45pt; font-size:12.0pt; font-family:"Times 
+  New Roman";}
+body {  background-attachment: fixed}
+a:link {  color: #3333FF}
+a:visited {  color: #3333FF}
+a:active {  color: #CC0000}

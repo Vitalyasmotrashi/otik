@@ -1,0 +1,284 @@
+
+
+
+% \subsection{Метод кодирования и~его реализация}
+% \begin{frame}{\insertsubsection}
+% \begin{adjustwidth}{-1.5em}{-1.9em}
+% \setlength{\parskip}{0.3\parskip}
+% \footnotesize
+% 
+% \termin{Идея кодирования: }
+% $x \in A_1^+, x \in X  ~~\leftrightarrow~~ code(x) \in A_2^+$
+% 
+% На практике:
+% первичный алфавит "--- байты,
+% исходный текст "--- произвольной длины $n$ байт;
+% причём там может встречаться любой символ или их комбинация.
+% 
+% 
+% 
+% {
+% \termin{Алгоритм кодирования:}\setlength{\parskip}{0.\parskip}
+% \begin{enumerate}
+% \item собственно алгоритм;
+% \item \termin{представление данных.}
+% \end{enumerate}
+% 
+% }
+% 
+% % Источник $X$ неизвестен (тип модели $X$ берём из алгоритма кодирования).
+% {
+% \termin{Программная реализация:} \setlength{\parskip}{0.\parskip}
+% \begin{enumerate}
+% \item дополнение исходного текста при необходимости (обычно нулями) и~обрезка декодированного текста до длины $n$;
+% % \item преобразование последовательности байтов в~$A_1$ и~$A_2$ в~байты;
+% % \item кодирование и~однозначное декодирование исходного текста;
+% \item при сжатии: анализ сжатия/увеличения (запись кода или копии);
+% \item формирование и~чтение заголовка.
+% \end{enumerate}
+% }
+% % включает не только расчёт параметров модели: \\
+% $(\text{$n$ байт}) \leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% \text{модель}~X\\
+% x \in A_1^+ \\
+% \end{array}\right.
+% \leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% \text{модель}~X,\\
+% \text{алгоритм кодирования},\\
+% \text{параметры кодирования},\\
+% code(x) \in A_2^+ \\
+% \end{array}\right.
+% \leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% \text{заголовок},\\
+% \text{данные $y$ ($m$ байт)} \\
+% \end{array}\right.
+% $
+% 
+% % \hrulefill
+% \end{adjustwidth}
+% \end{frame}
+
+
+\subsection{Формат файла}
+
+\begin{frame}{\insertsubsection}
+\footnotesize
+% \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.3\parskip}
+
+\begin{enumerate}
+\item Сигнатура (обычно первые 2-4 байта для общепринятых форматов)
+\begin{itemize}
+% \item часть заголовка (обычно начало);
+\item быстрое распознавание типа файла (свой/чужой).
+\end{itemize}
+
+\item Метаданные (заголовок)
+\begin{itemize}
+\item версия формата;
+\item исходная длина файла;
+\item смещение начала данных, их размер и~формат;
+\item тип сжатия, параметры для распаковки {(обычно чем нестандартнее модель источника, тем объёмнее);}
+\item тип защиты от помех, параметры для восстановления;
+\item зарезервированные поля для выравнивания;
+\item контрольная сумма заголовка;
+\item контрольная сумма файла
+и~т. д.
+
+\end{itemize}
+% \termin{Чем сложнее модель источника, тем объёмнее метаданные.}
+
+\item Данные
+\begin{itemize}
+\item могут включать вложенные заголовки (контейнеров) \rlap{с~сигнатурами.}
+\end{itemize}
+\end{enumerate}
+
+
+\end{frame}
+
+
+
+\subsection{Формат zip --- несколько файловых записей}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.5em}{-1.9em}
+\footnotesize
+\setbeamertemplate{itemize/enumerate body begin}{\footnotesize}
+\setbeamertemplate{itemize/enumerate subbody begin}{\footnotesize}
+\setlength{\leftmargini}{0em}
+\setlength{\leftmarginii}{1em}
+\setlength{\parskip}{0.3\parskip}
+
+% https://habr.com/en/company/vk/blog/490790/#17
+%     Каждый файл, или элемента архива, в Zip-файле имеет локальный заголовок файла с метаданными об элементе.
+%     Центральный каталог служит индексом архива. Он содержит центральный заголовок файла для каждого элемента архива, копию метаданных из локального заголовка файла, а также дополнительную информацию, такую как смещение элемента в Zip-файле.
+%     В конце файла, сразу после центрального каталога конец записи центрального каталога. Она содержит размер и позицию центрального каталога, а также может содержать комментарии обо всём архиве. Это начальная точка чтения Zip-файла.
+% Каждый элемент архива сжимается и хранится индивидуально. Это означает, что даже если между файлами в архиве есть совпадения, они не будут учитываться для улучшения сжатия.
+
+% https://blog2k.ru/archives/3391
+% LocalFileHeader
+% CentralDirectoryFileHeader
+
+\begin{enumerate}
+\item Каждый файл (элемент) архива имеет локальный заголовок (Local File Header);
+сжимается и~хранится отдельно.
+
+\item %индекс всего архива "--- 
+Центральный каталог "--- 
+список центральных записей (Central File Header), 
+каждая содержит заголовок файла,
+% % ;
+% 
+% \item центральная запись файла содержит его заголовок, 
+в~том числе:
+
+\begin{itemize}
+\item смещение локального заголовка;
+% \item указатели на и~длины: имени файла, дополнительной информации и~комментария;
+% \item указатель на имя файла (с~относительным путём) и~длина этого имени; ??? неверно
+\item длина имени файла (с~относительным путём) и~собственно имя.
+\end{itemize}
+
+\item %после центрального каталога, в~конце файла "--- конец центрального каталога "--- 
+End of central directory (EOCD) фиксированного размера, содержащая, в~т.\,ч.:
+\begin{itemize}
+\item  количество записей центрального каталога;
+\item размер  центрального каталога;
+\item смещение центрального каталога.
+\end{itemize}
+
+
+
+\end{enumerate}
+
+
+
+\begin{tabularx}{1\linewidth}{@{}cL@{}}
+\includegraphics[width=0.3\linewidth,valign=t]{zip-records} &
+\begin{itemize}
+\item Декодирование zip-файла начинается с~конца.
+\item Каждый заголовок (и~EOCD) включает в~том числе сигнатуру в~начале, 
+\item но в~начале всего архива могут быть доп.~данные (самораспаковывающиеся архивы).
+\end{itemize}
+\end{tabularx}
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+\if 0
+
+\subsection{Некоторые типовые реализации}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{-1.5em}{-1.8em}
+\setlength{\parskip}{0.3\parskip}
+\footnotesize
+
+Алгоритм работает с~блоком длины $N$ байт (после кодирования $M$ байт) "--- файл дополняется до $kN$ и~нарезается на блоки:
+
+Блоки по $N \to M$ байт: 
+$(\text{$n$ байт}) \leftrightarrow 
+\left\{\begin{array}{@{}l@{}}
+\text{$n$,} \\
+\text{$k$ блоков по $N$,} \\
+(k-1)N < n \leqslant kN \\
+\end{array}\right.
+\leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% \text{$n$,} \\
+% \text{$k$ блоков по $M$} \\
+% \end{array}\right.
+% \leftrightarrow 
+\left\{\begin{array}{@{}l@{}}
+n,\\
+\text{алгоритм,} \\
+\text{$kM$ байт} \\
+\end{array}\right.
+$
+
+\bigskip
+
+Алгоритм заменяет подстроку
+% Замена подстроки
+$c_i ... c_j$ на некоторый кортеж $\alpha_i$
+"--- предваряем кортеж $\alpha_i$ \termin{префиксом} $p=c_k$ (выбираем самый редкий символ): $c_i ... c_j \to p \, \alpha_i$,
+\\
+вхождения $p=c_k$ как символа экранируем (заменяем на $p \, \alpha_0$ такое, что никакое~$\alpha_i \neq \alpha_0$ и~не начинается с~$\alpha_0$):
+
+$
+\left\{\begin{array}{@{}l@{}}
+... (c_i ... c_j)... c_k ... \\
+\text{$c_i$ "--- байты} \\ 
+\end{array}\right.
+\leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+...(\alpha_i)... c_k... 
+% \\
+% \end{array}\right.
+\leftrightarrow 
+\left\{\begin{array}{@{}l@{~}l@{}}
+% \text{алгоритм: $\alpha_0 \neq \alpha_i \forall i$} &\text{(отличаем символ $p$ от префикса $p$),} \\
+\text{алгоритм},  \\
+\text{значение префикса $p=c_k$},  \\
+...p \, \alpha_i\,... p\, \alpha_0...% ~~\text{($c_i, p$ "--- байты, $\alpha_i, \alpha_0$ "--- цепочки байтов)} \\
+% \text{$c_i, p$ "--- байты,~} 
+% \text{$\alpha_i, \alpha_0$ "--- цепочки байтов} \\ 
+\end{array}\right.
+$
+
+где $c_i, p$ "--- символы (байты), $\alpha_i, \alpha_0$ "--- цепочки символов (байтов).
+
+% $
+% ... c_i, c_{i+1},...c_j, c_{j+1}... c_k, c_{k+1} ... 
+% \leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% ...(\alpha_i, \beta_i), c_{j+1}... c_k, c_{k+1} ... \\
+% \end{array}\right.
+% \leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% ...p,  \alpha_i,  \beta_i, c_{j+1} ... p, \alpha_0, c_{k+1}... \\
+% \text{префикс $p=c_k$ (редкий),} \\
+% \alpha_0 \neq \alpha_i \forall i \\
+% \end{array}\right.
+% $
+
+% Алфавитное кодирование: \\
+% $(\text{$n$ байт}) \leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% \text{$c_i$ "--- байты}\\
+% p(c_i) = {const}\\
+% \text{$n$ символов} \\
+% \end{array}\right.
+% \leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% p(c_i)\\
+% \text{алгоритм $p(c_i) \leftrightarrow code(c_i)$}\\
+% code(x) \in A_2^+ \\
+% \end{array}\right.
+% \leftrightarrow 
+% \left\{\begin{array}{@{}l@{}}
+% \text{заголовок}\\
+% \text{данные $y$ ($m$ байт)} \\
+% \end{array}\right.
+% $
+
+\end{adjustwidth}
+\end{frame}
+
+\fi

@@ -1,0 +1,148 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+\newcommand{\upair}[2]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+{#1}\\ {#2}
+\end{array}\right\}
+}}
+     
+\newcommand{\Lcmin}{\ensuremath{%
+% L^c_{\min}
+L_{\min}
+}}
+    
+\newcommand{\Lcmax}{\ensuremath{%
+% L^c_{\max}
+L_{\max}
+}}
+   
+\tikzstyle{normalblockheight}      = [minimum height=7ex]
+\tikzstyle{miniblockheight}      = [minimum height=4ex]
+
+\tikzstyle{normalblocksep}      = [inner sep = 0.2em]
+
+
+
+% размеры
+\tikzstyle{normalblock}  = [normalblockheight, text width=10em, normalblocksep]
+
+\tikzstyle{wideblock}        = [normalblockheight, text width=15em, normalblocksep]
+\tikzstyle{narrowblock}      = [normalblockheight, text width=10em, normalblocksep]
+
+\tikzstyle{normaldatafile} = [minimum width=7ex, minimum height=8em, normalblocksep] % для цилиндра высота — это width!
+
+\tikzstyle{connector}=[espdconnector, minimum height=2ex, normalblocksep]
+
+
+
+
+% \tikzset{node distance = 2ex and 1em}
+% \tikzset{node distance = 4ex and 2em}
+
+\tikzset{node distance = 4ex and 1em}
+
+
+
+\node[espdblackcenter, espddata, miniblockheight ] (LL) {$\smash{\widetilde{L}}\vphantom{L}$};
+\node[espdblackcenter, espddata, miniblockheight, below = of LL] (c) {$c$};
+
+\node[espdblackcenter, espddata, miniblockheight, right = of LL ] (L) {$L$};
+
+\node[fit=(LL)(L)(c), inner sep = 0.em] (Lc) {};
+
+
+% \node[normaldatafile, espdblackcenter, espddatafile, left = of Lc] (arch)  {Архив};
+\coordinate[left = of Lc] (arch_to_all);
+\node[normaldatafile, espdblackcenter, espddatafile, left = 0.7em of arch_to_all] (arch)  {Архив};
+
+\coordinate[right = of Lc] (write_Lc_from_all);
+\node[normalblock, espdblackcenter, espdprocess, 
+% right = of Lc 
+right = of write_Lc_from_all 
+] (write_Lc) {
+% Последовательно $L$ раз: 
+% 
+% запись $c$ в~конец $C$
+
+% Запись $c$ в~конец $C$ $L$~раз
+
+$L$ раз запись~$c$ в~конец~$C$
+
+% $\left\{\begin{array}{@{\,}l@{}}\text{запись $c$ в~конец $C$}\\i = i+1\end{array}\right.$
+};
+
+\node[normaldatafile, espdblackcenter, espddatafile, right = of write_Lc] (C)  {$C = c_1 c_2 \ldots c_n$};
+
+
+
+% \draw[espdstreamto] (arch) -| (LL);
+% \draw[espdstreamto] (arch) -| (c);
+
+
+\draw[espdstreamto] (arch) -- (arch_to_all) |- (LL);
+\draw[espdstreamto] (arch_to_all) |- (c);
+
+\draw[espdstreamto] (LL) -- (L);
+
+
+\draw[espdstreamto] (c) -| coordinate[pos=0.25] (arrow_1) (write_Lc_from_all) -- (write_Lc);
+\coordinate[right = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+\draw[espdstream] (L) -| (write_Lc_from_all);
+
+\draw[espdstreamto] (write_Lc) -- (C);
+
+
+
+
+\end{tikzpicture}
+}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

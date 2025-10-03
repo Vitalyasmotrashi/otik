@@ -1,0 +1,655 @@
+\input{commonpath}
+\input{\SRCROOTPATH/widepres}
+\def\IMGPATH{\SRCROOTPATH/img/}
+
+% \title{Сжатие информации с~учётом контекста.
+% \mbox{Словарные методы, где словарём} является \mbox{несжатый текст} --- \mbox{семейство LZ77}}
+
+\title{Сжатие с~учётом контекста.
+\mbox{Метод кодирования длин повторений} \mbox{(Run Length Encoding, RLE).}
+\mbox{Словарные методы, где словарём} является \mbox{несжатый текст} --- \mbox{семейство LZ77}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% https://mf.grsu.by/UchProc/livak/po/comprsite/theory_contents.html#%D0%A1%D0%BE%D0%B4%D0%B5%D1%80%D0%B6%D0%B0%D0%BD%D0%B8%D0%B5
+
+% статья 77
+% https://www2.cs.duke.edu/courses/spring03/cps296.5/papers/ziv_lempel_1977_universal_algorithm.pdf
+
+% LZSS
+% https://link.springer.com/chapter/10.1007/978-3-642-82456-2_8
+
+% Can be used only in preamble.
+\DeclareMathOperator{\lo}{lo}
+\DeclareMathOperator{\hi}{hi}
+
+\def\flg{\ensuremath{\theta}}
+
+\begin{document}
+\maketitle
+% \input{\SRCROOTPATH/pres-sections/symbyte.tex}
+
+
+\subsection{Размер байта -- 4 бита}
+\begin{frame}{\insertsubsection}
+\footnotesize
+\setlength{\parskip}{0.5\parskip}
+
+Для компактной иллюстрации ограничений алгоритмов примем, что~для устройства «доска» байт (символ кодирования) составляет не~8~бит "---октет 
+% или две тетрады, или~две~16-ричные цифры, 
+(как для Intel x86/amd64), и~не 6 бит {(%две триады, или две восьмеричные цифры, 
+как для IBM 7030 Stretch),} 
+\mbox{а~4 бита} "--- %двоичную 
+тетраду, или одну 16-ричную цифру:
+
+$\hex{0} = 0000 = 0$ ~~~~~~ $\hex{8} = 1000 = 8$\\
+$\hex{1} = 0001 = 1$ ~~~~~~ $\hex{9} = 1001 = 9$\\
+$\hex{2} = 0010 = 2$ ~~~~~~ $\hex{A} = 1010 = 10$\\
+$\hex{3} = 0011 = 3$ ~~~~~~ $\hex{B} = 1011 = 11$\\
+$\hex{4} = 0100 = 4$ ~~~~~~ $\hex{C} = 1100 = 12$\\
+$\hex{5} = 0101 = 5$ ~~~~~~ $\hex{D} = 1101 = 13$\\
+$\hex{6} = 0110 = 6$ ~~~~~~ $\hex{E} = 1110 = 14$\\
+$\hex{7} = 0111 = 7$ ~~~~~~ $\hex{F} = 1111 = 15$
+% $\hex{8} = 1000 = 8$\\
+% $\hex{9} = 1001 = 9$\\
+
+% Символьная таблица (аналог ASCII) даётся отдельно в~каждом примере, либо отсутствует.
+
+Далее основной единицей измерения является символ=байт, а~не бит.
+
+Количество бит в~байте обозначим $k$.
+
+\end{frame}
+
+
+
+
+\newcommand{\nondecdigit}[1]{\lapbox[\digitwidth]{0.06\digitwidth}{\ensuremath{\mathrm{\resizebox*{1.12\digitwidth}{\digitheight}{#1}}}}}
+\newcommand{\digitA}{\nondecdigit{A}}
+\newcommand{\digitB}{\nondecdigit{B}}
+\newcommand{\digitC}{\nondecdigit{C}}
+\newcommand{\digitD}{\nondecdigit{D}}
+\newcommand{\digitE}{\nondecdigit{E}}
+\newcommand{\digitF}{\nondecdigit{F}}
+
+\colorlet{clCode}{red}
+\newcommand{\ct}[1]{\textcolor{blue}{#1}}
+\newcommand{\cm}[1]{\textcolor{red}{#1}}
+\newcommand{\ctm}[1]{\textcolor{violet}{#1}}
+\newcommand{\um}[1]{\textcolor{green!70!black}{#1}}
+
+
+\tikzstyle{tnode}	= [circle, minimum height=1.2ex, draw=black,inner sep=0pt, outer sep=0pt]
+
+  
+
+
+\newcommand{\uset}[1]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+#1
+\end{array}\right\}
+}}
+
+
+
+
+
+\subsection{Методы кодирования, коды и~алгоритмы с~учётом контекста}
+\begin{frame}{\insertsubsection}
+\small
+\setbeamertemplate{itemize/enumerate body begin}{\small\setlistspacing{1}{0.5ex}}
+\setbeamertemplate{itemize/enumerate subbody begin}{\small}
+\setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{0em} 
+\setlength{\parskip}{0.3\parskip} 
+
+
+Далее рассматриваются \termin{методы сжатия с~учётом контекста:} RLE, LZ77 и~LZ78.
+
+\begin{enumerate}
+\item Оптимальный код источника Маркова, где $|code(c_1 \ldots c_n)| \to I(c_1 \ldots c_n)$
+% (аналог Хаффмана)
+% \hfill
+% \rlap{(блочный AC с~усл.\,вер.)}
+\rlap{(Хф/AC с~усл.\,вер.)}
+
+% не используется на практике, 
+% не описан как метод сжатия:
+не используется как метод сжатия:
+% так как %для его декодирования 
+% нужны все условные вероятности,
+даже для  1 порядка %это 
+нужны %более чем 
+$256^2 = 65536$ частот.
+
+\vfill
+
+\item Если метод Хаффмана однозначно лучше
+% не хуже и~иногда метода
+ Шеннона"--~Фано и~тем более Шеннона, %аналогичной \rlap{реализации,}
+
+то для сжатия с~учётом контекста \termin{нет однозначно лучшего метода.}
+
+% Есть файлы, для которых идеально подходит RLE.
+% Есть "--- подходящие для LZ78. Есть те, что 
+
+\vfill
+
+\item Для заданного метода "--- много кодов, \termin{нет однозначно лучшей реализации.}
+
+\vfill
+
+Есть файлы, которые «наивный» RLE сжимает лучше и~быстрее всего.
+
+% 
+% \vfill
+% 
+% \hrulefill
+
+\vfill
+
+\item Среди схожих реализаций одного метода однозначно \termin{худшей} (но обычно более наглядной)
+является та, где часть значений недопустима.
+% 
+«Наивный» RLE $(L, c)$ хуже, чем $(L-1, c)$.
+
+
+\vfill
+
+
+% \item Для любого кода LZ77 кодирование принципиально \termin{неоднозначно} (разные алгоритмы $\implies$ разные длины и~скорости).
+% Декодирование любого кода LZ77 однозначно.
+% 
+% \vfill
+% 
+% 
+% \item Для сложных реализаций любого метода кодирование тоже неоднозначно.
+
+\item Для
+сложных кодов RLE и~\termin{любого кода LZ77} \rlap{\termin{кодирование принципиально неоднозначно}}
+
+(разные алгоритмы $\implies$ разные длины и~скорости).
+\mbox{Декодирование "--- однозначно.}
+
+
+
+\end{enumerate}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+% \section{Семейство RLE (Run Length Encoding)}
+% \section{Run Length Encoding, RLE (аналоговый сигнал)}
+% http://habrahabr.ru/post/141827/
+
+% \subsection{Концепция RLE}
+\subsection{Семейство RLE (Run Length Encoding) --- концепция}
+\begin{frame}{\insertsubsection}
+
+% \begin{frame}{\insertsection}
+% \widepressetfontsize{\small}
+\widepressetfontsize{\small\setlistspacing{1}{0ex}\setlistspacing{2}{0ex}}
+
+
+% % \lstset{basicstyle=\ttfamily\footnotesize,aboveskip=0ex,belowskip=0ex}
+% % \lstset{xleftmargin=1em,numbers=none}
+% % \lstset{lineskip=0.5ex}
+% % \setbeamertemplate{itemize/enumerate body begin}{\footnotesize\setlistspacing{1}{0ex}}
+% \setlength{\leftmargini}{0ex}
+% \setlength{\leftmarginii}{3ex}
+\setlength{\parskip}{0.\parskip}
+% 
+% \setlength{\digitwidth}{\widthof{$0$}}
+% \setlength{\digitheight}{\heightof{$0$}}
+% 
+% \smallskip
+
+Модель источника данных "--- Маркова первого порядка (аналоговый сигнал)%: вероятность символа зависит от предыдущего символа
+, при этом:
+\begin{equation}
+\forall a \neq b{:} ~ 
+\left\{
+\begin{array}{l}
+p(a|a) = p(b|b) = r,\\
+p(a|b) = p(b|a) = s,\\
+\end{array}
+\right.
+r \gg (T-1)s
+, ~~
+\text{где $T$ "--- размер алфавита.}
+\label{eq_M1_RLE}
+\end{equation}
+% \vfill
+
+Run Length Encoding (RLE): 
+%вместо кодирования данных кодируются длины участков, на которых данные сохраняют неизменное значение. 
+%
+$\mathrm{AAAAAAAABCCCC} \to 8 \times\mathrm{A}, ~ 1\times\mathrm{B}, ~ 4\times\mathrm{C}$
+\vfill
+
+Повторение символа $c$ подряд $L$ раз ($L\times c$) "--- цепочку длины $L$, $L_{\min} \leqslant L \leqslant L_{\max}$ 
+"--- будем записывать как пару $\uset{L \\ c}$ (сжатая цепочка):\setlength{\parskip}{0.\parskip}
+\begin{itemize}
+\item цепочки  длины более $L_{\max}$ символов "--- делятся на несколько;
+\item последовательности символов, где ни один не повторяется  $L_{\min}$ раз подряд "--- несжатый текст.
+\end{itemize}
+% Если $c$ и~$L$ одного размера "--- это имеет смысл (приводит к~сжатию цепочки) только при $L_{\min} > 2$ ($L_{\min}\geqslant 3$).
+
+\vfill
+
+RLE "--- не код, а~\termin{семейство кодов,} основанных на одном принципе сжатия и~похожих моделях источника 
+(одна формула \eqref{eq_M1_RLE}, разные $r$ и~$s$): \enumerateball{1} ни один не оптимален для своего источника;
+\begin{enumerate}\setcounter{enumi}{1}
+
+% \item  ни один из вариантов RLE не оптимален для своего источника, зато не требует хранить $T^2$ частот;
+% 
+% \item если нет недопустимых кодовых комбинаций "--- ни один из вариантов RLE не хуже другого;
+
+% \item $L_{\min}$ вычисляется для конкретного варианта из соотношения длин кода символа сжатой цепочки и~кода символа несжатого текста;
+% 
+% \item $L_{\max}$ вычисляется из $L_{\min}$ и~способа кодирования $L$ (код $L$ обозначим $\widetilde{L} = L - \Delta_L$).
+% % : используется код со смещением $\widetilde{L} = L - \Delta_L$.
+% 
+% % \item $L_{\min}$ и~$L_{\max}$  вычисляются для конкретной реализации (сначала $L_{\min}$, потом $L_{\max}$)
+
+\item $L_{\min}$ вычисляется для конкретного варианта из соотношения длин кодов сж/несж;
+
+\item $L_{\max}$ "--- из $L_{\min}$ и~способа кодирования $L$ (код $L$ обозначим $\widetilde{L} = L - \Delta_L$).
+% \item коды семейства RLE в~презентациях нумеруем
+% % начиная с~A8, так как в~пособии A1 и~далее заняты алгоритмами семейства LZ77.
+% последовательно, начиная с K1.
+\end{enumerate}
+
+\end{frame}
+
+
+
+
+\subsection{Подсемейства RLE --- по способу отделения сжатых цепочек от несжатого текста}
+\begin{frame}{\insertsubsection}
+% \widepressetfontsize{\small\setlistspacing{1}{0ex}\setlistspacing{2}{0ex}}
+
+\begin{enumerate}
+
+\item Несжатого текста нет: $L \geqslant 1$ (то есть $L_{\min} = 1$) "--- \termin{«наивная» реализация RLE,} RLE-н
+\begin{itemize}
+\item несжатого текста нет $\implies$ пару $\{L, c\}$ можно записывать парой байтов;
+\item порядок этих байтов неважен: $(\widetilde{L}, c)$ или $(c, \widetilde{L})$.
+\end{itemize}
+\vfill
+
+% Для прочих реализаций RLE: $L \geqslant L_{\min} \geqslant 2$, если не набирается $L_{\min}$ повторений "--- несжатый текст.
+% Для прочих реализаций RLE: $L \geqslant 2$, есть несжатый текст (тоже как-то кодируется).
+% Для прочих реализаций RLE: $L \geqslant 2$ (как минимум), есть несжатый текст (тоже кодируется).
+
+Для прочих RLE: \itemizeball{} $L \geqslant 2$, \itemizeball{} есть несжатый текст (любые сочетания любых байтов).
+\vfill
+
+\item Несжатый текст группируется в~цепочки 
+% $\{L^{\text{несж}}, c_1...c_L\}$ $L^{\text{несж}} \geqslant 1$, 
+$\{L, c_1...c_L\}$, 
+сж/несж различаются флаг-битом $\theta$ ($\theta$~и~$\widetilde{L}$ помещаются в~один байт, обозначим его $\widetilde{L}_\theta=\widetilde{L}\cup\theta$) "--- \mbox{\termin{RLE с~флаг-битом,}} RLE-$\theta$
+\begin{itemize}
+% \item флаг-бит $\theta$ помещается в~один байт с~$\widetilde{L}$ $\implies$ на $\widetilde{L}$ остаётся только $k-1$ бит;
+% \item длина кода несжатого символа $1 < 1+\frac{1}{L^{\text{несж}}} < 2$ символа, длина кода символа сжатой цепочки $\frac{2}{L^{\text{сж}}}$:
+% нужно $\frac{2}{L^{\text{сж}}} < 1+\frac{1}{L^{\text{несж}}}$, что выполняется при $\frac{2}{L^{\text{сж}}} < 1 \Leftrightarrow L^{\text{сж}} \geqslant 2$. 
+\item %порядок $\widetilde{L}_\theta$ и~$c_1...c_L$ важен: 
+байт $\widetilde{L}_\theta$ всегда первый, чтобы прочесть $\theta$ и~отличить $c$ от $c_1...c_L$;
+
+\item на $\widetilde{L}$ остаётся только $k-1$ бит;
+
+\item для несжатой цепочки $L^{\text{несж}} \geqslant 1$ "--- файлы вида \hex{B}, \hex{A...AABCC..CC}: $L_{\min}^{\text{несж}}$ и~$L_{\min}^{\text{сж}}$ разные.
+
+\end{itemize}
+\vfill
+
+\item Несжатый текст записывается как есть (кроме $c_i=p$: они экранируются), сжатые цепочки предваряются односимвольным префиксом $p$ "--- \termin{RLE с~префиксом,} RLE-$p$
+\begin{itemize}
+\item код сж.\,цепочки длины $L$ состоит из трёх символов $(p, \widetilde{L}, c)$ $\implies$ для сжатия $L \geqslant 4$.
+% \item префикс $p$ экранируется в~несжатом тексте.
+\end{itemize}
+
+\end{enumerate}
+
+\end{frame}
+
+
+% \begingroup
+\newcommand{\Lf}[1]{\textcolor{red}{#1}}
+\newcommand{\cf}[1]{\textcolor{blue}{#1}}
+% \newcommand{\ff}[1]{\textcolor{green}{#1}}
+% \newcommand{\pf}[1]{\textcolor{green!50!black}{#1}}
+% \newcommand{\ff}[1]{\textcolor{yellow!70!red}{#1}}
+\newcommand{\ff}[1]{\textcolor{yellow!60!red}{#1}}
+% \newcommand{\ff}[1]{\textcolor{yellow!50!green}{#1}}
+\newcommand{\pf}[1]{\textcolor{green!70!black}{#1}}
+
+\newcommand{\upair}[2]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+\Lf{#1}\\ \cf{#2}
+\end{array}\right\}
+}}
+
+
+
+
+
+\section{«Наивный» RLE ($L_{\min} = 1$), две реализации}
+\begin{frame}{\insertsection}
+\setlength{\parskip}{0.25\parskip}
+
+Код K1, опции: \enumerateball{1} порядок $(\widetilde{L}, c)$: два последовательных байта $b_1 = \widetilde{L}, b_2 = c$;
+\enumerateball{2} смещение $\Delta_L = 0$ "--- \mbox{увеличивает размер кода,} не~ускоряет кодирование, зато наглядно ($\widetilde{L}=L$).
+
+Следствие из опций: $L_{\max} = \max(\widetilde{L}) = 2^k-1$, с~учётом $k=4$: $L_{\max} = 15$
+
+$C = \hex{0101~ 2222~ 2222~ 2222 ~~ 2222~ 3453~ 3333~ 3367 ~~ 89AB~ CDEF}$ (40 байтов)
+
+$K1(C) = \hex{1011~1011~F212~1314~~1573~1617 ~ 1819~1A1B~~ 1C1D~1E1F}$ (40 байтов)
+\vfill
+
+Код K2, опции: \enumerateball{1} порядок $(\widetilde{L}, c)$;
+\enumerateball{2} смещение $\Delta_L = 1$ ($\widetilde{L}=L-1$).
+
+Следствие из опций: $L_{\max} = \max(\widetilde{L})+\Delta_L = 2^k-1+1 = 2^k$, с~учётом $k=4$: $L_{\max} = 16$
+
+$K2(C) = \hex{0001~0001~F203~0405~~6306~0708~090A~0B0C~~0D0E~0F}$ (38 байтов)
+\vfill
+
+В лучшем случае код K2 вдвое короче кода K1 (фрагмент из шестнадцати \hex{2}: \hex{F2} vs \hex{F212}), в~худшем случае K2 не длиннее K1 (\hex{00} vs \hex{10})
+"--- и то, и~то при \termin{любом $k$.}
+
+Время кодирования/декодирования К2 такое же, как у~K1 "--- аналогично, при \termin{любом $k$.}
+
+\end{frame}
+
+
+\subsection{Схема данных кодирования «наивной» реализацией метода RLE}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_n}
+\end{frame}
+
+\subsection{Схема данных декодирования «наивной» реализации метода RLE}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_n_decode}
+\end{frame}
+
+
+\section{RLE с~флаг-битом сжатая/несжатая цепочка}
+
+
+
+\begin{frame}{\insertsection}
+\setlength{\parskip}{0.5\parskip}
+\widepressetfontsize{\small\setlistspacing{1}{0ex}\setlistspacing{2}{0ex}}
+
+% Не опции, а~т
+% Требования: 
+Всегда:
+\itemizeball{} $L_{\min}^{\text{несж}} = 1$;
+\itemizeball{} порядок $(\widetilde{L}_\theta, c)$/$(\widetilde{L}_\theta, c_1...c_L)$;
+\itemizeball{} $\max(\widetilde{L}) = 2^{k-1}-1$.
+% % ($\widetilde{L}$ на бит короче байта $\widetilde{L}_\theta$).
+% 
+% %; \itemizeball{} $L_{\min} \geqslant 2$
+% 
+\hfill
+Далее опции:
+\begin{enumerate}
+
+\item Флаг-бит $\flg$ сж/несж может быть $0/1$ или $1/0$ "--- не влияет на длину кода.
+
+% \vfill
+
+\item Положение $\flg$ в~байте $\widetilde{L}_\theta$ "--- не влияет на длину кода;
+обычно  $\flg$ "--- старший: 
+\rlap{удобнее читать дамп.}
+% значения смещённого $L$ с~$\flg=0$ дампе читаются без преобразований.
+% , для чтения~$\flg=1$ можно использовать вычитание, которое выполнять «в~уме» проще, чем деление.
+
+% \vfill
+
+\item Выбор $L_{\min}^{\text{сж}}$ "--- между 2 и~3: % (не зависит от $k$):
+\begin{itemize}
+\item по длине кода "--- непредсказуемо: ср.~файлы \hex{001122} и~\hex{0112};
+\item по скорости: кодирование $L_{\min}^{\text{сж}}= 2$ немного быстрее, декодирование одинаково;
+\end{itemize}
+
+% \vfill
+
+\item Смещение $\Delta_L$ "--- от 0 %(код без смещения) 
+до $L_{\min}$ (так как 
+% $L_{\min}$ разные для сж/несж, то 
+$L_{\min}^{\text{сж}} \neq L_{\min}^{\text{несж}}$, 
+то и~$\Delta_L$ могут различаться для сж/несж).
+
+\end{enumerate}
+
+\vfill
+
+Следствие из опций: расчёт $L_{\max} = \max(\widetilde{L})+\Delta_L$. 
+\hfill
+При $\Delta_{L}^\text{сж} \neq \Delta_{L}^\text{несж}$ получим и $L_{\max}^{\text{сж}} \neq L_{\max}^{\text{несж}}$.
+
+\vfill
+
+Код K3: \enumerateball{1} $\flg$ сж/несж может быть $0/1$;
+\enumerateball{2} $\flg$ старший в~байте $\widetilde{L}_\theta$;
+\enumerateball{3} $L_{\min}^{\text{сж}} = 2$; 
+\enumerateball{4} $\Delta_{L}^\text{сж} = \Delta_{L}^\text{несж} = 0$.
+
+Тогда для кода K3: $L_{\max}^{\text{сж}} = L_{\max}^{\text{несж}} = 2^{k-1}-1$, с~учётом $k=4$ получим $L_{\max}^{\text{сж}} = L_{\max}^{\text{несж}} = 7$.
+
+\vfill
+
+
+Код K4: \enumerateball{1}--\enumerateball{3} как A; 
+\enumerateball{4} 
+$
+\left\{\begin{array}{@{}c@{~=~}c@{~=~}c@{}}
+\Delta_{L}^\text{сж} & L_{\min}^{\text{сж}} & 2,
+\\
+\Delta_{L}^\text{несж} & L_{\min}^{\text{несж}} & 1
+\end{array}\right.
+$
+% $\Delta_{L}^\text{сж} = L_{\min}^{\text{сж}} = 2$,
+% $\Delta_{L}^\text{несж} = L_{\min}^{\text{несж}} = 1$ 
+(максимальное смещение).
+
+Для K4: 
+$
+\left\{\begin{array}{@{}c@{~=~}c@{~=~}c@{}}
+L_{\max}^{\text{сж}} & 2^{k-1}-1+2 & 2^{k-1}+1, \\
+L_{\max}^{\text{несж}} & 2^{k-1}-1+1 & 2^{k-1};
+\end{array}\right.
+$
+% $L_{\max}^{\text{сж}} = 2^{k-1}-1+2 = 2^{k-1}+1$, 
+% $L_{\max}^{\text{несж}} = 2^{k-1}-1+1 = 2^{k-1}$;
+с~учётом $k=4$ получим $L_{\max}^{\text{сж}} =9 $ и  $L_{\max}^{\text{несж}} = 8$.
+
+% \vfill
+% 
+% $C = \hex{0101~ 2222~ 2222~ 2222 ~~ 2222~ 3453~ 3333~ 3367 ~~ 89AB~ CDEF}$ (40 байтов)
+\end{frame}
+
+
+\subsection{Схема данных кодирования  RLE с~флаг-битом сжатая/несжатая цепочка}
+\begin{frame}[plain]{\insertsubsection}
+\includegraphics[width=0.9\linewidth]{\IMGPATH/data_rle_flagbit}\centering
+\end{frame}
+
+
+\subsection{Кодирование К3 сообщения $C = \hex{0101~ 2222~ 2222~ 2222 ~~ 2222~ 3453~ 3333~ 3367 ~~ 89AB~ CDEF}$}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\small}
+% \widepressetfontsize{\footnotesize}
+
+\begin{enumerate}
+
+% \item{$i=1)$} Рассматриваем первые $L_{\min}^{\text{сж}} = 2$ символа: \hex{01} не все одинаковы $\implies$ \mbox{инициализация несжатой цепочки $U=\hex{0}$}
+% длины $L=L_{\min}^{\text{несж}} = 1$.
+% 
+% \item{$i=2)$} Рассматриваем следующие $L_{\min}^{\text{сж}} = 2$ символа: \hex{10} не все одинаковы $\implies$ \mbox{наращивание несжатой цепочки до $U=\hex{01}$}
+% длины $L=L+1=2$.
+% 
+% 
+% \item{$i=3)$} Рассматриваем следующие $L_{\min}^{\text{сж}} = 2$ символа: \hex{01} не все одинаковы $\implies$ \mbox{наращивание несжатой цепочки до $U=\hex{010}$}
+% длины $L=L+1=3$.
+% 
+% \item{$i=4)$} Рассматриваем следующие $L_{\min}^{\text{сж}} = 2$ символа: \hex{12} не все одинаковы $\implies$ \mbox{наращивание несжатой цепочки до $U=\hex{0101}$}
+% длины $L=L+1=4$.
+% 
+% \item{$i=5)$} Рассматриваем следующие $L_{\min}^{\text{сж}} = 2$ символа: \hex{22} одинаковы $\implies$ \mbox{запись текущей несжатой цепочки $U=\hex{0101}$} 
+% длины $L=4$ \mbox{и~инициализация сжатой цепочки из символов $c=\hex{2}$ длины $L=L_{\min}^{\text{сж}} = 2$.}
+% 
+% \item{$i=i+L=7)$} Рассматриваем следующий один символ: $c_{i+L}=\hex{2}$ совпадает с~$c$ $\implies$  \mbox{наращивание сжатой цепочки до длины $L=L+1=3$.}
+% 
+% ...
+% 
+% \item{$i=12)$} Рассматриваем следующий один символ: $c_{i+L}=\hex{2}$ совпадает с~$c$ $\implies$  
+% \mbox{наращивание сжатой цепочки до длины $L=L+1=7$} $\implies$
+% \mbox{это $L_{\max}^{\text{сж}}$}  
+% $\implies$ \mbox{запись текущей сжатой цепочки $\{L=7, c=2\}$.} 
+
+
+\item{$i=1)$} первые $L_{\min}^{\text{сж}} = 2$ (два) символа: \hex{01} не все одинаковы $\implies$ \mbox{инициализация несжатой ($\theta=1$) цепочки $U=\hex{0}$}
+длины $L=L_{\min}^{\text{несж}} = 1$ (один) символ, остаток \hex{1};
+
+% \item{$i=1, \theta=1, L=1, U=\hex{0})$} следующие два: $G=c_{i+L}c_{i+L+1} =c_2c_3=\hex{10}$ не все одинаковы $\implies$ 
+% первый из них ($c_{i+L}=\hex{1}$) в $U$;
+\item{$i=1, \theta=1, L=1, U=\hex{0})$} остаток \hex{1} + следующий \hex{0} = следующие за $U$ два символа: 
+$G%=c_{i+L}c_{i+L+1} =c_2c_3
+=\hex{10}$ не~все одинаковы $\implies$ 
+первый из них ($c_{i+L}=\hex{1}$) в $U$, второй (\hex{0}) "--- остаток;
+% $\implies$ $L=L+1$ $\implies$ второй $c_{i+L+1}=\hex{0}$ "--- остаток $G$ "--- теперь $c_{i+L}$;
+
+
+\item{$i=1, \theta=1, L=2, U=\hex{01})$} следующие два: $G=\hex{01}$ не все одинаковы $\implies$ \hex{0} в $U$;
+
+\item{$i=1, \theta=1, L=3, U=\hex{010})$} следующие два: $G=\hex{12}$ не все одинаковы $\implies$ \hex{1} в $U$;
+
+\item{$i=1, \theta=1, L=4, U=\hex{0101})$} следующие два: $G=\hex{22}$ все одинаковы $\implies$
+\begin{itemize}
+\item запись текущей $\{\theta=1, L=4, U=\hex{0101}\}$ $\implies$ новое $i=i+L=5$;
+\item инициализация сжатой ($\theta=0$) цепочки из $c=\hex{2}$ длины $L=L_{\min}^{\text{сж}} = 2$;
+\end{itemize}
+
+\item{$i=5, \theta=0, L=2, c=2)$} следующий символ: $c_{i+L}=c_7=\hex{2}$ совпадает с~$c$ $\implies$ $L=L+1=3$;
+\item{$i=5, \theta=0, L=3, c=2)$} следующий символ: $c_{i+L}=c_8=\hex{2}$ совпадает с~$c$ $\implies$ $L=L+1=4$;
+
+...
+\item{$i=5, \theta=0, L=6, c=2)$} следующий символ: $c_{i+L}=c_{11}=\hex{2}$ совпадает с~$c$ $\implies$ $L=L+1=7$
+\mbox{это $L_{\max}^{\text{сж}}$}  
+$\implies$ \mbox{запись текущей $\{\theta=0, L=7, c=2\}$...} 
+
+
+
+\end{enumerate}
+\end{frame}
+
+
+
+\subsection{Схема данных декодирования  RLE с~флаг-битом сжатая/несжатая цепочка}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_flagbit_decode}
+\end{frame}
+
+
+\section{RLE с~односимвольным префиксом}
+
+
+
+\begin{frame}{\insertsection}
+\setlength{\parskip}{0.5\parskip}
+\widepressetfontsize{\small\setlistspacing{1}{0ex}\setlistspacing{2}{0ex}}
+% \setlength{\leftmargini}{0em} 
+\setlength{\leftmarginii}{1.5em} 
+
+% Не опции, а~т
+% Требования: 
+Всегда:
+\itemizeball{} $L_{\min}^{c\neq p} = 4$;
+\itemizeball{} порядок $%(b_1, b_2, b_3) = 
+(p, \widetilde{L}, c)$;
+\itemizeball{} $\widetilde{L} \neq 0$;
+\itemizeball{} экранирование $p$ как $(p, 0)$;
+\itemizeball{} $\max(\widetilde{L}) = 2^{k}-1$.
+\hfill
+% Далее опции:
+\begin{enumerate}
+
+\item Выбор $L_{\min}^{c=p}$ "--- от $1$ до $L_{\min}^{c\neq p} = 4$: % (лучшее до кодирования не узнать).
+\begin{itemize}
+\item по длине кода "--- непредсказуемо;
+\item по скорости: кодирование $L_{\min}^{c=p}=L_{\min}^{c\neq p} = 4$ немного быстрее, декодирование одинаково;
+\end{itemize}
+
+% \vfill
+\item Алгоритм выбора префикса $p$ из множества самых редких байтов.
+
+\termin{Конкретное значение $p$ "--- не опция \emph{кода,} а~характеристика \emph{файла $C$,} сохраняется в~архив.}
+
+
+\item Смещение $\Delta_L$ "--- от 0 %(код без смещения) 
+до $L_{\min}-1$ ($\widetilde{L}=L-\Delta_L$ должен быть ненулевым); 
+
+так как 
+$L_{\min}^{c=p}$ и~$L_{\min}^{c\neq p}$ могут различаться, 
+то и~$\Delta_L$ могут различаться для $c=p$ и~$c\neq p$.
+
+\end{enumerate}
+
+\vfill
+
+Следствие из опций: расчёт $L_{\max} = \max(\widetilde{L})+\Delta_L$. 
+\hfill
+При $\Delta_{L}^{c=p} \neq \Delta_{L}^{c\neq p}$ получим и $L_{\max}^{c=p} \neq L_{\max}^{c\neq p}$.
+
+\vfill
+
+Код K5: \enumerateball{1} $L_{\min}^{c=p} = L_{\min}^{c\neq p} = 4$;
+\enumerateball{2} $p$ "--- наименьший по значению из подходящих;
+\enumerateball{3} $\Delta_{L}^{c=p} = \Delta_{L}^{c\neq p} = 0$.
+
+Тогда для кода K5: $L_{\max}^{c=p} = L_{\max}^{c\neq p} = 2^{k}-1$, с~учётом $k=4$ получим $L_{\max}^{c=p} = L_{\max}^{c\neq p} = 15$.
+
+\vfill
+
+
+% Код B: \enumerateball{1}--\enumerateball{2} как A; 
+% \enumerateball{3} 
+% $\Delta_{L}^{c=p} = \Delta_{L}^{c\neq p} = L_{\min}-1 = 3$
+% (максимальное смещение).
+% 
+% Тогда для кода B: 
+% $L_{\max}^{c=p} = L_{\max}^{c\neq p} = 2^{k}-1+3 = 2^{k}+2$, 
+% с~учётом $k=4$ получим $L_{\max}^{c=p} = L_{\max}^{c\neq p} = 18.$
+% 
+% \vfill
+
+$C = \hex{0101~ 2222~ 2222~ 2222 ~~ 2222~ 3453~ 3333~ 3367 ~~ 89AB~ CDEF}$ (40 байтов)
+
+Множество самых редких байтов: \{\hex{4, 5, 6, 7, 8, 9, A, B, C, D, E, F}\} "--- по \enumerateball{2} $p=4$.
+\end{frame}
+
+
+\subsection{Схема данных кодирования  RLE с~односимвольным префиксом}
+\begin{frame}[plain]{\insertsubsection}
+\includegraphics[width=0.9\linewidth]{\IMGPATH/data_rle_p}\centering
+\end{frame}
+
+\subsection{Схема данных декодирования  RLE с~односимвольным префиксом}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_p_decode}
+\end{frame}
+
+
+\end{document}

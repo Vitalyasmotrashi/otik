@@ -1,0 +1,398 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+   
+\tikzstyle{normalblockheight}      = [minimum height=7ex]
+\tikzstyle{miniblockheight}      = [minimum height=4ex]
+
+\tikzstyle{normalblocksep}      = [inner sep = 0.2em]
+
+\tikzstyle{curvedblockxsep}      = [inner xsep = 0em]
+\tikzstyle{ddblockxsep}      = [inner xsep = -0.8em]
+
+
+% размеры
+\tikzstyle{normalblock}  = [normalblockheight, text width=10.8em, normalblocksep]
+
+\tikzstyle{wideblock}        = [normalblockheight, text width=15em, normalblocksep]
+\tikzstyle{narrowblock}      = [normalblockheight, text width=10em, normalblocksep]
+
+\tikzstyle{normaldatafile} = [minimum width=7ex, minimum height=8em, normalblocksep] % для цилиндра высота — это width!
+
+\tikzstyle{connector}=[espdconnector, minimum height=2ex, scale=0.7, normalblocksep]
+
+
+\def\refinedW{V}
+% \def\Cconnector{И}
+\def\Cconnector{$C$}
+
+
+\tikzset{node distance = 1ex and 0.5em}
+
+
+
+
+\node[miniblockheight, espdblackcenter, espddata,                ] (L) {$L$};
+
+% \tikzstyle{Gblock}  = [normalblock, ddblockxsep]
+\tikzstyle{Gblock}  = [normalblock,  text width=6em, inner xsep = -0.2em]
+
+% \node[Gblock,  espdblackcenter, espddata, right = of L,  ] (EL) {$E_L = c_i \ldots c_{i+L-1}$ (длина~$L$, начало $i$)};
+% \node[Gblock,  espdblackcenter, espddata, right = of EL,  ] (GL) {$G_L^S = c_{i-S} \ldots c_{i-S+L-1}$ (длина $L$, смещение $S$)};
+\node[Gblock,  espdblackcenter, espddata, right = of L,                     inner xsep = -0.8em ] (EL) {$E_L$: $c_i \ldots c_{i+L-1}$};
+\node[Gblock,  espdblackcenter, espddata, right = of EL, , text width=8em,  inner xsep = -0.6em ] (GL) {$G_L^S$: $c_{i-S} \ldots c_{i-S+L-1}$};
+
+\tikzstyle{fitbox}  = [espdfit, inner sep = 0.5em]
+\tikzstyle{fitbox_for_data}  = [fitbox, inner xsep = 0.8em]
+
+\node[fitbox_for_data, inner ysep = 0.5ex, fit=(GL)(EL)(L)] (Lbox) {};
+
+
+\node[miniblockheight,  espdblackcenter, espddata, left = of Lbox  ] (S) {$S$};
+\node[fit=(L)(S), inner sep = 0em] (miniLS) {};
+
+% \node[above = of S.west|-Lbox.north west, anchor=south west, inner sep = 0em] (LScomment) {$\{L, S\}$ такие, что $G_L^S = E_L$};
+\node[above = of Lbox.north east, anchor=south east, inner sep = 0em] (LScomment) {$\{L, S\}$ такие, что $G_L^S = E_L$};
+\coordinate[below = 2ex of Lbox] (LS_bottom_margin);
+
+% \node[espdfit, inner sep = 1em,  fit=(miniLS)(Lbox)] (LS) {};
+% \node[espdfit, inner xsep = 1em, inner ysep= 0.5ex, fit=(miniLS)(Lbox)(LScomment)(LS_bottom_margin)] (LS) {};
+\node[espdfit, inner xsep = 0.5em, inner ysep= 0.5ex, fit=(miniLS)(Lbox)(LScomment)(LS_bottom_margin)] (LS) {};
+
+\tikzset{node distance = 1ex and 1em}
+
+\node[normalblock, ddblockxsep, espdblackcenter, espddata, left = of LS , text width=9em,  inner xsep = -1.5em  ] 
+    (refinedwnd) {Неисследованная часть~окна~$\refinedW \subset W$};
+\node[fit=(LS)(refinedwnd), inner sep = 0em] (LSrefinedwnd) {};
+
+
+
+
+\node[espdnormalsize, espdblackcenter, espdprocess, right = of LS, text width=7em ] (writeLS) {\mbox{\uline{Запись $\{L, S\}$,}} $i = i+L$
+если~$L=L_{\max}$ \mbox{или~не~найдено} \mbox{лучших $S$ и~$L$}
+};
+
+\tikzset{node distance = 2ex and 2em}
+
+
+\tikzstyle{Bigbox}  = [normalblock, text width=23.6em, minimum width = 24em]
+
+
+\node[Bigbox, espdblackcenter, espdprocess, above = of LSrefinedwnd.north west, anchor=south west,
+ ] (initLS) {        
+     \underline{Поиск $E_{\min}$ в~$C^W_{\min}$:}
+        
+        если не найдено "--- запись символа $E_{\min}(1) = c_i$, ~ $i = i+1$,        
+        чтение~символа из $C$ (для $C^W_{\min}$ и~$E_{\min}$);
+        
+        %\bigskip
+        \medskip
+        
+        иначе %(найдено $G_{L\min}^S = E_{\min}$)
+         {инициализация $\{L, S\}$:}       
+        $L = L_{\min}$,  найденное $S$
+}; 
+
+
+
+\tikzstyle{CEblock}  = [normalblock, text width=17.5em, inner xsep = -0.5em]
+
+
+\node[CEblock, espdblackcenter, espddata, , inner xsep = -1em,
+left = 1em of initLS.north west, anchor = top right corner] (CWmin) {Все слова длины  $L_{\min}$ с~началом в~$W$: 
+\mbox{$C^W_{\min} = c_{i-w} \ldots c_{i-1} c_{i} \ldots c_{i+L_{\min}-2}$} };
+
+\node[Gblock,  espdblackcenter, espddata, below = of CWmin.top right corner|-CWmin.south,  anchor = top right corner] 
+(Emin) {$E_{{\min}}$:\\ \hspace*{-0.5em}$c_i \ldots c_{i+L_{\min}-1}$};
+
+\node[CEblock, espdblackcenter, espddata, 
+% above = of CWmin
+% above = of CWmin|-initLS.north
+above = of CWmin.bottom right corner|-CWmin.north, anchor = bottom right corner
+] (wnd) {Окно $W$ (размер окна $w \leqslant S_{\max}$): $W = \{i-w, ~ i-w+1, \, \ldots \, i-1 \}$ };
+
+
+\node[espddatafilesize, espdblackcenter, espddatafile, 
+left = of Emin, 
+] (C)  {Исх. $C = c_1\, c_2 \ldots c_n$};
+
+
+
+\coordinate[below = 4ex of LS] (EGnext_top_anchor_y);
+
+% \node[Gblock,  espdblackcenter, espddata, below = of EGnext_top_anchor_y-|EL ] (ELnext) {Следующий за $E_L$ символ $c_{i+L}$};
+% \node[Gblock,  espdblackcenter, espddata, below = of EGnext_top_anchor_y-|GL ] (GLnext) {Следующий за $G_L^S$ символ $c_{i-S+L}$};
+\node[miniblockheight,  espdblackcenter, espddata, below = of EGnext_top_anchor_y-|EL ] (ELnext) {$c_{i+L}$};
+\node[miniblockheight,  espdblackcenter, espddata, below = of EGnext_top_anchor_y-|GL ] (GLnext) {$c_{i-S+L}$};
+
+% \node[fitbox_for_data, fit=(ELnext)(GLnext)] (EGnext) {};
+\node[fit=(ELnext)(GLnext), inner sep = 0em,] (EGnext) {};
+
+\coordinate[below = 3ex of EGnext] (refineL_top_anchor);
+
+\node[normalblock, espdblackcenter, espdprocess, 
+% below = of EGnext, 
+% right=2.5em of refineL_top_anchor, anchor=north,
+anchor=north east,
+text width=20.6em] (refineL) at (refineL_top_anchor-|writeLS.east)
+    {\uline{1. Уточнение $L$ для~текущего $S$:}
+
+        если $L<L_{\max}$   и~$c_{i-S+L} = c_{i+L}$,      то~$L = L+1$
+    };
+
+
+
+
+
+\node[espdwide, espdblackcenter, espdprocess, 
+anchor=south west,
+text width=15em, 
+] (refineS)
+at (LSrefinedwnd.west|-refineL.south) {
+% \uline{Поиск нового (лучшего) $S$:} 
+\uline{2. Поиск нового $S$ (с~лучшим $L$):} 
+% (м.\,б. не реализован):
+
+если $L<L_{\max}$ лучшее для~тек.\,$S$
+%         \mbox{и~есть неисследованная} часть $\refinedW$ окна "--- 
+и~есть~$\refinedW\neq\varnothing$
+"---
+
+поиск $E_{L+1}$ в~неисследованной части $C^W_{L+1}$
+
+        \medskip
+    
+        Если найдено:
+        $L = L + 1$,  новое~$S$ 
+};
+
+
+% \node[Gblock,  espdblackcenter, espddata] (EL1) at (refineS-|Emin) {$E_{L+1} = c_i \ldots c_{i+L}$ (длина~$L+1$, начало $i$)};
+\node[Gblock,  espdblackcenter, espddata, anchor =bottom right corner] (EL1) at (wnd.bottom right corner|-refineS.south) {$E_{L+1}$: $c_i \ldots c_{i+L}$};
+% \node[Gblock,  espdblackcenter, espddata, left = 1.2em of refineS.south west, anchor =bottom right corner] (EL1)  {$E_{L+1}$: $c_i \ldots c_{i+L}$};
+
+\node[CEblock, espdblackcenter, espddata, %left = of EG1_left_anchor
+text width=18.5em,
+anchor =top left corner
+] (CWL1) at (wnd.top left corner|-refineS.north) {Все слова длины  $L+1$ с~началом в~$W$: 
+    \mbox{$C^W_{L+1} = c_{i-w} \ldots c_{i-1} c_{i} \ldots c_{i+L-1}$} };
+
+
+
+
+\node[espddatafilesize, espdblackcenter, espddatafile, right = of initLS] (arch) {Архив};
+\node[fit=(initLS)(arch), inner sep = 0em] (initLS_arch_box) {};
+\coordinate[right = of initLS_arch_box] (writeLS_to_wnd_x);
+
+{
+\tikzset{node distance = 1.5\baselineskip and 1.em}
+% \tikzset{node distance = 4ex and 1.em}
+
+\coordinate[left  = of writeLS.north] (writeLS_to_arch);
+\coordinate[right = of writeLS.north] (writeLS_to_i);
+}
+
+
+
+\draw[espdstreamto] (wnd.south-|CWmin) -- (CWmin);
+\draw[espdstreamto] (C) -- (CWmin.south-|C);
+\draw[espdstreamto] (C) -- (Emin);
+\draw[espdstreamto] (C) -- coordinate[pos=0.25] (C_to_all) coordinate[pos=0.125] (arrow_1)   (CWL1.north-|C);
+\coordinate[below = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+\node[espdblackcenter, connector, right= of C_to_all ] (C_to_all_1) {\Cconnector}; 
+\draw[espdstreamto] (C_to_all) -- (C_to_all_1);
+
+\draw[espdstreamto] (CWmin) -- (CWmin-|initLS.west);
+\draw[espdstreamto] (Emin) -- (Emin-|initLS.west);
+
+\draw[espdstreamto] (initLS.south-|refinedwnd) -- (refinedwnd);
+\draw[espdstreamtofrom] (refineS.north-|refinedwnd) -- (refinedwnd);
+% \draw[espdstreamto] (refineS.north-|refinedwnd) -- (refinedwnd);
+
+% \coordinate (initLS_to_LS_x) at ($(initLS.south east)!0.5!(LS.north west)$);
+\coordinate (initLS_to_LS_x) at ($(initLS.south east)!0.7!(LS.north west)$);
+\draw[espdstreamto] (initLS.south-|initLS_to_LS_x) -- (LS.north-|initLS_to_LS_x);
+
+
+% % \node[espdblackcenter, connector, left= of EL1 ] (from_C) {\Cconnector}; 
+% \coordinate[left  = of EL1] (to_EL1_x);
+% % {
+% % \tikzset{node distance = 1ex and 1.em}
+% % 
+% % \node[espdblackcenter, connector, above= of to_EL1_x ] (from_C) {\Cconnector}; 
+% % \node[espdblackcenter, connector, below= of to_EL1_x ] (from_L) {$L$}; 
+% % }
+% \node[espdblackcenter, connector, anchor=north] (from_C) at (to_EL1_x|-EL1.north) {\Cconnector}; 
+% \node[espdblackcenter, connector, anchor=south] (from_L) at (to_EL1_x|-EL1.south) {$L$}; 
+% % \draw[espdstreamto] (from_C) -- (EL1);
+% % \draw[espdstreamto] (from_L) -- (EL1);
+% \draw[espdstreamto] (from_C) |- (EL1);
+% \draw[espdstreamto] (from_L) |- (EL1);
+
+% \node[espdblackcenter, connector] (from_C) at (C|-EL1) {\Cconnector}; 
+% \draw[espdstreamto] (from_C) -- coordinate[pos=0.5] (L_to_EL1_x) (EL1);
+% \coordinate (L_to_EL1_y) at ($(L_to_EL1_x)!0.5!(CWL1.south)$);
+
+% \node[espdblackcenter, connector] (from_L) at (L_to_EL1_x|-L_to_EL1_y) {$L$}; 
+% \draw[espdstreamto] (from_L) -- (L_to_EL1_x);
+% % \draw[espdstreamto] (from_L) -- (L_to_EL1_x|-CWL1.south);
+
+\draw[espdstreamto] (CWL1) -- (CWL1-|refineS.west);
+\draw[espdstreamto] (EL1) -- (EL1-|refineS.west);
+
+
+\draw[espdstreamto] (LS) -- (writeLS);
+
+\draw[espdstreamto] (writeLS_to_arch) |- node[pos=0.75, auto, swap]  {$\{L, S\}$}(arch);
+\draw[espdstreamto] (initLS) -- node[pos=0.5, auto] {$c_i$}   (arch);
+
+\draw[espdstreamto] (writeLS_to_i) |- 
+    node[auto, sloped, pos=0.75]{меняется текущая позиция $i$ "--- смещается окно $W$} coordinate[pos=0.75] (to_wnd_y) coordinate[pos=0.6] (arrow_1) (wnd);
+\coordinate[left = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+    
+\draw[espdstreamto] (initLS) -- (to_wnd_y-|initLS);
+\coordinate (arrow_1) at (arch-|writeLS_to_i);
+\coordinate[above = 4pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+
+
+\coordinate (wnd_to_CWL1_x) at ($(wnd.west)!0.5!(CWmin.west)$);
+% \coordinate (wnd_to_CWL1_x) at ($(wnd.bottom left corner)!0.5!(CWmin.bottom left corner)$);
+\draw[espdstreamto] (wnd_to_CWL1_x|-wnd.south) -| (wnd_to_CWL1_x|-CWL1.north);
+\coordinate (arrow_2) at (CWmin.north-|wnd_to_CWL1_x);
+\coordinate[above = 1pt of arrow_2] (arrow_1);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+
+
+
+
+\node[espdblackcenter, connector] (from_C) at ($(ELnext.east)!0.5!(GLnext.west)$) {\Cconnector}; 
+\draw[espdstreamto] (from_C) -- (ELnext);
+\draw[espdstreamto] (from_C) -- (GLnext);
+
+% \draw[espdstreamto] (LS.south-|EGnext) -- (EGnext);
+% \draw[espdstreamto] (EGnext) -- (refineL);
+
+\draw[espdstreamto] (LS.south-|ELnext) -- node[pos=0.5, auto, text width=3em] {след. за $E_L$}  (ELnext);
+\draw[espdstreamto] (LS.south-|GLnext) -- node[pos=0.5, auto, text width=2.5em, swap] {след. за~$G_L^S$} (GLnext);
+% \draw[espdstreamto] (ELnext) -- (refineL.north-|ELnext);
+% \draw[espdstreamto] (ELnext) |- (refineL.175);
+% \coordinate (ELnext_to_refineL_x) at ($(ELnext.bottom right corner)!0.5!(refineL.north west)$);
+% \draw[espdstreamto] (ELnext.south-|ELnext_to_refineL_x) -- (refineL.north-|ELnext_to_refineL_x);
+\draw[espdstreamto] (ELnext) |- (refineL.west);
+
+\draw[espdstreamto] (GLnext) -- (refineL.north-|GLnext);
+
+% \coordinate (refineL_to_L_start) at (refineL.west);
+\coordinate (refineL_to_L_start) at (refineL.north);
+
+
+\draw[espdstreamto] (refineL_to_L_start) -- 
+% node[pos=0.3, auto, text width=7em, swap, scale=0.7] {$c_{i-S+L} = c_{i+L}$  $\implies$  $L = L+1$} 
+node[pos=0.4, auto, text width=7em, swap, text badly ragged] {$c_{i-S+L} = c_{i+L}$   $L$ для~тек.\,$S$ можно улучшить} 
+coordinate[pos=0.125] (arrow_1)
+(Lbox.south-|refineL_to_L_start);
+\coordinate[above = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+% \draw[espdstreamto] (refineL) -- 
+% node[pos=0.5, auto, text width=7em, swap, scale=0.7] {$c_{i-S+L} \neq c_{i+L}$} 
+% node[pos=0.5, auto, text width=7em,  scale=0.7, text badly centered] {$L$ "--- лучшее для~тек.\,$S$} 
+% (refineL-|refineS.east);
+
+\coordinate[below =  of refineL] (refineL_to_biggestL);
+\coordinate (biggestL_to_CWL1) at (wnd_to_CWL1_x|-CWL1.south);
+
+\draw[espdstreamto] (refineL) --  (refineL_to_biggestL) -| 
+node[pos=0.05, auto, inner sep =0.1ex] {$c_{i-S+L} \neq c_{i+L}$} 
+% node[pos=0.33, auto, inner sep =0.2ex] {\mbox{текущее $L$ "--- наилучшее для~текущего $S$} $\implies$ ищем новое $S$ (для $E_{L+1}$)} 
+node[pos=0.33, auto, inner sep =0.2ex] {\mbox{текущее $L$ "--- наилучшее для~текущего $S$} $\implies$ ищем новое $S$ (с~$L+1$)} 
+coordinate[pos=0.125] (arrow_1)
+% coordinate[pos=0.45] (arrow_1a)
+% coordinate[pos=0.3] (arrow_1b)
+(biggestL_to_CWL1|-refineL_to_biggestL) --
+% % node[pos=0.7, auto, text width=7em, swap] {\mbox{$L$ лучшее для~тек.\,$S$,} ищем лучшее $S$} 
+% node[pos=0.7, auto, text width=7em, swap] {ищем другое $S$ с~лучшим $L$} 
+% % node[pos=0.5, auto, text width=7em, swap] {$c_{i-S+L} \neq c_{i+L}$ \mbox{$L$ лучшее для~тек.\,$S$,} ищем лучшее $S$} 
+(biggestL_to_CWL1);
+\coordinate[left = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+% \coordinate[left = 1pt of arrow_1a] (arrow_2);
+% \draw[espdstreamto] (arrow_1a) -- (arrow_2);
+% \coordinate[left = 1pt of arrow_1b] (arrow_2);
+% \draw[espdstreamto] (arrow_1b) -- (arrow_2);
+
+
+\draw[espdstreamto] (refineS.north-|miniLS) -- (LS.south-|miniLS);
+
+
+% \node[espdblackcenter, connector, above = 1.5ex of L, fill=white] (L_from_all) {$L$}; 
+% \draw[espdstreamto] (L) -- (L_from_all);
+
+
+
+% \node[espdblackcenter, connector] (from_L) at (L-|EL1)  {$L$}; 
+% \draw[espdstreamto] (from_L) -- (CWL1.north-|from_L);
+
+% \node[espdblackcenter, connector, left = 0.8em of EL1] (from_C)  {\Cconnector}; 
+\node[espdblackcenter, connector, left = 1em of EL1] (from_C)  {\Cconnector}; 
+\draw[espdstreamto] (from_C) -- (EL1);
+\draw[espdstreamto] (EL1|-refineL_to_biggestL) -- (EL1);
+
+
+\draw[espdstreamto] (refineS|-refineL_to_biggestL) -- (refineS);
+
+
+\end{tikzpicture}
+}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

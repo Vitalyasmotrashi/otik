@@ -1,0 +1,87 @@
+\input{commonpath}
+\input{\SRCROOTPATH/widepres}
+\def\IMGPATH{\SRCROOTPATH/img/}
+
+\title[Сжатие с~учётом контекста. RLE, LZ77]{\mbox{Сжатие с~учётом контекста.}
+\mbox{~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+\mbox{Метод кодирования длин повторений --- Run Length Encoding, RLE.}
+\mbox{~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
+\mbox{Словарные методы, где словарём} является \mbox{несжатый текст} --- \mbox{семейство кодов Зива---Лемпеля, основанных на идее 1977~г., LZ77}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% \def\UnicodeVersion{12.1}
+% \def\UnicodeSymCount{137\,994}
+% 
+% \newcommand{\gt}[1]{\textcolor{gray}{#1}}
+% \newcommand{\m}[1]{\textcolor{red}{#1}}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+% \widepressetfontsize{\large}
+
+\maketitle
+
+\section{RLE}
+
+\subsection{Схема данных кодирования «наивной» реализацией метода RLE}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_n}
+\end{frame}
+
+\subsection{Схема данных декодирования «наивной» реализации метода RLE}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_n_decode}
+\end{frame}
+
+\subsection{Схема данных кодирования  RLE с~флаг-битом сжатая/несжатая цепочка}
+\begin{frame}[plain]{\insertsubsection}
+\includegraphics[width=0.9\linewidth]{\IMGPATH/data_rle_flagbit}\centering
+\end{frame}
+
+
+\subsection{Схема данных декодирования  RLE с~флаг-битом сжатая/несжатая цепочка}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_flagbit_decode}
+\end{frame}
+
+
+\subsection{Схема данных кодирования  RLE с~односимвольным префиксом}
+\begin{frame}[plain]{\insertsubsection}
+\includegraphics[width=0.9\linewidth]{\IMGPATH/data_rle_p}\centering
+\end{frame}
+
+\subsection{Схема данных декодирования  RLE с~односимвольным префиксом}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_rle_p_decode}
+\end{frame}
+
+\section{LZ77}
+
+\subsection{Схема данных кодирования методом LZ77 \mbox{(любой код семейства LZ77)}}
+\begin{frame}[plain]{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz77}
+\end{frame}
+
+\subsection{Схема данных декодирования методом LZ77 (декодирование символа $c$ и~ссылки 
+$\{L, S\}$
+должно строго соответствовать их кодированию)}
+\begin{frame}{\insertsubsection}
+\includegraphics[width=\linewidth]{\IMGPATH/data_lz77_decode}
+\end{frame}
+
+
+
+
+
+
+\makethanks
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

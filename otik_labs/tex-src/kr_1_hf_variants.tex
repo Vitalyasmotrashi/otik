@@ -1,0 +1,187 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Список вопросов и билеты по 2 вопроса
+% расстояния подобраны методом тыка
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,14pt]{extarticle}
+
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+% \usepackage[cp1251]{inputenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{tempora}
+\usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+\usepackage[
+  a4paper, mag=1000, %nohead,includefoot,
+  margin=8mm, 
+  top=5mm, 
+  left=0mm % ??? !!!
+]{geometry}
+
+\usepackage[pdftex,unicode=true,colorlinks]{hyperref}
+    \hypersetup{citecolor=blue,linkcolor=blue,urlcolor=blue}
+    
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+\newcounter{count_variants}
+\setcounter{count_variants}{1}
+
+\usepackage{tikz}
+% =============================================================================
+\newcommand\vC[1]{%
+Авторы:\hfill\the\year-\the\month-«\hspace{2em}»
+\bigskip
+
+\bigskip
+
+Вариант 1-\arabic{count_variants}\addtocounter{count_variants}{1}%.
+\hfill
+#1 \hfill $C = \hex{\printnextmsg}$
+\hfill 
+% (размер байта $k=3$ бита, алфавит \hex{0\ldots 7})
+% (байт $k=3$ бита, алфавит \hex{0\ldots 7})
+(алфавит \hex{0, 1, \ldots 7})
+% \medskip
+
+\clearpage%
+}
+
+% =============================================================================
+
+\newcounter{count_msg}	% счётчик m
+\setcounter{count_msg}{0}
+\newcommand\mkmsgname[1]{q\arabic{#1}}
+
+\makeatletter
+% Печать текста по счётчику (1, 2, 3,... count_msg)
+\newcommand\printmsg[1]{\expandafter\@nameuse{\mkmsgname{#1}}}
+
+\newcommand\defmsg[1]{%
+  \stepcounter{count_msg}%
+  \global\expandafter\@namedef{\mkmsgname{count_msg}}{#1}%
+}
+\makeatother
+
+% =============================================================================
+\newcounter{msg_idx}	% счётчик m
+\setcounter{msg_idx}{0}
+
+\newcommand\printnextmsg{%
+    \addtocounter{msg_idx}{1}%
+    \ifnum \value{msg_idx}>\value{count_msg}
+        \setcounter{msg_idx}{1}%
+    \fi
+    \printmsg{msg_idx}
+    }
+% =============================================================================
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\pagestyle{empty}
+\setlength{\parskip}{0.\parskip}
+
+
+% Строка выравнена на 100 для подсчёта. Сообщений 80!
+\defmsg{6421~ 5647~ 1364} 
+\defmsg{3262~ 5152~ 3267} 
+\defmsg{3450~ 2421~ 0212} 
+\defmsg{2141~ 2061~ 0415} 
+\defmsg{2021~ 5124~ 3624} 
+\defmsg{1545~ 1512~ 6056} 
+\defmsg{1202~ 1436~ 5241} 
+\defmsg{1510~ 3105~ 1413} 
+\defmsg{1321~ 4165~ 4130} 
+\defmsg{1543~ 5021~ 4567} 
+\defmsg{5243~ 0107~ 2326} 
+\defmsg{7456~ 5232~ 4320} 
+\defmsg{2426~ 2023~ 6567} 
+\defmsg{7520~ 1067~ 2320} 
+\defmsg{6763~ 7474~ 3010} 
+\defmsg{2340~ 7246~ 2263} 
+\defmsg{4027~ 4257~ 2010} 
+\defmsg{2672~ 6633~ 7072} 
+\defmsg{7250~ 5204~ 3363} 
+\defmsg{7624~ 3626~ 5242} 
+\defmsg{0514~ 2204~ 1015} 
+\defmsg{4201~ 6131~ 0614} 
+\defmsg{1014~ 6146~ 7415} 
+\defmsg{1502~ 0415~ 5150} 
+\defmsg{1746~ 1741~ 0416} 
+\defmsg{1710~ 1643~ 7327} 
+\defmsg{0107~ 6272~ 0724} 
+\defmsg{5726~ 5426~ 0103} 
+\defmsg{4320~ 4565~ 3562} 
+\defmsg{2327~ 0104~ 2072} 
+\defmsg{2453~ 6325~ 0403} 
+\defmsg{6323~ 2502~ 5320} 
+\defmsg{3676~ 3032~ 6232} 
+\defmsg{1072~ 3632~ 0363} 
+\defmsg{2076~ 3236~ 7010} 
+\defmsg{6732~ 0763~ 6327} 
+\defmsg{7150~ 1651~ 1051} 
+\defmsg{4650~ 6461~ 0160} 
+\defmsg{7050~ 6056~ 5075} 
+\defmsg{1200~ 2112~ 3207} 
+\defmsg{7056~ 5050~ 0271} 
+\defmsg{4277~ 3605~ 6352} 
+\defmsg{0426~ 2734~ 2056} 
+\defmsg{5374~ 2010~ 5633} 
+\defmsg{4053~ 7240~ 6274} 
+\defmsg{7056~ 3527~ 0537} 
+\defmsg{4325~ 3101~ 0535} 
+\defmsg{1053~ 1252~ 0630} 
+\defmsg{5303~ 5053~ 0207} 
+\defmsg{2635~ 2024~ 4322} 
+\defmsg{4022~ 2224~ 3403} 
+\defmsg{3020~ 0360~ 2530} 
+\defmsg{2010~ 2635~ 0336} 
+\defmsg{2063~ 0025~ 0330} 
+\defmsg{5033~ 6504~ 2342} 
+\defmsg{2232~ 4034~ 2340} 
+\defmsg{2232~ 6120~ 1231} 
+\defmsg{3201~ 2301~ 0163} 
+\defmsg{0324~ 5204~ 5723} 
+\defmsg{5240~ 4204~ 2427} 
+\defmsg{0674~ 6704~ 2024} 
+\defmsg{4004~ 6072~ 4464} 
+\defmsg{4046~ 4672~ 0764} 
+\defmsg{0024~ 0204~ 2742} 
+\defmsg{2046~ 0420~ 4272} 
+\defmsg{4600~ 0000~ 7005} 
+\defmsg{2010~ 2004~ 4000} 
+\defmsg{4244~ 0720~ 6250} 
+\defmsg{0002~ 7205~ 0722} 
+\defmsg{0727~ 2700~ 2721} 
+\defmsg{0217~ 0720~ 2705} 
+\defmsg{2170~ 4071~ 2150} 
+\defmsg{1502~ 1210~ 6012} 
+\defmsg{3032~ 1610~ 2306} 
+\defmsg{3013~ 2161~ 0132} 
+\defmsg{0132~ 3063~ 3032} 
+\defmsg{3320~ 6123~ 1061} 
+\defmsg{1036~ 3063~ 0233} 
+\defmsg{4206~ 2207~ 7432} 
+\defmsg{0356~ 2320~ 1353} 
+
+
+
+
+
+\setcounter{count_variants}{1}
+
+
+
+\foreach \r in {1,...,30}{
+\vC{Хф}
+\vC{ШФ}
+}
+
+
+
+
+\end{document}

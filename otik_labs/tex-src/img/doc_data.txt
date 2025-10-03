@@ -1,0 +1,43 @@
+InfoBegin
+InfoKey: Creator
+InfoValue: TeX
+InfoBegin
+InfoKey: ModDate
+InfoValue: D:20250518160403+03&apos;00&apos;
+InfoBegin
+InfoKey: CreationDate
+InfoValue: D:20250518160403+03&apos;00&apos;
+InfoBegin
+InfoKey: Producer
+InfoValue: pdfTeX-1.40.19
+InfoBegin
+InfoKey: PTEX.Fullbanner
+InfoValue: This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2019/dev/Debian) kpathsea version 6.3.1/dev
+PdfID0: a12ff9fa2eec5ee2ceee3dab865239f1
+PdfID1: a12ff9fa2eec5ee2ceee3dab865239f1
+NumberOfPages: 5
+PageMediaBegin
+PageMediaNumber: 1
+PageMediaRotation: 0
+PageMediaRect: 0 0 453 32
+PageMediaDimensions: 453 32
+PageMediaBegin
+PageMediaNumber: 2
+PageMediaRotation: 0
+PageMediaRect: 0 0 284 42
+PageMediaDimensions: 284 42
+PageMediaBegin
+PageMediaNumber: 3
+PageMediaRotation: 0
+PageMediaRect: 0 0 284 42
+PageMediaDimensions: 284 42
+PageMediaBegin
+PageMediaNumber: 4
+PageMediaRotation: 0
+PageMediaRect: 0 0 284 42
+PageMediaDimensions: 284 42
+PageMediaBegin
+PageMediaNumber: 5
+PageMediaRotation: 0
+PageMediaRect: 0 0 471 35
+PageMediaDimensions: 471 35

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html><head> 
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>RTF - Описание формата файла</title> 
+<meta name="description" content="CodeNet - все для программиста. Начиная от программирования для Web, заканчивая системным программированием. Большое количество документации по программированию видеоадаптеров, звуковых карт. Описане форматов файлов. Все с очень хорошими - понятными примерами. И многое другое.">
+<meta name="keywords" content="File, Format, Файл, Формат, формат файла, форматы файлов, описание, спецификация, CDX, DBF, FPT, GIF, IDX, MOD, MP3, PCX, RAW, SAM, VOC, WAV, FLI, FLC, CEL, JPG, JPEG">
+<link type="text/css" rel="stylesheet" href="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/codenet.css">
+<script type="text/javascript" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/codenet.js"></script> 
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+
+<link rel="alternate" type="application/rss+xml" title="CodeNet.Ru - новые статьи" href="http://feeds.feedburner.com/codenet/read"> 
+<link rel="alternate" type="application/rss+xml" title="CodeNet.Ru - новые сообщения на форуме" href="http://feeds.feedburner.com/codenet/forum"> 
+<link rel="alternate" type="application/rss+xml" title="CodeNet.Ru - новые сайты в каталоге" href="http://feeds.feedburner.com/codenet/cat"> 
+<link rel="alternate" type="application/rss+xml" title="CodeNet.Ru - новые исходники" href="http://feeds.feedburner.com/codenet/sources"> 
+
+<meta name="verify-v1" content="ZuirPLme4DTpdfqSqtolx2w0hscTr5RuK9Tek+K1aAs="> 
+<link rel="icon" href="http://i.codenet.ru/favicon.ico"> 
+<meta property="fb:admins" content="100001560647144">
+<meta property="fb:app_id" content="290955720945342">
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="RTF - Описание формата файла">
+<meta property="og:url" content="http://www.codenet.ru//progr/formt/rtf1.php">
+<meta property="og:site_name" content="CodeNet - все для программиста">
+<meta property="og:image" content="">
+<meta property="article:published_time" content="2000-01-01T00:00:00+03:00">
+<meta property="article:modified_time" content="-001-11-30T00:00:00+02:30">
+<meta property="og:description" content="CodeNet - все для программиста. Начиная от программирования для Web, заканчивая системным программированием. Большое количество документации по программированию видеоадаптеров, звуковых карт. Описане форматов файлов. Все с очень хорошими - понятными примерами. И многое другое.">
+ 
+
+<script>
+
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function() {
+  var gads = document.createElement('script');
+  gads.async = true;
+  gads.type = 'text/javascript';
+  var useSSL = 'https:' == document.location.protocol;
+  gads.src = (useSSL ? 'https:' : 'http:') +
+    '//www.googletagservices.com/tag/js/gpt.js';
+  var node = document.getElementsByTagName('script')[0];
+  node.parentNode.insertBefore(gads, node);
+})();
+</script>
+
+<script>
+if ($(window).width()>767) {
+	googletag.cmd.push(function() {
+		googletag.defineSlot('/1019277/codenet_left_240x400', [240, 400], 'div-gpt-ad-1428667131943-0').addService(googletag.pubads());
+		googletag.pubads().enableSingleRequest();
+		googletag.enableServices();
+		});
+	}
+</script>
+
+</head> 
+ 
+<body class="m0"> 
+ 
+<div class="container"> 
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="cnheader">
+ 
+			<div id="mmenu">
+				<a href="#" class="mmenu-button"><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/mmenu.svg"></a>
+			</div>
+			<div id="logo">
+				<div>
+			<a href="http://www.codenet.ru/"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEoAAAAcCAMAAADx2dmpAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAZQTFRFAK7v////5NLvRAAAAEdJREFUeNpiYCQKMBADRoBRcCORjUezB85GFkdTMEKMQpbCSuISRGGPGoVDihEzvkaNGk1XqEbhlCU92Ie3UaP1IJFGAQQYACt2A9WxwuoaAAAAAElFTkSuQmCC" style="border:0;width:74px;height:28px;" alt="CodeNet - все для программиста!" title="CodeNet - все для программиста!"></a><br>
+			<a href="http://www.codenet.ru/" style="color:#ff8c00">Все для программиста!</a>
+		</div>
+	</div>
+ 
+<script type="text/javascript"> 
+<!--
+cnsd=document;cnst=escape(cnsd.title);
+cnst=cnst.replace(/\+/g,'%2B');cnsa=navigator.appName;
+cnsn=(cnsa.substring(0,2)=='Mi')?0:1;cnss=screen;cnspx=(cnsn==0)?cnss.colorDepth:cnss.pixelDepth;
+document.write('<img alt="" s'+'rc="http://s.codenet.ru/cnt-gif1x1.php?e='+cnss.width+'.'+cnss.height+'&amp;d='+cnspx+'&amp;r='+escape(cnsd.referrer)+'&amp;p='+escape(cnsd.location)+'&amp;t='+cnst+'" style="width:1px;height:1px;border:0;" />');
+//-->
+</script><noscript><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/cnt-gif1x1.gif" style="width:1px;height:1px;border:0;" alt=""></noscript> 
+ 
+<script type="text/javascript"><!--
+new Image().src = "//counter.yadro.ru/hit?r"+
+escape(document.referrer)+((typeof(screen)=="undefined")?"":
+";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+";"+Math.random();//--></script><!--/LiveInternet--> 
+ 
+<div id="searchform"> 
+ 
+	<div id="search1">
+		<form action="http://www.codenet.ru/search-xml/" method="get"> 
+			<div style="float:right;">
+				<input value="Искать" class="btn" type="submit">
+				<input name="d" value="www.codenet.ru" type="hidden">
+			</div>
+			<div style="margin-right:80px;">
+				<input style="margin-right: 0px; padding-right: 0px;" name="q" class="form-control" type="text"><img title="Максимальная длина текста в поле неизвестна" style="position: relative; left: 553px; top: -22px; z-index: 999; cursor: pointer; vertical-align: bottom; border: 0px none; width: 14px; height: 19px; display: inline;" class="ife_marker" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/marker.png" id="q_ife_marker_0">
+			</div>
+			<div class="clearfix"></div>
+		</form> 
+
+
+		<ul>
+			<li class="active"><a href="http://www.codenet.ru/">Статьи</a></li>
+			<li><a href="http://forum.codenet.ru/">Форум</a></li>
+			<li><a href="http://sources.codenet.ru/">Исходники</a></li>
+			<li><a href="http://cat.codenet.ru/">Каталог</a></li>
+			<li><a href="http://www.codenet.ru/hosting/">Хостинг</a></li>
+			<li><a href="http://www.codenet.ru/services/">Утилиты</a></li>
+		</ul>
+	</div>
+
+	<div id="search2">
+
+		<form action="http://www.codenet.ru/search-spr/" method="get" style="padding:22px 20px 0 10px;"> 
+
+			<div class="t" style="margin-top:-22px;">Справочник функций</div>
+				<div style="float:right;">
+					<input value="Искать" class="btn" type="submit">
+				</div>
+				<div style="margin-right:80px;">
+					<input style="margin-right: 0px; padding-right: 0px;" name="q" class="form-control" type="text"><img title="Максимальная длина текста в поле неизвестна" style="position: relative; left: 179px; top: -23px; z-index: 999; cursor: pointer; vertical-align: bottom; border: 0px none; width: 14px; height: 19px; display: inline;" class="ife_marker" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/marker.png" id="q_ife_marker_1">
+				</div>
+			<div style="clearfix"></div>
+			<div style="margin:3px 0 0 -3px;">
+				<select class="form-control" name="spr" style="width:150px;"> 
+					<option selected="selected" value="any">Все справочники</option> 
+					<option value="cpp">Си/Си++</option> 
+					<option value="cpp1">Borland C++</option> 
+					<option value="cpp2">Си/Си++ (DOS)</option> 
+					<option value="cpp3">Си/Си++ (Unix/Linux)</option> 
+					<option value="pascal">Pascal</option> 
+					<option value="perl">Perl</option> 
+					<option value="winapi">WinAPI</option> 
+				</select> 
+			</div>
+
+		</form>
+	</div>
+	<div style="clear:both"></div>
+</div>
+
+
+</div>
+
+</div>
+
+<!-- row start -->
+<div class="np_row_2-1 row"><!-- col start -->
+<div class="np_col_1 leftcol pull-left np_layout_2-1-1"><!-- По умолчанию -->
+<div id="np_block_1_1" class="se">
+	<h3>Ваш аккаунт</h3>
+
+<!-- social auth -->
+<div style="margin:10px 0 5px 1px;">
+<div style="float:left">Войти через:&nbsp;</div>
+<a href="#" class="login_social" id="login_facebook" title="Войти через Facebook"></a>
+<a href="#" class="login_social" id="login_vk" title="Войти через ВКонтакте"></a>
+<a href="#" class="login_social" id="login_twitter" title="Войти через Twitter"></a>
+<a href="#" class="login_social" id="login_google" title="Войти через Google"></a>
+<a href="#" class="login_social" id="login_yandex" title="Войти через Яндекс"></a>
+<span id="social_loading"></span>
+<div style="clear:both"></div>
+</div>
+
+<div id="login_social_container" style="display:none"></div>
+<div style="clear:both"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('.login_social').click(function() {
+		$('#social_loading').AppendAjaxProgress();
+		var id=$(this).attr('id');
+		$.getScript('http://i.codenet.ru/caq/js/lib/jquery.simplemodal.1.4.1.min.js',function() {
+			$('#login_social_container').load('/ajax/login_social_dialog.php?social='+id);
+			});
+		return false;
+		});
+	});
+
+</script>
+<!-- //social auth -->
+<form action="http://forum.codenet.ru/ajax/login.php" method="post" id="common_login_form" role="form" class="form-horizontal">
+	<div class="form-group" style="margin:20px -10px 0 -10px;">
+		<label for="common_login_form_login" class="col-sm-4 control-label">Логин:</label>
+		<div class="col-sm-8">
+			<input style="margin-right: 0px; padding-right: 0px;" name="login" id="common_login_form_login" class="form-control" type="text"><img title="Максимальная длина текста в поле неизвестна" style="position: relative; left: 131px; top: -23px; z-index: 999; cursor: pointer; vertical-align: bottom; border: 0px none; width: 14px; height: 19px; display: inline;" class="ife_marker" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/marker.png" id="login_ife_marker_2">
+		</div>
+	</div>
+	<div class="form-group" style="margin:10px -10px 0 -10px;">
+		<label for="cn-password" class="col-sm-4 control-label">Пароль:</label>
+		<div class="col-sm-8">
+			<input style="margin-right: 0px; padding-right: 0px;" name="password" value="" class="form-control" id="cn-password" type="password"><img title="Максимальная длина текста в поле неизвестна" style="position: relative; left: 131px; top: -23px; z-index: 999; cursor: pointer; vertical-align: bottom; border: 0px none; width: 14px; height: 19px; display: inline;" class="ife_marker" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/marker.png" id="password_ife_marker_3">
+		</div>
+	</div>
+	<div class="form-group" style="margin:10px -10px 0 -10px;">
+		<div class="col-sm-4"></div>
+		<div class="col-sm-8">
+			<div class="checkbox">
+				<label><input name="store_session" id="common_store_session" style="margin-top:0;" type="checkbox"> Запомнить меня</label>
+			</div>
+		</div>
+
+		<div id="common_login_error_message" class="alert alert-danger" style="display:none;"></div>
+
+	</div>
+
+
+	<div class="form-group" id="common_login_button" style="margin-top:5px;">
+		<div class="col-sm-4"></div>
+		<div class="col-sm-8">
+			<input disabled="disabled" class="btn btn-success" value="Войти &gt;&gt;" type="submit">
+			<span></span>
+		</div>
+	</div>
+
+</form>
+
+<div class="clearfix"></div>
+
+<script type="text/javascript">
+
+function CommonLoginRedirect(data) {
+	if (data.status!='ok') {
+		$('#common_login_button input').attr('disabled',false);
+		$('#common_login_error_message').html('<strong>Ошибка</strong>: '+data.message).show(100);
+		$('#common_login_error_message').animate({'background-color':'#fcc'},500).animate({'background-color':'transparent'},1000);
+		$(document).RemoveAjaxProgress();
+		$('#common_login_form_login').focus();
+		}
+	else {
+		location.reload();
+		}
+	}
+
+$(document).ready(function() {
+
+    $('#common_login_form').ajaxForm({
+		url: '/ajax/login.php',
+        dataType:  'json', 
+        success:   CommonLoginRedirect,
+		beforeSubmit: function() {
+
+			$(document).RemoveAjaxProgress();
+			$('#common_login_button span').AppendAjaxProgress();
+			$('#common_login_button input').attr('disabled',true);
+			$('#common_login_error_message').html('').hide(100);
+			}
+	    });
+
+	$('#common_login_button input').attr('disabled',false);
+
+	});
+</script>
+
+<div style="margin-top:10px;">
+<a href="http://forum.codenet.ru/restore-password/">Забыли пароль?</a><br>
+<a href="http://forum.codenet.ru/reg" style="color:red;font-weight:bold;">Регистрация</a>
+</div>
+
+<div style="margin-top:10px;">
+<div style="color:#404040;margin-bottom:3px;">Информацию о новых материалах можно получать и без регистрации:</div>
+<div class="rss" style="font-size:11px;padding:5px;width:auto;"><a rel="nofollow" href="http://www.codenet.ru/r/fb/codenet/forum">RSS</a></div>
+<div class="twitter" style="font-size:11px;padding:5px;width:auto;margin-left:3px;"><a rel="nofollow" href="http://www.codenet.ru/r/twitter/">Twitter</a></div>
+<div class="rss" style="background-color:#597da3;font-size:11px;padding:5px;width:auto;margin-left:3px;"><a rel="nofollow" href="http://vkontakte.ru/club32056391">ВКонтакте</a></div>
+</div>
+
+
+
+	
+</div>
+<!-- Баннер -->
+<div id="np_block_1_1" class="se" style="padding:0;margin:0 0 10px 0;text-align:center;background-color:white;border:none;">
+	<div style="margin-bottom:10px;" class="banner-240x400">
+<!-- /1019277/codenet_left_240x400 -->
+
+<div id="div-gpt-ad-1428667131943-0" style="height:400px; width:240px;">
+<script type="text/javascript">
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1428667131943-0'); });
+</script>
+</div>
+</div>
+
+	
+</div>
+<!-- По умолчанию -->
+<div id="np_block_1_1" class="se">
+	<h3>Последние темы форума</h3>
+
+<div class="fm" id="flt">
+<ul>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75365/%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D0%BB+%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D1%83%21%21%21+%D1%82%D0%B5%D0%BF%D0%B5%D1%80%D1%8C+%D0%BA%D0%B0%D0%BA+%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%B8%D1%82%D1%8C%3F%3F%3F%3F+%D0%BF%D0%B0%D0%BF%D0%BA%D0%B0+%D0%BD%D0%B0+%D1%84%D0%BE%D1%82%D0%BE">Скачал программу!!! теперь как установить???? папка на фото</a> — 2015-07-13 01:05:18 <a style="color:#c00000;font-weight:bold;" href="http://www.codenet.ru/r/f/p388370#answer_388370">(2)</a><div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/22" class="light">Общалка :)</a> / Максим Сенча</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75364/AJAX+%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81+%D0%BA+%D0%BE%D0%B1%D0%BB%D0%B0%D1%87%D0%BD%D0%BE%D0%B9+%D0%91%D0%94">AJAX запрос к облачной БД</a> — 2015-07-11 14:40:49<span style="color:#c0c0c0"> (0)</span>
+<div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/27" class="light">Студентам</a> / anti-spam2008</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75363/%D0%A0%D0%B0%D0%B1%D0%BE%D1%82%D0%B0+%D1%81+QTextEdit">Работа с QTextEdit</a> — 2015-07-08 17:06:59<span style="color:#c0c0c0"> (0)</span>
+<div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/30" class="light">C/C++/C# - общие вопросы</a> / Michael  Philippov</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75362/%D0%9A%D0%B0%D0%BA+%D0%BF%D0%BE%D0%BB%D1%83%D1%87%D0%B8%D1%82%D1%8C+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8E+%D0%BE+%D0%B7%D0%B0%D0%B2%D0%B5%D1%80%D1%88%D0%B5%D0%BD%D0%B8%D0%B8+%D0%BF%D0%B5%D1%87%D0%B0%D1%82%D0%B8+%D1%87%D0%B5%D1%80%D0%B5%D0%B7+cups-pdf%2C+%D0%BB%D0%B8%D0%B1%D0%BE+%D1%83%D0%B7%D0%BD%D0%B0%D1%82%D1%8C+%D1%87%D1%82%D0%BE+%D1%84%D0%BE%D1%80%D0%BC%D0%B8%D1%80%D1%83%D0%B5%D0%BC%D1%8B%D0%B9+%D0%B8%D0%BC+pdf-%D1%84%D0%B0%D0%B9%D0%BB+%D0%BD%D0%B5+%D0%B7%D0%B0%D0%BD%D1%8F%D1%82+%D0%BD%D0%B8%D0%BA%D0%B0%D0%BA%D0%B8%D0%BC+%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%81%D0%BE%D0%BC%3F">Как получить информацию о завершении печати через cups-pdf, либо узнать что формируемый им pdf-файл не занят никаким процессом?</a> — 2015-07-08 10:29:56<span style="color:#c0c0c0"> (0)</span>
+<div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/25" class="light">Программирование под Linux/Unix</a> / Pavel-4</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75361/%D0%92%D1%80%D1%83%D1%87%D0%BD%D1%83%D1%8E+%D0%B8%D0%BB%D0%B8+VirtueMART">Вручную или VirtueMART</a> — 2015-07-08 08:13:00<span style="color:#c0c0c0"> (0)</span>
+<div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/19" class="light">Web программирование</a> / ProcterAndGamble</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75360/%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8+MySQL+%D0%B2+PHP">функции MySQL в PHP</a> — 2015-07-07 14:56:42<span style="color:#c0c0c0"> (0)</span>
+<div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/19" class="light">Web программирование</a> / Диляра Сафина</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75359/%D0%9F%D1%80%D0%BE%D0%B1%D0%BB%D0%B5%D0%BC%D1%8B+%D1%81+%D0%B0%D0%BD%D0%B0%D0%BB%D0%B8%D0%B7%D0%BE%D0%BC+GPS+%D1%82%D1%80%D0%B5%D0%BA%D0%BE%D0%B2">Проблемы с анализом GPS треков</a> — 2015-07-06 14:52:06 <a style="color:#c00000;font-weight:bold;" href="http://www.codenet.ru/r/f/p388368#answer_388368">(5)</a><div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/11" class="light">Общие вопросы программирования</a> / mike</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75358/%D0%9C%D0%BE%D0%B4%D0%B5%D0%BB%D0%B8+%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85.+%D0%A0%D0%B5%D0%BB%D1%8F%D1%86%D0%B8%D0%BE%D0%BD%D0%BD%D0%B0%D1%8F+%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C+%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85">Модели данных. Реляционная модель данных</a> — 2015-07-04 17:05:04<span style="color:#c0c0c0"> (0)</span>
+<div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/16" class="light">Базы данных и язык SQL</a> / nata80</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75357/%D0%9D%D0%B0%D0%BF%D0%B8%D1%81%D0%B0%D1%82%D1%8C+%D0%BA%D0%BB%D0%B0%D1%81%D1%81%2C+%D0%B3%D0%B4%D0%B5++%D0%B1%D0%B0%D0%B7%D0%BE%D0%B2%D1%8B%D0%B9+%D0%BA%D0%BB%D0%B0%D1%81%D1%81+-+%D0%BC%D0%B0%D1%81%D1%81%D0%B8%D0%B2%2C+%D0%B0+%D0%BD%D0%B0%D1%81%D0%BB%D0%B5%D0%B4%D0%BD%D0%B8%D0%BA-+%D0%BC%D0%B0%D1%82%D1%80%D0%B8%D1%86%D0%B0.">Написать класс, где  базовый класс - массив, а наследник- матрица.</a> — 2015-07-04 16:59:30<span style="color:#c0c0c0"> (0)</span>
+<div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/7" class="light">Microsoft Visual C++</a> / nata80</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75356/%D0%BD%D0%B5+%D0%BC%D0%BE%D0%B3%D1%83+%D0%BF%D0%BE%D0%BD%D1%8F%D1%82%D1%8C+%D1%87%D1%82%D0%BE+%D0%B4%D0%B5%D0%BB%D0%B0%D0%B5%D1%82+%D0%BA%D0%BE%D0%B4">не могу понять что делает код</a> — 2015-07-03 22:50:25 <a style="color:#c00000;font-weight:bold;" href="http://www.codenet.ru/r/f/p388338#answer_388338">(11)</a><div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/19" class="light">Web программирование</a> / Patr1ot</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75355/%D0%9F%D0%BE%D0%BB%D1%83%D1%87%D0%B5%D0%BD%D0%B8%D0%B5+%D1%80%D0%B0%D1%81%D1%88%D0%B8%D1%80%D0%B5%D0%BD%D0%BD%D0%BE%D0%B9+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D0%B8+%D0%BE+%D0%BF%D0%BE%D0%B4%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%BD%D0%BE%D0%BC+%D1%84%D0%BB%D1%8D%D1%88-%D0%BD%D0%B0%D0%BA%D0%BE%D0%BF%D0%B8%D1%82%D0%B5%D0%BB%D0%B5">Получение расширенной информации о подключенном флэш-накопителе</a> — 2015-07-03 14:10:58 <a style="color:#c00000;font-weight:bold;" href="http://www.codenet.ru/r/f/p388357#answer_388357">(18)</a><div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/23" class="light">Win32 API</a> / @pixo $oft</div></li>
+<li><a class="form_theme_title" href="http://www.codenet.ru/r/f/q75354/%D0%9A%D1%83%D0%B4%D0%B0-%D1%82%D0%BE+%D0%BF%D1%80%D0%BE%D0%BF%D0%B0%D0%B4%D0%B0%D1%8E%D1%82+%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D0%B5+%D0%BF%D0%BE+%D1%83%D0%BA%D0%B0%D0%B7%D0%B0%D1%82%D0%B5%D0%BB%D1%8F%D0%BC">Куда-то пропадают данные по указателям</a> — 2015-07-02 12:08:32 <a style="color:#c00000;font-weight:bold;" href="http://www.codenet.ru/r/f/p388316#answer_388316">(2)</a><div class="hint"><a href="http://www.codenet.ru/r/f/questions/theme/30" class="light">C/C++/C# - общие вопросы</a> / @pixo $oft</div></li>
+</ul>
+</div>
+<div style="text-align:right;padding:5px;"><a href="http://www.codenet.ru/r/f/new">Показать новые сообщения »</a></div>
+	
+</div>
+<!-- Пустой -->
+<div id="np_block_1_1" class="block_empty"></div>
+<!-- По умолчанию -->
+<div id="np_block_1_1" class="se">
+	<h3>Почтовая рассылка</h3>
+<form action="http://www.codenet.ru/maillist/subscribe" method="post" style="padding-right:10px;" rel="form">
+
+	<input style="margin-right: 0px; padding-right: 0px;" name="email" class="form-control" placeholder="Введите ваш E-Mail" accesskey="e" title="почтовая рассылка (Alt-E)" type="text"><img title="Максимальная длина текста в поле неизвестна" style="position: relative; left: 211px; top: -22px; z-index: 999; cursor: pointer; vertical-align: bottom; border: 0px none; width: 14px; height: 19px; display: inline;" class="ife_marker" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/marker.png" id="email_ife_marker_4">
+
+	<div class="radio">
+	  <label>
+	    <input checked="checked" name="sub" value="1" id="subs1" style="margin:0 10px 0 -10px;" type="radio">
+	    Подписаться
+	  </label>
+	</div>
+
+	<div class="radio">
+	  <label>
+	    <input name="sub" value="0" id="subs2" style="margin:0 10px 0 -10px;" type="radio">
+	    Отписаться
+	  </label>
+	</div>
+
+	<input value="Вперед !" class="btn btn-success" type="submit">
+
+<div style="margin:10px 0;line-height:150%;">
+Подписчиков: <strong>12406</strong><br>
+<a href="http://www.codenet.ru/mail/">Последний выпуск</a>: <strong>19.06.2015</strong>
+</div>
+
+</form>
+
+
+	
+</div>
+<!-- col end -->
+</div><!-- col start -->
+<div class="np_col_1 centercol np_layout_2-1-2"><!-- Контент (один на станице) -->
+<div id="np_block_1_2" class="content">
+	<div class="cn-path"><a href="http://www.codenet.ru/">CodeNet</a> / <a href="http://www.codenet.ru/cat/Other/">Остальное</a> / <a href="http://www.codenet.ru/cat/Other/Data-formats/">Форматы файлов</a> <br>
+</div><div class="cn-hline"></div>
+<h1>RTF - Описание формата файла</h1><div class="np-social-icons">
+
+<div class="customsocial">
+<div class="cs-icon" id="cs-vk" data-url="http://vkontakte.ru/share.php?url=http://www.codenet.ru/progr/formt/rtf1.php"></div>
+<div class="cs-icon" id="cs-fb" data-url="http://www.facebook.com/sharer.php?u=http://www.codenet.ru/progr/formt/rtf1.php&amp;t=&amp;src=sp"></div>
+<div class="cs-icon" id="cs-tw" data-url="http://twitter.com/share?url=http://www.codenet.ru/progr/formt/rtf1.php&amp;text="></div>
+<div class="cs-icon" id="cs-gp" data-url="https://plus.google.com/share?url=http://www.codenet.ru/progr/formt/rtf1.php"></div>
+<div class="cs-icon" id="cs-ok" data-url="http://www.odnoklassniki.ru/dk?st.cmd=addShare&amp;st.s=1000&amp;st._surl=http://www.codenet.ru/progr/formt/rtf1.php"></div>
+
+<div class="clearfix"></div>
+
+</div>
+
+<script type="text/javascript">
+
+{
+
+$('.cs-icon').click(function() {
+	window.open($(this).attr("data-url"),'displayWindow', 'width=700,height=400,left=200,top=100,location=no, directories=no,status=no,toolbar=no,menubar=no');
+
+	});
+
+var pageuri = 'http://www.codenet.ru/progr/formt/rtf1.php';
+$.getJSON('http://api.facebook.com/restserver.php?method=links.getStats&callback=?&urls=' + pageuri + '&format=json', function(data) {
+	if (data[0].share_count!=0) {
+		$('#cs-fb').html('<div class="cs-count">'+data[0].share_count+'</div>');
+		}
+	});
+
+VK = {};
+VK.Share = {};
+VK.Share.count = function(index, count){
+	if (count!=0) {
+		$('#cs-vk').html('<div class="cs-count">'+count+'</div>');
+		}
+	};
+$.getJSON('http://vkontakte.ru/share.php?act=count&index=1&url=' + pageuri + '&format=json&callback=?');
+
+$.getJSON('http://urls.api.twitter.com/1/urls/count.json?url=' + pageuri + '&callback=?', function(data) {
+	if (data.count!=0) {
+		$('#cs-tw').html('<div class="cs-count">'+data.count+'</div>');
+		}
+	});
+
+$.getJSON('http://forum.codenet.ru/includes/plugins/social-proxy.php?services=ok,gp&url=' + pageuri + '', function(data) {
+	if (data.ok) {
+		if (data.ok.count!=0) {
+			$('#cs-ok').html('<div class="cs-count">'+data.ok.count+'</div>');
+			}
+		}
+	if (data.gp) {
+		if (data.gp.count!=0) {
+			$('#cs-gp').html('<div class="cs-count">'+data.gp.count+'</div>');
+			}
+		}
+
+	});
+
+}
+</script>
+
+</div>
+<center>
+[<a href="http://www.codenet.ru/progr/formt/rtf1.php">Часть 1</a>]
+[<a href="http://www.codenet.ru/progr/formt/rtf2.php">Часть 2</a>]
+[<a href="http://www.codenet.ru/progr/formt/rtf3.php">Часть 3</a>]
+</center>
+<hr noshade="noshade" size="1"><h1>Формат Rich Text (RTF)</h1>
+<p>Данный формат был определен фирмой Microsoft как стандартный формат 
+для обмена текстовыми документами. Следовательно, по назначению этот 
+формат подобен SYLK-формату для электронных таблиц. RTF поддерживается 
+многими продуктами фирмы Microsoft. Так, например, начиная с версии 2.0,
+ он введен в Windows в качестве Clipboard-формата, благодаря чему 
+возможен обмен данными между различными прикладными программами Windows.
+ Кроме того, RT-формат поддерживается программами WORD для Macintosh, 
+начиная с версии 3.X, и WORD для PC, начиная с версии 4. X.</p>
+<p>В RTF для обмена документами используются только представимые 
+символами коды из ASCII-, MAC- и PC-символьного набора. Кроме текста, 
+файл в RT-формате в читаемой форме содержит команды управления.</p>
+<p>Документ состоит преимущественно из команд управления настройки 
+программы чтения файлов в RTF-формате. Эти команды можно разделить на 
+управляющие слова <i>(control words)</i> и управляющие символы <i>(control symbols).</i></p>
+<p>Управляющее слово представляет собой последовательность символов с разделителем <i>(delimiter)</i> в конце:</p>
+<p>\lettersequence &lt;delimiter&gt;</p>
+<p>Перед управляющим словом вводится обратная косая черта "\" 
+(backslash). В качестве разделяющих могут использоваться следующие 
+символы:</p>
+
+<ul><li>Пробел <i>(space),</i> причем этот символ относится к управляющему слову;
+</li><li><i>Цифра</i> или знак "-". После этих символов должен следовать
+ параметр с разделителем. В качестве разделителя может быть использован 
+пробел или другие символы, кроме цифр и букв;
+</li><li>Все символы, отличные от цифр и букв. Эти символы не относятся к <i>управляющему слову</i>.
+</li></ul><p>В RT-формате для задания управляющей последовательности 
+используются буквы от "А" до "Z" и от "а" до "z", а также цифры от "0" 
+до "9". Национальные символы к управляющей информации не относятся.</p>
+<p>В качестве,<i> управляющих символов </i>используются отдельные буквы. Перед каждым управляющим символом вводится обратная косая черта "\":</p>
+<pre>\control symbol
+</pre>
+<p>В настоящее время определены только некоторые из этих символов. Поэтому при чтении неизвестные символы могут быть пропущены.</p>
+<p>В RT-формате существует возможность объединять отдельные последовательности в группы при помощи скобок:</p>
+<pre>{ начало группы
+} конец группы
+</pre>
+<p>Такие группы создаются, например, при описании сносок, колонтитулов и
+ т.п. Если необходимо разместить символы "\", "{" или "}" внутри 
+обычного текста, то перед ними надлежит поставить обратную косую черту:</p>
+<pre>\\ 
+\{
+\}.
+</pre>
+<p>Это позволяет программе, читающей RTF-последовательность, распознать, что символ не следует интерпретировать как управляющий.</p>
+<p>В RT-формате используются также некоторые символьные коды для управления печатью</p>
+<center>
+<table border="" cellpadding="4" cellspacing="0" width="300"><tbody><tr><th>Код</th><th>Значение</th></tr><tr><td>09Н</td><td>Табулятор</td></tr><tr><td>0АН</td><td>Символ CR</td></tr><tr><td>0СН</td><td>Символ LF</td></tr></tbody></table></center>
+
+<p>Символы CR и LF, расположенные внутри текста, будут пропущены. 
+Microsoft использует эти символы для большей наглядности при 
+представлении RTF-файла. Внутри управляющих слов символы CR и LF могут 
+иметь особое значение, подробнее об этом будет сказано при описании 
+команд.</p>
+
+<h2>Специальные управляющие слова (special control words)</h2>
+<p>В RTF имеются управляющие слова специального назначения. Рассмотрим кратко эти слова и их назначение.</p>
+<p><b>\chpgn</b>
+</p><p>Управляющее слово <i>change page number</i> выводит текущий номер страницы.</p>
+<p><b>\chftn</b></p>
+<p>Управляющее слово <i>change footnote</i> активизирует автоматическую нумерацию сносок.</p>
+<p><b>\chdate</b></p>
+<p>С помощью <i>change date</i> можно вывести текущую дату.</p>
+<p><b>\chtime</b></p>
+<p>С помощью <i>change time</i> можно вывести текущее время.</p>
+<p><b>\chatn</b></p>
+<p>Ссылка на примечание (текст следует в группе).</p>
+<p><b>\chftnsep</b></p>
+<p>Свидетельствует об изменении линии, отделяющей сноски от текста.</p>
+<p><b>\/</b></p>
+<p>С помощью данной последовательности вводится текст формулы.</p>
+<p><b>\:</b></p>
+<p>Обозначает подпункт индекса.</p>
+<p><b>\*</b></p>
+<p>Текст может быть пропущен при чтении RTF-формата.</p>
+<p><b>\~</b></p>
+<p>Задает жесткий (неразрываемый) пробел между двумя словами, т.е. в 
+этой позиции предложение не может быть разделено при переносе на 
+следующую строку.</p>
+<p><b>\-</b></p>
+<p>Символ обозначает мягкий перенос <i>(nonrequired hyphen).</i></p>
+<p><b>\_</b></p>
+<p>Символ обозначает неразрываемый перенос <i>(nonbreaking hyphen),</i> на месте которого слово не может быть разделено.</p>
+<p><b>\'hh</b></p>
+<p>Последовательность позволяет прямой ввод в тексте шестнадцатеричных чисел. Они задаются вместо символов hh.</p>
+<p><b>\page</b></p>
+<p>Данная последовательность задает переход на новую страницу.</p>
+<p><b>\line</b></p>
+<p>Эта последовательность вызывает переход на новую строку в тексте.</p>
+<p><b>\раr</b></p>
+<p>С помощью данной последовательности в тексте отмечается конец абзаца. Последовательность <i>\раr</i> может заменяться последовательностью \<i>10</i> или \<i>13.</i> При этом <i>\10</i> соответствует ASCII-символу с кодом 10 <i>(carriage return).</i> Непосредственно ввести ASCII-код 10 (CR) нельзя, т.к. он игнорируется программой чтения.</p>
+<p><b>\sect</b></p>
+<p>Эта последовательность обозначает конец текстового фрагмента или текстового абзаца.</p>
+<p><b>\tab</b></p>
+<p>Данная последовательность заменяет табулятор. Можно также непосредственно задавать ASCII-код 09Н.</p>
+<p><b>\сеll</b></p>
+<p>Конец таблицы (столбец).</p>
+<p><b>\row</b></p>
+<p>Конец таблицы (строка).</p>
+
+<h2>Операторы настройки (destination control words)</h2>
+<p>С помощью описанных ниже управляющих слов можно произвести основную 
+настройку программы чтения RTF. Они могут встречаться только в начале 
+документа или в начале группы. Все операторы вместе с параметрами должны
+ быть заключены в скобки, например:</p>
+<pre>{\rtf0\pc.......}
+</pre>
+<p>Ниже описан формат некоторых операторов.</p>
+<pre>\rtf &lt;параметр&gt;
+</pre>
+<p>Задает метку начала файла. В качестве параметра программа, при помощи
+ которой создается файл, может указывать номер версии. Например:</p>
+<pre>{\rtf0.......}
+</pre>
+<p>Метка должна стоять в начале файла. После этого оператора могут следовать другие операторы или закрывающая скобка.</p>
+<p>Установка вида кодировки для сохраняемого текста осуществляется с помощью следующих операторов:</p>
+
+<ul><li><b>\ansi:</b> текст хранится в стандартном ASCII-формате. Этот формат используется, например, в Windows.
+</li><li><b>\mac:.</b> текст хранится в кодировке Macintosh
+</li><li><b>\рс:</b> для вывода текста используется кодировка символов IBM-PC.
+</li><li><b>\рса:</b> IBM-PC Code Page 850 (модель PS\2).
+</li></ul><p>Для передачи текстов между различными системами должна использоваться кодировка \ansi.</p>
+
+<h2>\colortbl</h2>
+
+<p>Windows и другие программы пользуются палитрами для определения 
+используемых цветов. Чаще всего палитра состоит из 16 различных цветов, 
+получаемых путем комбинации основных цветов — красного, зеленого и 
+синего. Команда<b> \colortbl </b>позволяет изменить отдельные 
+определения в палитре. Для каждого цвета в таблице указывается величина 
+красной, зеленой и синей составляющей. Каждый цвет описывается тремя 
+параметрами:</p>
+<pre>\red000
+\green000
+\blue000
+</pre>
+<p>Вместо 000 указывается величина доли цвета в диапазоне от 0 до 255. 
+Пример: в таблице, состоящей из 16 цветов, должны быть заново определены
+ цвета 0-й и 2-й. Для переопределения цветов может быть задана следующая
+ последовательность:</p>
+<pre>{ \colortbl \red128\green64\blue128\;;\red0\green64\blue128; }
+</pre>
+<p>Определение цвета завершается точкой с запятой. Поскольку 1-й цвет 
+остается без изменений, в последовательности два символа ";" следуют 
+один за другим. Последовательность завершается закрывающей скобкой.</p>
+<p>Оператор <b>\cfn</b> определяет цвет фона (при стандартной настройке n=0), а оператор<b> \cbn</b> - цвет символа (при стандартной настройке n=0).</p>
+
+<h2>\fonttbl</h2>
+<p>Данный оператор используется для построения таблицы шрифтов и соотносит имя шрифта (группы шрифтов) с <i>номером</i> шрифта. При определении шрифта можно использовать следующие операторы:</p>
+
+<ul><li><b>\fnil:</b>  имя группы шрифтов неизвестно. При выводе должен использоваться стандартный шрифт.
+</li><li><b>\froman:</b>  должны использоваться шрифты группы Roman (например, Times Roman)
+</li><li><b>\fswiss:</b>  этот оператор предписывает использование шрифтов из группы Swiss (Helvetica, Swiss и т.д.)
+</li><li><b>\fmodern:</b>  могут использоваться шрифты Pica, Elite и Courier. 
+</li><li><b>\fscript:</b>  используются курсивные шрифты группы Script.
+</li><li><b>\fdecor:</b>  при указании этого оператора шрифты должны выбираться из группы Decor (Old English и т.д.).
+</li><li><b>\ftech: </b> выбор группы шрифтов с техническими и математическими символами (SYMBOL и т.д.).
+</li></ul><p>Команда для создания группы шрифтов может состоять из таких операторов:</p>
+<pre>{\fonttbl\f0\fnil default;}
+{\fl\froman roman h;}
+{\f2\fswiss helvetica;}
+</pre>
+<p>После ключевого слова <b>\fonttbl</b> следует первый номер шрифта <b>\f0.</b> Далее идет определение группы шрифтов. Здесь после номера 0 указано <b>\fnil,</b> т.е. имя группы неизвестно. Следующий параметр обозначает имя выбираемого шрифта (например, <b>roman h).</b> Указание<b> default</b>
+ говорит считывающей программе о том, что следует использовать 
+стандартный шрифт. После имени шрифта стоит точка с запятой. В 
+приведенном примере определены только шрифты с номерами 1 и 2. Вся 
+последовательность может быть объединена фигурными скобками в группу. </p>
+<p>Таблица шрифтов должна быть заполнена значениями до того, как встретится оператор<b> \stylesheet</b> или текст. Стандартный шрифт вводится оператором <b>\deffn.</b></p>
+
+<h2>\stylesheet</h2>
+<p>Этот оператор определяет шрифт абзаца, т.е. размер, начертание и имя 
+гарнитуры, а также способ выравнивания текста абзаца. При этом 
+используются два ключевых параметра:</p>
+
+<ul><li><b>\sbasedon000: </b>вместо символов 000 указывается номер вида шрифта, который используется в качестве текущего.
+</li><li><b>\snext000: </b>назначает номер следующего вида шрифта (style), который - станет текущим.
+</li></ul><p>Оператор может иметь, например, следующий вид:</p>
+<pre>{\stylesheet\s0\f3\fs20\qj Normal;}
+{\sl\f3\fs30\b\qc Heading Level 3;}
+</pre>
+<p>Шрифты нумеруются числами от 0 до n (<b>\s0...</b>). В первой строке стилю абзаца 0 (<b>\s0</b>) предписывается имя Normal. Вывод текста выполняется шрифтом 3 (<b>\f3</b>), размером 10 пунктов (<b>\fs20</b>). Параметр <b>\qj</b> говорит о том, что надпись должна выравниваться по формату. Вторая строка определяет стиль шрифта 1, который получает имя <b>Heading Level 3</b>. Шрифт имеет размер 15 пунктов, жирное начертание (<b>\Ь <i>=</i> bold</b>) и при выводе надпись центрируется (<b>\qc</b>).</p>
+
+<h2>\pict</h2>
+<p>Этот оператор используется при описании рисунка в формате битовой 
+карты (bitmap). Следующие параметры содержат описание рисунка в виде 
+шестнадцатеричных значений. Параметры могут быть выборочно использованы 
+для определения геометрии рисунка или его формата:</p>
+
+<ul><li><b>\pich000: </b>оператор указывает высоту рисунка в пикселях. 
+Вместо трех нулей подставляется числовое значение. Если оператор 
+отсутствует, высота рисунка определяется из текущих графических данных. С
+ помощью параметра можно задать для рисунка определенную высоту.
+</li><li><b>\piw000: </b>оператор задает ширину рисунка в пикселях. Справедливо все, сказанное о предыдущем операторе.
+</li><li><b>\picscaled: </b>с помощью этого оператора рисунок масштабируется таким образом, чтобы он точно заполнял отведенную для него область.
+</li><li><b>\wmetafilen: </b>параметр указывает, что данные хранятся в формате Windows-метафайла. Параметр n определяет тип метафайла (1 = ММ-текст).
+</li><li><b>\macpict: </b>параметр указывает, что данные хранятся в Macintosh-формате Quick-Draw.
+</li><li><b>\bin000:. </b>параметр определяет количество байтов. Вместо трех нулей записывается шестнадцатеричное число.
+</li><li><b>\wbitmapn: </b>параметр определяет формат bitmap-рисунка. Параметр n задает тип (0 соответствует логической битовой карте).
+</li><li><b>\brdrs: </b>определяет простую рамку для рисунка
+</li><li><b>\brdrdb: </b>определяет двойную рамку для рисунка.
+</li><li><b>\brdrth: </b>определяет жирную линию для рамки рисунка.
+</li><li><b>\brdrsh: </b>определяет затененную рамку для рисунка
+</li><li><b>\brdrdot: </b>определяет для рисунка пунктирную линию.
+</li><li><b>\brdrhair: </b>определяет тонкую линию для рамки рисунка.
+</li><li><b>\picwGoaln: </b>задает желаемую ширину рисунка в twips
+</li><li><b>\pichGoaln: </b>задает желаемую высоту рисунка в twips.
+</li><li><b>\picscalexn: </b>задает горизонтальное масштабирование (n может принимать значения от 1 до 100, по умолчанию -10).
+</li><li><b>\picscaleyn: </b>задает вертикальное масштабирование (n может принимать значения от 1 до 100, по умолчанию - 10).
+</li><li><b>\piccroptn: </b>описывает верхнее поле рисунка в twips. При 
+положительных значениях параметра n верхняя часть рисунка обрезается. 
+Отрицательные значения n дают возможность построить вокруг рисунка 
+рамку. Стандартное значение n равно 0.
+</li><li><b>\рiccrорbп: </b>описывает нижнее поле рисунка в twips. При 
+положительных значениях параметра n нижняя часть рисунка обрезается. 
+Отрицательные значения n дают возможность построить вокруг рисунка 
+рамку. Стандартное значение n равно 0.
+</li><li><b>\рiссrорrn: </b>описывает правое поле рисунка в twips. При 
+положительных значениях параметра n рисунок обрезается справа. 
+Отрицательные значения n дают возможность построить вокруг рисунка 
+рамку. Стандартное значение n равно 0.
+</li><li><b>\piccropln: </b>описывает левое поле рисунка в twips. При 
+положительных значениях параметра п рисунок обрезается слева. 
+Отрицательные значения п дают возможность построить вокруг рисунка 
+рамку. Стандартное значение п равно 0.
+</li><li><b>\wbmbitspixeln: </b>определяет количество битов, приходящихся на пиксел, для bitmap-рисунка (стандартное значение равно 1).
+</li><li><b>\wbmplanesn: </b>определяет количество битовых плоскостей (стандартное значение равно 1).
+</li><li><b>\wbmwidtbbytesn: </b>определяет длину битовой карты в байтах
+</li></ul>
+<div class="hr" style="margin-top:15px;"></div>
+
+<!-- Яндекс.Директ -->
+<div style="margin:10px 0;" id="yandex_ad"></div>
+<script type="text/javascript">
+(function(w, d, n, s, t) {
+    w[n] = w[n] || [];
+    w[n].push(function() {
+        Ya.Direct.insertInto(1959, "yandex_ad", {
+            site_charset: "utf-8",
+            ad_format: "direct",
+            font_size: 1,
+            font_family: "arial",
+            type: "flat",
+            limit: 2,
+            title_font_size: 3,
+            site_bg_color: "FFFFFF",
+            header_bg_color: "FFFFFF",
+            title_color: "285A99",
+            url_color: "285A99",
+            all_color: "285A99",
+            text_color: "404040",
+            hover_color: "285A99",
+            favicon: true
+        });
+    });
+    t = d.documentElement.firstChild;
+    s = d.createElement("script");
+    s.type = "text/javascript";
+    s.src = "http://an.yandex.ru/system/context.js";
+    s.setAttribute("async", "true");
+    t.insertBefore(s, t.firstChild);
+})(window, document, "yandex_context_callbacks");
+</script>
+
+
+<section id="addcomment">
+
+<div class="hr"></div>
+
+<h1>Оставить комментарий</h1>
+
+
+</section>
+<section id="comments_form">
+<form action="/comments/add" method="post" id="comment_form">
+<table style="width:100%">
+<tbody><tr><td style="margin-top:35px;padding:0;width:30%;vertical-align:top">Комментарий:<br>
+
+<div style="margin-top:10px;" class="hint">можно использовать BB-коды</div>
+
+<div style="margin-top:10px;" class="hint">Максимальная длина комментария - 4000 символов.</div>
+<input name="count" id="count" style="border:0;font-size:11px;color:#888;display:none;padding:0;margin:0;" value="Осталось: 4000" type="text">
+
+</td><td style="vertical-align:top">
+
+
+<div class="social_button" id="social_codenet"><div class="i"></div><div class="t">CodeNet</div></div>
+<div class="social_button" id="social_vk"><div class="i"></div><div class="t">ВКонтакте</div></div>
+<div class="social_button" id="social_facebook"><div class="i"></div><div class="t">Facebook</div></div>
+<div class="social_button" id="social_twitter"><div class="i"></div><div class="t">Twitter</div></div>
+<div class="social_button" id="social_google"><div class="i"></div><div class="t">Google</div></div>
+<div class="social_button" id="social_yandex"><div class="i"></div><div class="t">Яндекс</div></div>
+<div id="social_button_loading"></div><div id="social_button_containter"></div>
+
+<script type="text/javascript">
+$('.social_button').click(function() {
+	$('#social_button_loading').AppendAjaxProgress();
+	var id=$(this).attr('id').substring(7,99);
+	$('#social_button_containter').load('/ajax/login_social_dialog.php?hashref=comments_form&social=login_'+id);
+	return false;
+	});
+</script>
+
+<div style="clear:both;"></div>
+
+<div class="answer_hint" style="display:none;margin:0 0 10px 0;">
+	Чтобы оставить комментарий, необходимо авторизоваться. Можно ввести логин и пароль, или авторизоваться через социальные сети.
+</div>
+
+<textarea id="textar" style="width: 100%; height: 60px; margin-right: 0px; padding-right: 0px;" name="comment"></textarea><img title="Максимальная длина текста в поле неизвестна" style="position: relative; left: 661px; top: -25px; z-index: 999; cursor: pointer; vertical-align: bottom; border: 0px none; width: 14px; height: 19px; display: inline;" class="ife_marker" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/marker.png" id="comment_ife_marker_5"></td></tr>
+
+<tr><td colspan="2">
+<div id="comment_form_error_message" style="display:none;color:red;border:1px solid red;padding:10px;background-color:#fee;"></div>
+</td></tr>
+
+<tr><td>&nbsp;</td><td style="padding-top:5px;">
+
+<input value="Добавить" disabled="disabled" id="comment_form_submit" type="submit">
+<input name="document_id" value="681380" type="hidden">
+<span id="comment_progress"></span>
+</td></tr></tbody></table>
+</form>
+
+</section>
+
+<script type="text/javascript">
+
+var form_loaded=false;
+
+function AddComment(data) {
+
+	if (data.status!='ok') {
+		$('#comment_form_submit').attr('disabled',false);
+		$('#comment_form_error_message').html('<strong>Ошибка</strong>: '+data.message).show(100);
+		$(document).RemoveAjaxProgress();
+		}
+	else {
+		$('#cn_comments').load('/comments/ajax?document_id=681380');
+		location.href='#comments';
+		$('#comment_form_submit').attr('disabled',false);
+		$('#textar').val('');
+		$(document).RemoveAjaxProgress();
+		}
+	}
+
+$(document).ready(function() {
+	$('#textar').change(function() {
+		var i=4000-$(this).val().length;
+		if (i<2000) $('#count').show();
+		$('#count').val('Осталось: '+i);
+		if (i<0) $('#count').css('color','red'); else $('#count').css('color','#404040');
+		});
+
+	$('#textar').focus(function() {
+		$('.answer_hint').show(100);
+		$(this).blur();
+		$('.social_button').each(function() {
+			$(this).fadeOut(400).fadeIn(400).fadeOut(300).fadeIn(300).fadeOut(200).fadeIn(200).fadeOut(100).fadeIn(100).fadeOut(50).fadeIn(50);
+			});
+
+		});
+	$('#textar').keydown(function() {$(this).change();})
+	$('#textar').keyup(function() {$(this).change();});
+	});
+
+</script>
+
+<section id="comments"><h1>Комментарии</h1></section>
+<div id="cn_comments"><section id="comment_9946"><div style="border-top:1px solid #ccc;padding-top:10px;">
+
+<div style="float:left;width:60px;font-size:32px;color:#ccc;font-weight:bold;" class="comment_number">1.</div>
+<div style="width:184px;float:left;"><div class="caq_author_card rep_bg_gray" title=""><div class="rr" title="Позиция в рейтинге по репутации">16K</div><div class="date_interval">25 сентября 2006 года</div><a target="_top" href="http://www.codenet.ru/u20434"><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/20434.png" class="avatar32" alt=""></a><div title="Уровень репутации: 16" style="width:64px;background:#eee;" class="rplvl"><div style="width:13px;height:4px;background:green;"></div></div><a target="_top" href="http://www.codenet.ru/u20434">o2_</a>
+<div class="ui"><span class="pc" title="Количество сообщений">11</span> / <span class="rc"><span class="reputation" title="Уровень репутации: 16"></span></span> / <span class="rd" title="Зарегистрирован с">25.09.2006</span></div></div></div><div style="float:right;width:200px;"><div class="comments_votes" id="cv_9946"><div class="comments_votes_d"><div style="opacity:0.4;" class="comments_votes_dd"><div style="background-color:green;width:75%;float:left;height:4px;"></div><div style="background-color:red;width:25%;float:left;height:4px;"></div><div style="clear:both;"></div></div>+3 / -1</div><img class="comments_votes_good" alt="Мне нравится" id="cvg_9946" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_good.gif"><img class="comments_votes_bad" alt="Мне не нравится" id="cvb_9946" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_bad.gif"></div></div><div style="float:right">28 мая 2007,  07:09:49</div><div style="clear:both;margin-left:60px;padding:20px 0;">Примера не хватает =(</div></div></section><section id="comment_7732"><div style="border-top:1px solid #ccc;padding-top:10px;">
+
+<div style="float:left;width:60px;font-size:32px;color:#ccc;font-weight:bold;" class="comment_number">2.</div>
+<div style="width:184px;float:left;"><div class="caq_author_card"><div class="date_interval">Аноним</div><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/noavatar32.png" class="avatar32" alt=""></div></div><div style="float:right;width:200px;"><div class="comments_votes" id="cv_7732"><div class="comments_votes_d"><div style="opacity:0.5;" class="comments_votes_dd"><div style="background-color:green;width:40%;float:left;height:4px;"></div><div style="background-color:red;width:60%;float:left;height:4px;"></div><div style="clear:both;"></div></div>+2 / -3</div><img class="comments_votes_good" alt="Мне нравится" id="cvg_7732" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_good.gif"><img class="comments_votes_bad" alt="Мне не нравится" id="cvb_7732" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_bad.gif"></div></div><div style="float:right">9 августа 2005,  10:35:13</div><div style="clear:both;margin-left:60px;padding:20px 0;">MS вам в помощь. 211 страниц текста-спецификации формата RTF. Немного неудобно, что на онгельском, но кому надо - прочитает.</div></div></section><section id="comment_7501"><div style="border-top:1px solid #ccc;padding-top:10px;">
+
+<div style="float:left;width:60px;font-size:32px;color:#ccc;font-weight:bold;" class="comment_number">3.</div>
+<div style="width:184px;float:left;"><div class="caq_author_card"><div class="date_interval">Аноним</div><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/noavatar32.png" class="avatar32" alt=""></div></div><div style="float:right;width:200px;"><div class="comments_votes" id="cv_7501"><div class="comments_votes_d"><div style="opacity:0.3;" class="comments_votes_dd"><div style="background-color:green;width:66.666666666667%;float:left;height:4px;"></div><div style="background-color:red;width:33.333333333333%;float:left;height:4px;"></div><div style="clear:both;"></div></div>+2 / -1</div><img class="comments_votes_good" alt="Мне нравится" id="cvg_7501" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_good.gif"><img class="comments_votes_bad" alt="Мне не нравится" id="cvb_7501" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_bad.gif"></div></div><div style="float:right">12 июня 2005,  01:09:28</div><div style="clear:both;margin-left:60px;padding:20px 0;">Имею более-менее полную спецификацию. На английском. Кто хочет - пишите presentatio@mail.ru</div></div></section><section id="comment_7218"><div style="border-top:1px solid #ccc;padding-top:10px;">
+
+<div style="float:left;width:60px;font-size:32px;color:#ccc;font-weight:bold;" class="comment_number">4.</div>
+<div style="width:184px;float:left;"><div class="caq_author_card"><div class="date_interval">Аноним</div><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/noavatar32.png" class="avatar32" alt=""></div></div><div style="float:right;width:200px;"><div class="comments_votes" id="cv_7218"><div class="comments_votes_d"><div style="opacity:0.3;" class="comments_votes_dd"><div style="background-color:green;width:33.333333333333%;float:left;height:4px;"></div><div style="background-color:red;width:66.666666666667%;float:left;height:4px;"></div><div style="clear:both;"></div></div>+1 / -2</div><img class="comments_votes_good" alt="Мне нравится" id="cvg_7218" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_good.gif"><img class="comments_votes_bad" alt="Мне не нравится" id="cvb_7218" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_bad.gif"></div></div><div style="float:right">20 апреля 2005,  09:39:31</div><div style="clear:both;margin-left:60px;padding:20px 0;"><a target="_blank" href="http://r.codenet.ru/?http://sources.codenet.ru/download/229/">http://sources.codenet.ru/download/229/</a><br>
+<a target="_blank" href="http://r.codenet.ru/?http://sources.codenet.ru/download/298/">http://sources.codenet.ru/download/298/</a><br>
+</div></div></section><section id="comment_7215"><div style="border-top:1px solid #ccc;padding-top:10px;">
+
+<div style="float:left;width:60px;font-size:32px;color:#ccc;font-weight:bold;" class="comment_number">5.</div>
+<div style="width:184px;float:left;"><div class="caq_author_card"><div class="date_interval">Аноним</div><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/noavatar32.png" class="avatar32" alt=""></div></div><div style="float:right;width:200px;"><div class="comments_votes" id="cv_7215"><div class="comments_votes_d"><div style="opacity:0.3;" class="comments_votes_dd"><div style="background-color:green;width:33.333333333333%;float:left;height:4px;"></div><div style="background-color:red;width:66.666666666667%;float:left;height:4px;"></div><div style="clear:both;"></div></div>+1 / -2</div><img class="comments_votes_good" alt="Мне нравится" id="cvg_7215" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_good.gif"><img class="comments_votes_bad" alt="Мне не нравится" id="cvb_7215" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_bad.gif"></div></div><div style="float:right">19 апреля 2005,  23:36:40</div><div style="clear:both;margin-left:60px;padding:20px 0;">..Ну и зачем спросили мой E-Mail, если на него нельзя перейти?<br>
+Мой E-Mail info@dragonsoft.ru, если кто-то знает, как в RTF добавить рисунок, просьба написать.</div></div></section><section id="comment_7214"><div style="border-top:1px solid #ccc;padding-top:10px;">
+
+<div style="float:left;width:60px;font-size:32px;color:#ccc;font-weight:bold;" class="comment_number">6.</div>
+<div style="width:184px;float:left;"><div class="caq_author_card"><div class="date_interval">Аноним</div><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/noavatar32.png" class="avatar32" alt=""></div></div><div style="float:right;width:200px;"><div class="comments_votes" id="cv_7214"><div class="comments_votes_d"><div style="opacity:0.5;" class="comments_votes_dd"><div style="background-color:green;width:60%;float:left;height:4px;"></div><div style="background-color:red;width:40%;float:left;height:4px;"></div><div style="clear:both;"></div></div>+3 / -2</div><img class="comments_votes_good" alt="Мне нравится" id="cvg_7214" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_good.gif"><img class="comments_votes_bad" alt="Мне не нравится" id="cvb_7214" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_bad.gif"></div></div><div style="float:right">19 апреля 2005,  23:33:34</div><div style="clear:both;margin-left:60px;padding:20px 0;">Это - для программиста? Не смешите.<br>
+Как мне добавить в файл RTF рисунок?<br>
+(Ручками, например на DELPHI)?<br>
+(Просьба, если кто-то знает, написать на e-mail)</div></div></section><section id="comment_6511"><div style="border-top:1px solid #ccc;padding-top:10px;">
+
+<div style="float:left;width:60px;font-size:32px;color:#ccc;font-weight:bold;" class="comment_number">7.</div>
+<div style="width:184px;float:left;"><div class="caq_author_card"><div class="date_interval">Аноним</div><img src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/noavatar32.png" class="avatar32" alt=""></div></div><div style="float:right;width:200px;"><div class="comments_votes" id="cv_6511"><div class="comments_votes_d"><div style="opacity:0.6;" class="comments_votes_dd"><div style="background-color:green;width:50%;float:left;height:4px;"></div><div style="background-color:red;width:50%;float:left;height:4px;"></div><div style="clear:both;"></div></div>+3 / -3</div><img class="comments_votes_good" alt="Мне нравится" id="cvg_6511" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_good.gif"><img class="comments_votes_bad" alt="Мне не нравится" id="cvb_6511" src="RTF%20-%20%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20%D1%84%D0%B0%D0%B9%D0%BB%D0%B0_files/vote_bad.gif"></div></div><div style="float:right">9 сентября 2004,  17:08:53</div><div style="clear:both;margin-left:60px;padding:20px 0;">Это далеко не полная спецификация. Вот, например, как создать содержание, а закладки, а ...? Вообще, много чего не хватает.</div></div></section><script type="text/javascript">
+$(".answer_link").click(function() {
+	var comment_id=$(this).attr('id').substring(12,99);
+	$('#answer_loading_'+comment_id).AppendAjaxProgress();
+	$('#comments_answer_'+comment_id).load('/comments/showanswerform/?comment_id='+comment_id+'&document_id=681380');
+	return false;
+	});
+
+$(document).ready(function() {
+	$('.comments_votes_good').click(function() {
+		var s=$(this).attr('id');s=s.substring(4,99);
+		$('#cv_'+s).load('/comments/votes_good/'+s);
+		});
+	$('.comments_votes_bad').click(function() {
+		var s=$(this).attr('id');s=s.substring(4,99);
+		$('#cv_'+s).load('/comments/votes_bad/'+s);
+		});
+	});
+</script>
+</div><div style="clear:both;"></div>
+	
+</div><!-- col end -->
+</div><!-- row end -->
+</div>
+<div class="clearfix"></div>
+</div> 
+
+<div class="container" style="margin-top:10px;">
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="cnfooter"> 
+ 
+<a href="http://www.codenet.ru/read/clame/">Реклама на сайте</a> |
+<a href="http://www.codenet.ru/read/links/exchange/">Обмен ссылками</a> |
+<a href="http://www.codenet.ru/read/links/">Ссылки</a> |
+<a href="http://www.codenet.ru/read/export/">Экспорт (RSS)</a> |
+<a href="http://www.codenet.ru/read/contacts/">Контакты</a> 
+<br> 
+<a href="http://www.codenet.ru/read/publish/">Добавить статью</a> |
+<a href="#" onclick="document.location='/'+'/sources.codenet.ru/upload.php';return false;">Добавить исходник</a> |
+<a href="#" onclick="document.location='/'+'/www.codenet.ru/hosting/my.php';return false;">Добавить хостинг-провайдера</a> |
+<a href="#" onclick="document.location='/'+'/cat.codenet.ru/cncat_add.php';return false;">Добавить сайт в каталог</a> 
+<br> 
+ 
+<div id="v12">
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-646348-1', 'codenet.ru');
+  ga('send', 'pageview');
+
+</script>
+ 
+</div> 
+</div> 
+</div> 
+
+ 
+</body></html>

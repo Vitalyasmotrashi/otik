@@ -1,0 +1,2378 @@
+\input{commonpath}
+\input{\SRCROOTPATH/widepres}
+
+\title{
+Сжатие данных. 
+Сжатие без учёта контекста.
+\mbox{Разделимые энтропийные коды}
+% . \mbox{Разделимые и~неразделимые коды} mbox{сжатия без учёта контекста}
+}
+
+
+
+\def\UnicodeVersion{12.1}
+\def\UnicodeSymCount{137\,994}
+
+\newcommand{\gt}[1]{\textcolor{gray}{#1}}
+\newcommand{\m}[1]{\textcolor{red}{#1}}
+
+\def\SXBP{{\text{БП}}}
+\def\XBP{X_{\text{БП}}}
+
+\def\SYMP{{\text{М1}}}
+\def\YMP{Y_{\text{М1}}}
+
+\def\SYMPP{{\widetilde{\text{М1}}}}
+\def\YMPP{Y_{\SYMPP}}
+
+\def\SYMPI{{\widetilde{\widetilde{\text{М1}}}}}
+\def\YMPI{Y_{\SYMPI}}
+
+\newcommand{\hf}[1]{\overset{0}{} ~~ #1 ~~ \overset{1}{}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+% \widepressetfontsize{\large}
+
+\maketitle
+
+
+
+
+\subsection{Сжатие (компрессия, упаковка)}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize}
+\setlength{\parskip}{0.\parskip} 
+
+"--- кодирование
+\itemizeball{} $|code(C)| < |C|$, \itemizeball{} \mbox{$C$~однозначно и~полностью} восстанавливается по $code(C)$.
+
+
+\vfill
+
+Любой алгоритм сжатия сжимает частые блоки данных за счёт увеличения более редких.
+
+% Сжатие \emph{источника} $X$ возможно только при наличии избыточности в~изначальном кодировании $X$ ($|X|>I(X)$).
+
+
+\vfill
+
+\termin{Свойства алгоритмов сжатия:} \hfill
+\enumerateball{1} степень сжатия; \hfill
+\enumerateball{2} \termin{степень увеличения размера в~наихудшем случае;}
+
+\enumerateball{3} скорость сжатия и~разжатия. 
+
+\vfill
+
+Источник $X$ генерирует \termin{входную последовательность} $C = c_1c_2\ldots c_i\ldots$ "--- символы пронумерованы (есть~«предыду­щий» и~«последующий»); $c_i \in A$.
+Типы входной последовательности:
+\begin{enumerate}
+\item \termin{блок} "--- конечная входная последовательность (произвольный доступ);
+
+\item \termin{поток} "--- с~неизвестными границами (последо­вательный доступ).
+\end{enumerate}
+Алгоритмы сжатия по её типу:
+\begin{enumerate}
+\item блочные "--- статистика всего блока добавляется к~сжатому блоку;
+\item поточные  (адаптивные)  "--- статистика вычисляется только для уже обработанной части потока, «на лету».
+\end{enumerate}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \section{Сжатие без учёта контекста}
+% \section{Блочное сжатие без учёта контекста}
+
+% \subsection{Алфавит и~тестовый исходный текст}
+\subsection{Алфавит; разрядность $n$ и~$count(a_j)$; порядок байтов}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.5\parskip}
+% \widepressetfontsize{\huge}
+\widepressetfontsize{\small}
+% \renewcommand{\arraystretch}{1.2} % Default value: 1
+\renewcommand{\arraystretch}{1.5} % Default value: 1
+
+\begin{tabularx}{\linewidth}
+% {@{}LL@{}}
+{|L|L|}\hline
+У~современных ЭВМ общего назначения \mbox{(не МК и~не ЦСП)}
+ \itemizeball{}~байт~8-битный (октет),
+& 
+На доске для компактности будем считать \mbox{\itemizeball{}~байт 3-битным (триадой),}
+\\
+символ кодирования = октет = байт,
+&
+символ кодирования = байт = триада, 
+\\
+первичный алфавит \rlap{$A_1 \subseteq A = \{\hex{00,} \hex{01,} %\hex{02,}
+\ldots \hex{FF}\}$.}
+&
+первичный алфавит $A_1 \subseteq A = \{\hex{0,} \hex{1,} %\hex{2,} 
+\ldots \hex{7}\}$.
+% \\[2ex]\hline
+\\\hline
+Современные файловые системы 64-битны:
+
+\itemizeball{} длина $n$ файла в~байтах (октетах) 64-битна ($long\,long$, 8~восьмибитных байтов)
+% \begin{itemize}
+% \item длина $n$ файла в~байтах 64-битна ($long\,long$, 8~восьмибитных байтов).
+% % \item ненормированные частоты символов $count(a_j)$ и~пар $count(a_k a_j)$ тоже  64-битны
+% % (могут достигать $n$ \mbox{и $n-1$ соответственно).}
+% \end{itemize}
+&
+Примем для доски:
+
+% \itemizeball{} длина $n$ файла в~трёхбитных байтах (триадах) 12-битна \mbox{(4 трёхбитных байта)}
+\itemizeball{} длина $n$ файла в~трёхбитных байтах (триадах) 24-битна \mbox{(8 трёхбитных байтов)}
+% \begin{itemize}
+% \item длина $n$ файла в~трёхбитных байтах 12-битна \mbox{(4 трёхбитных байта);}
+% % \item ненормированные частоты символов $count(a_j)$ и~пар $count(a_k a_j)$ тоже 12-битны.
+% \end{itemize}
+% \\\hline
+% \\[-2ex]\hline
+% \\[-2ex]
+\\
+% \hfill$\Downarrow$\hfill\strut&\hfill$\Downarrow$\hfill\strut
+% \\[2ex]
+$\implies$ ненормированные частоты символов $count(a_j)$ и~пар $count(a_k a_j)$ тоже  64-битны
+(могут достигать $n$ \mbox{и $n-1$ соответственно).}
+&
+% $\implies$ ненормированные частоты символов $count(a_j)$ и~пар $count(a_k a_j)$ тоже 12-битны.
+$\implies$ ненормированные частоты символов $count(a_j)$ и~пар $count(a_k a_j)$ тоже 24-битны.
+\\\hline
+Порядок байтов в~многобайтовых числах  в~памяти
+определяется архитектурой ЭВМ (для~x86/amd64 "--- Intel),
+
+в~файлах "--- обычно следует памяти.
+% в~памяти x86/amd64 "--- Intel
+& 
+Для многобайтовых чисел примем порядок байтов Intel:
+% $n=13_{10}=15_8$ записывается как~\hex{5100}.
+$n=13_{10}=15_8$ записывается как~\hex{5100\,0000}.
+\\\hline
+\end{tabularx}
+
+% В~программах для ЭВМ с~8-битным байтом (октетом) 
+% 
+% \mbox{символ кодирования = октет = байт;}
+% 
+% первичный алфавит $A_1 \subseteq \{\hex{00,} \ldots \hex{FF}\}$.
+% 
+% \hrulefill
+% 
+% % Символ кодирования = байт $\implies$ первичный алфавит "--- все возможные байты
+% 
+% На доске для компактности будем считать байт 3-битным (триадой), 
+% 
+% \mbox{символ кодирования = триада = 3-битный байт;}
+% 
+% первичный алфавит $A_1 \subseteq \{\hex{0,} \ldots \hex{7}\}$.
+
+
+\end{frame}
+
+
+\subsection{Блочные разделимые энтропийные коды для сжатия без учёта контекста}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+% \widepressetfontsize{\small}
+
+$code(c_1 c_2 \ldots c_n) = code(c_1) ~ code(c_2) \, \ldots \, code(c_n),$ \hfill оптимальные разделимые "--- Хаффмана.
+
+\vfill
+
+Каждый символ $a_j \in A$ (байт) заменяется кодом $code(a_j) \in \{0, 1\}^{+}$:
+
+\begin{itemize}
+\item \termin{разделимый} $\implies$ префиксный (дерево кодов);
+
+\item блочный без учёта контекста $\implies$ дерево кодов одно и~то же для всего файла;
+
+
+\item сжатие $\implies$ короткие $code(a_j)$ для частых $a_j$, длинные для редких (код по $p(a_j)$);
+
+\item \termin{энтропийное}  кодирование $\implies$ $|code(a_j)| \to  I_X(a_j)$. Модель $X$?
+\end{itemize}
+
+\vfill
+
+Блочный код без учёта контекста   $\Leftrightarrow$ стационарная \termin{модель без памяти} (БП, источник $X_{\text{БП}}$):
+
+\begin{itemize}
+\item $code(a_j)$ строится по $p(a_j)$ и~постоянен   $\implies$ оцениваем $p(a_j)$ как постоянную;
+
+\item оптимальное сжатие конкретного файла  $\implies$ оцениваем по частотам в~файле: 
+
+$p_{\text{БП}}(a_j) = \dfrac{count(a_j)}{\sum count} = \dfrac{count(a_j)}{n}.$
+
+\end{itemize}
+
+
+% \vfill
+
+\termin{Другие модели $\Leftrightarrow$ код не блочный или с учётом контекста "--- \rlap{но опт.\,р. тоже Хаффмана}}
+
+
+\end{frame}
+
+
+
+\subsection[Схема данных блочного кодирования Хф (ШФ, Ш) без учёта контекста]{Схема данных блочного кодирования Хаффмана (ШФ, Ш) без учёта контекста}
+\begin{frame}{\insertsubsection}
+% \tikzstyle{wideblock}	= []
+\widepressetfontsize{\scriptsize}
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}
+    \tikzstyle{block}	= [text width=8em, minimum height=7ex, commonblock]
+    \tikzstyle{datafileheight}	= [minimum height=6em, minimum width=7ex] % для цилиндра высота — это width!
+    \tikzstyle{wideblock}	= [text width=11em, inner xsep=0em]
+    \tikzstyle{narrowblock}	= [text width=5em]
+
+    \tikzstyle{blockarrow}	= [blockline,-latex']
+
+    
+%     \tikzset{node distance = 4em and 6em}
+% 
+%     \node[datafile, datafileheight] (C) {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+%     \node[data, right = of C] (count) {$count(a_j),$ $a_j \in [\hex{00}, \hex{FF}]$};
+% %     \node[data, below = of count] (n) {$n$};
+%     \node[data, right = of count] (freq) {$\nu(a_j),$ $a_j \in [\hex{00}, \hex{FF}]$};
+%     
+%     \coordinate[below = of count] (centercenter);
+%     
+%     \tikzset{node distance = 1em}
+%     
+% %     \node[data, wideblock, below = of freq] (tree) {Дерево кодов: $code(a_j),$ $a_j \in A_1 \subseteq [\hex{00}, \hex{FF}]$};
+% %     \node[data, wideblock, left = of tree] (code) {Код файла: $code(c_1) ~ code(c_2) \, \ldots \, code(c_n) ~$};
+%     \node[data, wideblock, right = of centercenter] (tree) {Дерево кодов: $code(a_j),$ $a_j \in A_1 \subseteq [\hex{00}, \hex{FF}]$};
+%     \node[data, wideblock, left = of centercenter] (code) {Код файла:\\\hspace*{-1em}$code(c_1) ~ code(c_2) \, \ldots \, code(c_n)$};
+%     
+% %     \node[data, below = of code, block] (nn) {Длина файла $n$};
+% %     \node[datafile, block] at (nn-|tree) (aa) {Архив};
+%     
+%     \tikzset{node distance = 4em}
+%     
+%     \node[data, below  = 8em of C, block] (nn) {Длина файла $n$};
+% %     \node[datafile, block, right = of nn] (aa) {Архив};
+% %         \node[datafile, datafileheight] at (nn-|count) (aa) {Архив};
+% %         \node[datafile, datafileheight] at (nn-|count) (aa) {Архив \strut\hspace{4em}\strut};
+%         \node[datafile, datafileheight] at (nn-|count) (aa) {Архив\rule[-0.8\baselineskip]{0pt}{2\baselineskip}};
+%         
+%         
+%         \draw[blockarrow] (C) -- (count);
+%         \draw[blockarrow] (count) -- (freq);
+%         
+%         
+%     \coordinate (freq_out) at (freq.-40);
+%         \draw[blockarrow] (freq_out) |- (aa);
+%         \draw[blockarrow] (freq_out) |- (tree);
+%         \draw[blockarrow] (tree) -- (code);
+%         \draw[blockarrow] (nn) -- (aa);
+% 
+%     \coordinate (C_out_code) at (C.-30);
+%     \coordinate (C_out_n) at (C.-110);
+%     
+%         \draw[blockarrow] (C_out_n) -- (nn.north-|C_out_n);
+%         \draw[blockarrow] (C_out_code) -- (code.north-|C_out_code);
+%     
+%     \coordinate (code_out) at (code.-16);
+% %     \coordinate[left = 0em of code.south east] (code_out);
+%         \draw[blockarrow] (code_out) -- (aa.north-|code_out);
+%  
+% % \draw [-{Latex'[length=5mm]}] (C) -- (count);
+% % \draw [|<->|] (1.5,.4) -- node[above=1mm] {5mm} 
+
+
+    \tikzset{node distance = 4em}
+
+    \node[data] (count) {$count(a_j) \in [0, n],$ $a_j \in [\hex{00}, \hex{FF}]$};
+    
+    \coordinate[below = of count] (centercenter);
+    
+    \tikzset{node distance = 1em}
+    
+    \node[data, wideblock, right = of centercenter] (tree) {Дерево кодов: $code(a_j),$ $a_j \in A_1 \subseteq [\hex{00}, \hex{FF}]$};
+    \node[data, wideblock, left = of centercenter] (code) {Код файла:\\\hspace*{-0.9em}$code(c_1) \, code(c_2)  \ldots  code(c_n)$};
+    
+    \tikzset{node distance = 3em}
+
+    \coordinate[left = of code] (Cn_x);
+    \coordinate[right = of tree] (freq_x);
+    
+    \node[data] (freq) at (freq_x|-count) {$\nu(a_j) \in [0, 255],$ $a_j \in [\hex{00}, \hex{FF}]$};
+    
+    \node[datafile, datafileheight] (C) at (Cn_x|-count) {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+
+    \node[datafile, datafileheight, below = of code] (aa) {Архив\rule[-0.8\baselineskip]{0pt}{2\baselineskip}};
+    
+    
+    \node[data, narrowblock] (nn) at (Cn_x|-aa) {Длина файла $n$};
+
+
+        \draw[blockarrow] (C) -- (count);
+        \draw[blockarrow] (count) -- (freq);
+        
+        \draw[blockarrow] (freq) |- (tree);
+        \draw[blockarrow] (freq) |- (aa);
+       
+        \draw[blockarrow] (tree) -- (code);
+        \draw[blockarrow] (nn) -- (aa);
+        
+        \draw[blockarrow] (C) |- (code);
+        \draw[blockarrow] (C) -- (nn);
+
+        \draw[blockarrow] (code) -- (aa);
+   
+\end{tikzpicture}
+}
+\end{frame}
+
+
+\subsection[Схема данных декодирования блочного Хф (ШФ, Ш) без учёта контекста]{Схема данных декодирования блочного кода Хаффмана (ШФ, Ш) без учёта контекста}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\scriptsize}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}
+    \tikzstyle{block}	= [text width=11em, minimum height=7ex, commonblock]
+    \tikzstyle{datafileheight}	= [minimum height=11em, minimum width=7ex] % для цилиндра высота — это width!
+%     \tikzstyle{wideblock}	= [text width=11em, inner xsep=0em]
+    \tikzstyle{narrowblock}	= [text width=8.em]
+
+    \tikzstyle{blockarrow}	= [blockline,-latex']
+    
+    \coordinate(centercenter);
+    \tikzset{node distance = 1.5em}
+    
+    \node[data, left = of centercenter] (code) {Код файла:\\\hspace*{-0.9em}$code(c_1) \, code(c_2)  \ldots  code(c_n)$};
+    \node[data, right = of centercenter] (decode) {Декодированный: $c_1\, c_2 \ldots c_n\, c_{n+1} \ldots$};
+    
+%     \tikzset{node distance = 4em}
+%     \coordinate[above = of centercenter] (topcenter);
+%     \coordinate[below = of centercenter] (bottomcenter);
+
+    \tikzset{node distance = 3em}
+    
+    \node[data, above = of code] (freq)  {$\nu(a_j) \in [0, 255],$ $a_j \in [\hex{00}, \hex{FF}]$};
+    \node[data, above = of decode] (tree) {Дерево кодов: $code(a_j),$ $a_j \in A_1 \subseteq [\hex{00}, \hex{FF}]$};
+    \node[datafile, datafileheight, below = of code] (C)  {Восстановленный файл $c_1\, c_2 \ldots c_n$};
+    
+    \tikzset{node distance = 1.5em}
+    \node[datafile, datafileheight, left = of freq] (aa) at (nn|-freq) {Архив\rule[-0.8\baselineskip]{0pt}{2\baselineskip}};
+    \node[data, narrowblock] (nn) at (aa|-C) {Длина исх.\,файла $n$};
+    
+    \draw[blockarrow] (aa) -- (freq);
+    \draw[blockarrow] (freq) -- (tree);
+    \draw[blockarrow] (tree) -- (decode);
+    \draw[blockarrow] (code) -- (decode);
+    \draw[blockarrow] (nn) -- (C);
+   
+    
+    \draw[blockarrow] (aa) |- (code);   
+    \draw[blockarrow] (aa) -- (nn);   
+    \draw[blockarrow] (decode) |- (C);   
+      
+\end{tikzpicture}
+}
+\end{frame}
+
+
+
+
+% \section{Тестовый исходный текст и~его модели}
+% \section{Тестовое сообщение и~некоторые его модели}
+
+
+% \subsection{Список рассматриваемых моделей $C$ и~тестовое сообщение}
+% \begin{frame}{\insertsubsection}
+% \widepressetfontsize{\small}
+% \setlength{\parskip}{0.5\parskip}
+% % \setlength{\parskip}{0.\parskip}
+% 
+% ${\XBP}$ "--- стационарная модель без памяти;
+% 
+% ${\YMP}$, ${\YMPP}$ и~${\YMPI}$ "--- стационарные модели Маркова порядка 1, различаются $p(a_j|-)$
+% 
+% 
+% $S$ "---модель для поточного Хаффмана (нестационарная без памяти)
+% 
+% \hrulefill
+% 
+% 
+% Пусть $C = c_1 c_2 \ldots c_n$, каждый символ $c_i$ на позиции $i$ "--- из алфавита $A$: $c_i  = a_j, ~~ a_j \in A$.,
+% % Модели:
+% 
+% % \hrulefill
+% 
+% 
+% тогда оценки вероятностей для  ${\XBP}$: \hfill $p_{\SXBP}(a_j) = %\frac{\nu(a_j)}{\sum\nu(x)} \approx  
+% \frac{count(a_j)}{n}$, \hfill\hfill
+% для всех $Y*$: \hfill$p_{Y*}(a_j|a_{\ell}) = \frac{count(a_{\ell}a_j)}{\sum count(a_{\ell}x)}$
+% 
+% % % \vfill
+% % 
+% % 
+% % 
+% % ${\XBP}$:
+% % \hfill
+% % считаем $p_{\SXBP}(c_1 = a_j) = p_{\SXBP}(c_2 = a_j) = \ldots = p_{\SXBP}(a_j)
+% % % $,
+% % % \hfill
+% % % $p_{\SXBP}(a_j)  
+% % = \frac{\nu(a_j)}{\sum\nu(x)} 
+% % \approx 
+% % % \frac{count(a_j)}{\sum count}  = 
+% % \frac{count(a_j)}{n}$ 
+% % \hfill
+% % (стац-й без памяти).
+% % % \hfill
+% % % \strut
+% % 
+% % \hrulefill
+% % % \vfill
+% % 
+% % ${\YMP}$, ${\YMPP}$ и~${\YMPI}$ "--- стационарные источники Маркова порядка 1:
+% % а) для $i \geqslant 2$ для всех трёх $p_{\SYMPP}(c_i = a_j) \hfill=\hfill p_{\SYMPI}(c_i = a_j) \hfill=\hfill p_{\SYMP}(c_i = a_j) \hfill=\hfill p_{\SYMP}(a_j|c_{i-1})
+% % = \frac{\nu(c_{i-1}a_j)}{\sum \nu(c_{i-1}x)}\approx\frac{count(c_{i-1}a_j)}{\sum count(c_{i-1}x)}$; 
+% % 
+% % 
+% % \vfill
+% % 
+% % б) для $i=1$ (вероятность первого символа):
+% % 
+% % ${\YMP}$: не храним частоты, считаем
+% % $p_{\SYMP}(c_1 = 0) = p_{\SYMP}(c_1 = 1) = p_{\SYMP}(c_1 = 2) = \ldots  %= p_{\SYMP}(7) 
+% % = \frac{1}{|A|}$;
+% % 
+% % ${\YMPP}$: храним частоты ${\XBP}$, ~ $p_{\SYMPP}(c_1 = a_j) = p_{\SXBP}(a_j)$;
+% % 
+% % 
+% % ${\YMPI}$: храним частоты первого символа, ~ $p_{\SYMPI}(c_1 = a_j) \in \{0, 1\}$.
+% % 
+% % 
+% % % \vfill
+% % 
+% % \hrulefill
+% % % \vfill
+% % 
+% % \begin{tabular}{@{}l@{}}
+% % $S$: % (модель для поточного Хаффмана):
+% % $p_{S}(c_i = a_j)  = \frac{\nu_i(a_j)}{\sum\nu_i(x)}$, где: ~~ 
+% % % "--- набор вероятностей разный для каждой позиции $i$, причём:
+% % а)~$\nu_1(0) = \nu_1(1) = \ldots = 1$;
+% % \\
+% % б)~для~%каждой следующей позиции: 
+% % $i \geqslant 2$: $\nu_i(c_{i-1})  = \nu_{i-1}(c_{i-1})+1$, 
+% % прочие $\nu$ сохраняются. % (набор вероятностей разный для каждой позиции $i$ $\implies$  $S$ нестационарный).
+% % \end{tabular}
+% % \hfill
+% % $S$ "--- нестационарный источник.
+% 
+% 
+% 
+% \hrulefill
+% 
+% % \vfill
+% 
+% Рассмотрим 
+% \hfill 
+% $C = 7431~6500~4444~7$, \hfill 
+% % $|C| = 13 ~ [\text{трёхбитных байтов (триад)}] = 13\cdot 3 ~ [\text{бит}] = 39 ~ [\text{бит}]$
+% $|C| = 13 ~ [\text{триад}] = 39 ~ [\text{бит}]$. \hfill Для этого $C$ и~байта-триады: 
+% 
+% % \smallskip
+% % \vfill
+% 
+% все $count(a_j)$ и $count(a_k a_j)$ умещаются в~%трёхбитный 
+% байт $\implies$ 
+% нормировка не нужна: 
+% $\nu = count$,
+% $\sum\nu = n = 13$.
+% 
+% \end{frame}
+
+
+
+
+% \subsection{Количество информации в $C = 7431~6500~4444~7$ и~среднее количество в~модели ${\XBP}$}
+\subsection{Модель без памяти: $I_{\SXBP}(C)$ (суммарное) и~$I({\XBP})$ (среднее на символ)}
+\begin{frame}{\insertsubsection}
+% \widepressetfontsize{\small}
+\widepressetfontsize{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+\begin{tabular}{@{}c@{}}
+$C = 7431~6500~4444~7$\\
+$|C| = 13 ~ [\text{триад}] = 39 ~ [\text{бит}]$\\
+символы считаем независимыми\\
+% (БП = стац. модель без памяти!)
+% \hline
+% будем обозначать $\text{символ}^{\text{частота}}$:\\
+% $0^2, 1^1, 2^0, 3^1, 4^5, 5^1, 6^1, 7^2$.
+\end{tabular}
+\hfill
+$
+\begin{array}
+{@{}c|cccccccc@{}}
+a_j \in A & 0 & 1& 2 &3 & 4 &5 &6 &7 \\\hline
+\nu(a_j) 
+% = count(a_j)
+&2 & 1& 0 & 1     & 5 & 1 & 1 & 2     \\
+% p_{\text{БП}}
+p_{\SXBP}
+(a_j)       &   \frac{2}{13} & \frac{1}{13}& 0 & \frac{1}{13}     & \frac{5}{13} & \frac{1}{13} & \frac{1}{13} & \frac{2}{13}     \\
+I_{\SXBP}(a_j) ~ [\text{бит}]   & 2,7 & 3,7&  - &  3,7& 1,4 &  3,7 &  3,7& 2,7
+\end{array}
+$
+\hfill
+\begin{tabular}{@{}c@{}}
+$I_{\SXBP}(2) = +\infty$, \\
+но\\$p_{\SXBP}(2)\cdot I_{\SXBP}(2) = 0$.
+\end{tabular}
+
+% \vfill
+\medskip
+
+% Символы считаем независимыми (модель без памяти!):
+% ~~~
+% \termin{далее обозначаем $\text{символ}^{\text{частота}}$: 
+% % $0^2, 1^1, 2^0, 3^1, 4^5, 5^1, 6^1, 7^2$.%
+% $0^2, 1^1, 2^0\ldots$%
+% }
+% \small
+$
+p_{\SXBP}(C) 
+% = {}$
+% \mbox{$
+% {} 
+=
+p_{\SXBP}(7) \cdot p_{\SXBP}(4) \cdot p_{\SXBP}(3) \cdot p_{\SXBP}(1) \cdot
+p_{\SXBP}(6) \cdot p_{\SXBP}(5) \cdot p_{\SXBP}(0) \cdot p_{\SXBP}(0) \cdot
+p_{\SXBP}(4) \cdot p_{\SXBP}(4) \cdot p_{\SXBP}(4) \cdot p_{\SXBP}(4) \cdot 
+p_{\SXBP}(7)
+= {}
+$
+% }
+$\displaystyle
+{} 
+= \prod_{i=1}^n p_{\SXBP}(c_i)
+= 
+p_{\SXBP}(0)^2 \cdot p_{\SXBP}(1)^1 \cdot p_{\SXBP}(2)^0 \cdot p_{\SXBP}(3)^1 \cdot
+p_{\SXBP}(4)^5 \cdot p_{\SXBP}(5)^1 \cdot p_{\SXBP}(6)^1 \cdot p_{\SXBP}(7)^2
+= \prod_{j=1}^{|A|} p_{\SXBP}(a_j)^{count(a_j)}
+$.
+\\
+\termin{Далее для краткости вводим обозначение «$a^\nu$» вместо «символ $a$ с~частотой $\nu$»:
+$0^2, 1^1, 2^0, 3^1, 4^5, 5^1, 6^1, 7^2$.%
+% $0^2, 1^1, 2^0\ldots$%
+}
+
+% \vfill
+\medskip
+
+Суммарное:
+% Нижняя оценка $|code(C)|$ без контекста:
+$I_{\SXBP}(C) ~ [\text{бит}] \hfill=\hfill - \log_2 \Big( p_{\SXBP}(C) \Big)
+% =
+% - \log_2 \Big( p_{\SXBP}(7) \Big) - \log_2 \Big( p_{\SXBP}(4) \Big)- \log_2 \Big( p_{\SXBP}(3) \Big) - \ldots - \log_2 \Big( p_{\SXBP}(7) \Big)
+% = 
+$
+$
+\hfill=\hfill - \displaystyle \sum_{i=1}^{n}  \log_2 \Big( p_{\SXBP}(c_i) \Big)
+% = - \displaystyle \sum_{j=0}^{|A|}  count(a_j) \cdot \log_2 \Big( p_{\SXBP}(a_j) \Big)
+$
+\hfill
+$
+=\hfill \displaystyle \sum_{i=1}^{n} I_{\SXBP}(c_i)
+\hfill=\hfill \displaystyle \sum_{j=0}^{|A|}  count(a_j) \cdot I_{\SXBP}(a_j) 
+% \hfill=\hfill n \cdot I({\XBP})
+\hfill=
+$
+\\
+$
+= 2 \cdot I_{\SXBP}(0) + 1 \cdot I_{\SXBP}(1) + 1 \cdot I_{\SXBP}(3) + 5 \cdot I_{\SXBP}(4) + 1 \cdot I_{\SXBP}(5) + 1 \cdot I_{\SXBP}(6) + 2 \cdot I_{\SXBP}(7)
+~ \approx ~ 32,5 ~ \text{бита} ~ \approx ~ 10,8 ~ \text{триады}.
+$
+
+\vfill
+
+% \bigskip
+
+
+
+$|code(C)| \to  I_{\SXBP}(C)$
+ "--- блочный код Хаффмана, \termin{дерево кодов одно} на весь файл.
+%  \rlap{(канонический код Хаффмана).}
+%  \rlap{(сжатие Хаффмана без контекста).}
+%   \rlap{(см.).}
+
+% \vfill\vfill\vfill
+% \bigskip
+\medskip
+
+% % Среднее на символ:
+% $I({\XBP}) 
+% = \displaystyle \sum_{j=0}^{|A|}  p(a_j) \cdot I_{\SXBP}(a_j) 
+% \approx 2,5 ~ \text{бита} = 0,8 ~ \text{триады}
+% $
+% "--- среднее на символ.
+% % , зависит только от ${\XBP}$. 
+% % ; не меняется с~ростом $n$, если $p_{\SXBP}$ постоянны. 
+Среднее на символ:
+$I({\XBP}) 
+= \dfrac{I_{\SXBP}(C)}{n} 
+= \displaystyle \sum_{j=1}^{|A|}  \frac{count(a_j)}{n} \cdot I_{\SXBP}(a_j) 
+= \displaystyle \sum_{j=1}^{|A|}  p(a_j) \cdot I_{\SXBP}(a_j) 
+\approx 2,5 ~ \text{бита} = 0,8 ~ \text{триады}
+$
+
+\vspace*{-\baselineskip}
+
+\end{frame}
+
+
+
+
+
+% % \section{Исторические коды: Шеннона и~Шеннона-Фано [не используются]. Варианты кодов [актуальны]}
+% \section{Исторические коды: Ш и~ШФ [не используются]. Варианты [актуальны]}
+\section{Исторические коды: Ш [не используются]. Порядок при равн.\,част. [актуален]}
+
+% \section{Коды Шеннона [не используются]}
+
+% \subsection{Коды Шеннона: предпосылки (исторически первый энтропийный код)}
+% \begin{frame}{\insertsubsection}
+% 
+% \begin{itemize}
+% \item 
+% $
+% \left\{\begin{array}{c@{~}c@{~}c@{~}l}
+% % |code(a_j)| &\to&  I_{\SXBP}(a_j) & \text{для оптимального кода}
+% % \\
+% % |code(C)| &\geqslant& I_{\SXBP}(C)& \text{всегда}
+% |code(X)| &\to&  I(X) & \text{для оптимального кода},
+% \\
+% |code(X)| &\geqslant& I(X)& \text{всегда}
+% % \\
+% % \multicolumn{4}{l}{\text{код не учитывает контекст}}
+% \end{array}\right.
+% ~~~
+% \implies
+% ~
+% \Big|{\text{Ш}}(a_j)\Big| = \Big\lceil I_{\SXBP}(a_j) \Big\rceil
+% $;
+% 
+% обозначим $l_j = \lceil I_{\SXBP}(a_j) \rceil = \lceil - \log_2 \Big(p_{\SXBP}(a_j)\Big) \rceil$,
+% 
+% $2^{-l_j}  \leqslant p_{\SXBP}(a_j) < 2^{-l_j+1}$:
+%  $l_j$ "--- номер старшего ненулевого двоичного разряда $p_{\SXBP}(a_j)$;
+% 
+%  \vfill
+% 
+% \item символам с~нулевыми частотами не нужен код $\implies$ исключение их из алфавита:
+% 
+% $A = \{0^2, 1^1, 2^0, 3^1, 4^5, 5^1, 6^1, 7^2\}, ~ |A|=8 ~~ \to ~~ A_1 = \{0^2, 1^1, 3^1, 4^5, 5^1, 6^1, 7^2\}, ~ |A_1|=7$;
+% 
+%  \vfill
+% 
+% 
+% \item код $a_1$ (первый) состоит из $l_1$ нулей;
+% 
+% \item код $a_2$ (следующий) должен отличаться от кода $a_1$ хотя бы в $l_1$-м разряде:
+% 
+% ${\text{Ш}}(a_2) \geqslant {\text{Ш}}(a_1) + 2^{-l_1}$ ~ $\leadsto$ ~ ${\text{Ш}}(a_2) = {\text{Ш}}(a_1) + p_{\SXBP}(a_1)$;
+% 
+% 
+%  \vfill
+% 
+% \item чтобы $+ p_{\SXBP}(a_1)$ имело видимый эффект, ${\text{Ш}}(a_2)$ не должен быть короче ${\text{Ш}}(a_1)$
+% $\implies$ $l_2 \geqslant l_1$ $\implies$ $p_2 \leqslant p_1$ $\implies$
+%  сортировка $A_1$ \termin{по убыванию частот:}
+% $a_1 =4^5, ~ a_2, a_3 \in \{0^2, 7^2\}, ~ a_4, a_5, a_6, a_7 \in \{ 1^1, 3^1, 5^1, 6^1\}$.
+% \label{shannon_sort}
+% 
+% \end{itemize}
+% 
+% 
+% \end{frame}
+
+\subsection{Коды Шеннона: предпосылки (исторически первый энтропийный код)}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize\setlistspacing{1}{0ex}\setlistspacing{2}{0ex}}
+\setlength{\leftmargini}{0ex} 
+\setlength{\leftmarginii}{1em} 
+
+\begin{enumerate}
+\item 
+$
+\left\{\begin{array}{c@{~}c@{~}c@{~}l}
+% |code(a_j)| &\to&  I_{\SXBP}(a_j) & \text{для оптимального кода}
+% \\
+% |code(C)| &\geqslant& I_{\SXBP}(C)& \text{всегда}
+|code(X)| &\to&  I(X) & \text{для оптимального кода},
+\\
+|code(X)| &\geqslant& I(X)& \text{всегда}
+% \\
+% \multicolumn{4}{l}{\text{код не учитывает контекст}}
+\end{array}\right.
+~~~
+\implies
+~
+\text{длина кода Шеннона символа}
+~
+\Big|{\text{Ш}}(a_j)\Big| = \Big\lceil I_{\SXBP}(a_j) \Big\rceil
+$;
+
+\begin{itemize}
+\item обозначим эту длину $l_j = \Big\lceil I_{\SXBP}(a_j) \Big\rceil = \Big\lceil - \log_2 \big(p_{\SXBP}(a_j)\big) \Big\rceil$,
+\hfill тогда
+$l_j-1 < - \log_2 \big(p_{\SXBP}(a_j)\big) \leqslant l_j$;
+
+\item то есть $2^{-l_j}  \leqslant p_{\SXBP}(a_j) < 2^{-l_j+1}$:
+~~ 
+$l_j$ "--- номер старшего ненулевого двоичного разряда $p_{\SXBP}(a_j)$ 
+% "--- ниже в~\enumerateball{\ref{shannon_sort}} это используется;
+\end{itemize}
+
+ \vfill
+
+\item символам с~нулевыми частотами не нужен код $\implies$ исключение их из алфавита:
+
+$A = \{0^2, 1^1, 2^0, 3^1, 4^5, 5^1, 6^1, 7^2\}, ~ |A|=8 ~~ \to ~~ A_1 = \{0^2, 1^1, 3^1, 4^5, 5^1, 6^1, 7^2\}, ~ |A_1|=7$; \hfill \itemizeball{}  теперь 
+% $\forall a \in A_1 p(a) \neq 0$
+все $p \neq 0$
+
+ \vfill
+
+\item сам код ${\text{Ш}}(a_j)$ строим как первые $l_j$ двоичные цифры после запятой некоторого числа $0\leqslant x(a_j) <1$: 
+% $x = 0, \text{Ш}_{j1}\text{Ш}_{j2}\ldots \text{Ш}_{jl_j} ? ? ?\ldots$
+
+\begin{itemize}
+\item $x(a_j)$ должны быть для разных $a_j$ разные; \hfill\itemizeball{} пусть они монотонно возрастают от $x(a_1) = x_1 = 0,000\ldots$;
+% \item тогда ${\text{Ш}}(a_1)$ "--- это $l_1$ нулей; \hfill\itemizeball{}
+
+% \item $\displaystyle x(a_j)= \sum_{\ell=0}^{j-1} p_{\SXBP}(a_\ell)$ "--- подходят:\hfill  монотонно возрастают от $0$ до $1-p_{|A|}$;\hfill  если все $p \neq 0$, то все $x$ разные;
+\item \termin{накопленные вероятности} $\displaystyle x(a_j)= \sum_{\ell=0}^{j-1} p_{\SXBP}(a_\ell)$ "--- подходят;
+
+\item тогда ${\text{Ш}}(a_1)$ "---  $l_1$ нулей ($x_1=0$); 
+\hfill\itemizeball{} ${\text{Ш}}(a_2)$ "---  $l_2$ цифр $x_2 = p(a_1)$;
+\hfill\itemizeball{} 
+% \item 
+№\,ст.\,ненул.\,дв.\,разр.\,$p(a_1)$ "--- это $l_1$;
+
+\item если $l_2 < l_1$, то ${\text{Ш}}(a_2)$ тоже будет из всех нулей $\implies$ требуем $l_2 \geqslant l_1$ и~далее $l_{j+1} \geqslant l_j$;
+\item 
+для этого \termin{достаточно} сортировать $A_1$ \termin{по убыванию частот:}
+$a_1 =4^5, ~ a_2, a_3 \in \{0^2, 7^2\}, ~ a_4, a_5, a_6, a_7 \in \{ 1^1, 3^1, 5^1, 6^1\}$.
+\label{shannon_sort}
+\end{itemize}
+
+%  \vfill
+% 
+% 
+% \item код $a_1$ (первый) состоит из $l_1$ нулей;
+% 
+% \item код $a_2$ (следующий) должен отличаться от кода $a_1$ хотя бы в $l_1$-м разряде:
+% 
+% ${\text{Ш}}(a_2) \geqslant {\text{Ш}}(a_1) + 2^{-l_1}$ ~ $\leadsto$ ~ ${\text{Ш}}(a_2) = {\text{Ш}}(a_1) + p_{\SXBP}(a_1)$;
+% 
+% 
+%  \vfill
+% 
+% \item чтобы $+ p_{\SXBP}(a_1)$ имело видимый эффект, ${\text{Ш}}(a_2)$ не должен быть короче ${\text{Ш}}(a_1)$
+% $\implies$ $l_2 \geqslant l_1$ $\implies$ $p_2 \leqslant p_1$ $\implies$
+%  сортировка $A_1$ \termin{по убыванию частот:}
+% $a_1 =4^5, ~ a_2, a_3 \in \{0^2, 7^2\}, ~ a_4, a_5, a_6, a_7 \in \{ 1^1, 3^1, 5^1, 6^1\}$.
+\label{shannon_sort}
+
+\end{enumerate}
+
+
+\end{frame}
+\subsection{Выбор-1: порядок сортировки при равных частотах}
+\begin{frame}{\insertsubsection}
+% \setlength{\parskip}{0.5\parskip}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0ex} 
+
+\label{alg_var_1_sort}
+
+\begin{itemize}
+\item Энтропийные алгоритмы включают сортировку  $A_1$ по убыванию частот (Шеннона и~AC "--- принципиально по убыванию;
+Шеннона"--~Фано и~Хаффмана "--- можно по возрастанию),
+
+\item при $\nu(a_i)=\nu(a_j)$ порядок не определён $\implies$ необходимо доопределить.
+\end{itemize}
+
+\vfill
+
+Обозначим ~ «$a_i \succ a_j$» ~ = ~ «при $\nu(a_i)=\nu(a_j)$ сортируем как если $\nu(a_i)>\nu(a_j)$».
+
+\vfill
+
+% \end{itemize}
+Всего $|A|!$ вариантов порядка, из них два удобных: ~ $0 \succ 1 \succ ... \succ 7$ ~ и ~ $7 \succ 6 \succ ... \succ 0$.
+% $|A|!$ вариантов порядка, из них два удобных: \hfill РЧС1) $0 \succ 1 \succ ... \succ 7$ \hfill и \hfill РЧС2) $7 \succ 6 \succ ... \succ 0$.
+
+% \vfill
+
+Для лекции выберем \m{$0 \succ 1 \succ 2 \succ ... \succ 7$.}
+
+\hrulefill
+
+Для алгоритма Хаффмана (сортируются не только символы  $a_j\in A_1$, но и~составные узлы $S_i$)
+ выберем \m{%РЧС1) 
+ $ ... \succ S_2 \succ S_1 \succ 0 \succ 1 \succ 2 \succ ... \succ 7$} (из восьми удобных вариантов).
+
+\hrulefill
+ 
+Изменение порядка сортировки при равных частотах:
+% \begin{itemize}
+\itemizeball меняет коды; % (символы с~равными частотами «обмениваются» кодами);
+\itemizeball не меняет общую длину. % кода сообщения.
+% для~всех энтропийных алгоритмов.
+
+% то есть при равных частотах сортируем по возрастанию значения байта 
+
+% $\implies$~определим, что \termin{при равных частотах} 
+% 
+%  При сортировке символов по убыванию частот при $\nu_i=\nu_j$ порядок не определён $\implies$~определим, что \termin{при равных частотах} 
+% $0 \succ 1 \succ ... \succ N$
+% \\(здесь «$i \succ j$» = «при $\nu_i=\nu_j$ сортируем как если $\nu_i>\nu_j$»)
+% \\для Хаффмана определим  \termin{при равных частотах} 
+% % $0 \succ 1 \succ ... \succ N \succ  ... \succ S_2 \succ S_1$
+% $ ... \succ S_2 \succ S_1 \succ 0 \succ 1 \succ ... \succ N$.
+
+\end{frame}
+
+% \subsection{Коды Шеннона: построение}
+\subsection{Кодирование $C$: коды Шеннона, $0 \succ 1 \succ ... \succ 7$}
+
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize}
+\setlength{\parskip}{0.1\parskip}
+\label{alg_s}
+
+$C = 7431\,6500\,4444\,7$,
+\hfill
+$|C| = 13 \, [\text{триад}] = 39 \, [\text{бит}]$. \hfill
+Код  Шеннона строится не как дерево [но является деревом]:
+\begin{enumerate}
+\item символы сортируются по убыванию частот
+% $\nu(a_1) \geqslant \nu(a_2) \geqslant... \geqslant \nu(a_{|A_1|})$ 
+(выбор-1: при равных частотах  $0 \succ 1 \succ ... \succ 7$);
+
+\item код $a_j$
+"--- первые $l_j = \left \lceil{I_{\SXBP}(a_j)}\right \rceil = \left \lceil{-\log_2 p_{\SXBP}(a_j)}\right \rceil $
+двоичных цифр $x_j= \sum_{\ell=0}^{j-1} p_{\SXBP}(a_\ell)$ после запятой.
+\end{enumerate}
+
+{
+% \scriptsize
+% \setlength{\tabcolsep}{1pt}
+\def\arraystretch{1.3}
+
+\begin{tabularx}{1\linewidth}{c|l|l|l|r|l}
+% $a_j$ & $p_{\SXBP}(a_j)$             &  $I_{\SXBP}(a_j)$, бит   & $l_j$, бит & $\sum_{\ell=0}^{j-1} p_{\SXBP}(a_\ell)$   & $code_{\text{Ш}}(a_j)$ \\\hline
+$a_j$ & $p_{\SXBP}(a_j)$             &  $I_{\SXBP}(a_j)$, бит   & $l_j$, бит &  $x_j$   & ${\text{Ш}}(a_j)$ \\\hline
+$4$ & $\frac{5}{13} \approx 0,01100...$ & $1,38...$ & 2 &              $0 =      0,\m{00}000..._2$ & 00   \\
+$0$ & $\frac{2}{13} \approx 0,00100...$ & $2,70...$ & 3 & $\frac{ 5}{13} \approx 0,\m{011}00..._2$ & 011  \\
+$7$ & $\frac{2}{13} \approx 0,00100...$ & $2,70...$ & 3 & $\frac{ 7}{13} \approx 0,\m{100}01..._2$ & 100 \\
+$1$ & $\frac{1}{13} \approx 0,00010...$ & $3,70...$ & 4 & $\frac{ 9}{13} \approx 0,\m{1011}0..._2$ & 1011 \\
+$3$ & $\frac{1}{13} \approx 0,00010...$ & $3,70...$ & 4 & $\frac{10}{13} \approx 0,\m{1100}0..._2$ & 1100 \\
+$5$ & $\frac{1}{13} \approx 0,00010...$ & $3,70...$ & 4 & $\frac{11}{13} \approx 0,\m{1101}1..._2$ & 1101 \\
+$6$ & $\frac{1}{13} \approx 0,00010...$ & $3,70...$ & 4 & $\frac{12}{13} \approx 0,\m{1110}1..._2$ & 1110 \\
+\hline
+\end{tabularx}
+
+}
+
+
+$\text{Ш}(C = 7431\,6500\,4444\,7)=
+% 100 00 1100 1011    1110 1101 011 011    00 00 00 00     100                  
+100 \, 00 \, 1100 \, 1011  ~~  1110 \, 1101\, 011\, 011  ~~  00 \,00 \,00 \,00  ~~   100                  
+$
+
+$
+% |code_{\text{Ш}}(C)| 
+|\text{Ш}(C)| 
+= 2\cdot 5 + 3\cdot 2\cdot 2 + 4\cdot 1\cdot 4 ~ = ~ 44 ~ \text{бита} ~ = ~ \left \lceil{
+14\frac{2}{3}
+}\right \rceil
+~ \text{триады} = 15 ~ \text{триад}
+$
+(триада$\equiv$байт $\implies$ округление).
+
+\vfill
+
+% Исторически первый; н
+Не лучше Шеннона"--~Фано.
+Не используются.
+
+
+\end{frame}
+
+
+
+
+
+
+
+\subsection{Коды Шеннона: к~вопросам 2025.09.16}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize\setlistspacing{1}{0ex}}
+\setlength{\parskip}{0.\parskip}
+
+% \vspace*{-\baselineskip}
+
+\begin{enumerate}
+\item Код Ш символа $a_j$ "--- двоичные цифры накопленной вероятности $\displaystyle x_j=\sum_{\ell=0}^{j-1} p_\ell$, \mbox{а~не просто вероятности $p_j$,}
+так~как~\termin{коды разных} символов должны быть \termin{разными,} \mbox{а~$p_j$ разных символов $a_j$ могут совпадать.}
+
+% % Накопленные $\displaystyle \sum_{\ell=0}^{j-1} p_\ell$ все разные (монотонно растут от нуля до $1-\varepsilon$ при росте $j$ от 1 до длины алфавита).
+% Накопленные $x_j$ "--- монотонно растут от $0$ до $1-p_{|A|}$ при росте $j$ от $1$ до $|A|$ "--- все разные.
+
+
+\vfill
+
+\item Зачем сортировка по убыванию частот "---  \hfill а) см.\,слайд \pageref{shannon_sort} внизу; \hfill б) отсортируем неправильно (4 в~конец): 
+
+{
+% \scriptsize
+% \setlength{\tabcolsep}{1pt}
+\def\arraystretch{1.3}
+
+\begin{tabularx}{1\linewidth}{c|l|l|l|r|l}
+$a_j$ & $p_{\SXBP}(a_j)$             &  $I_{\SXBP}(a_j)$, бит   & $l_j$, бит & неправильные $x_j$   & неправильный ${\text{Ш}}(a_j)$ \\\hline
+$0$ & $\frac{2}{13} \approx 0,00100...$ & $2,70...$ & 3 & $0 =                  0,\m{000}00..._2$ & 000  \\
+$7$ & $\frac{2}{13} \approx 0,00100...$ & $2,70...$ & 3 & $\frac{2}{13} \approx 0,\m{001}00..._2$ & 001 \\
+$1$ & $\frac{1}{13} \approx 0,00010...$ & $3,70...$ & 4 & $\frac{4}{13} \approx 0,\m{0100}1..._2$ & 0100 \\
+$3$ & $\frac{1}{13} \approx 0,00010...$ & $3,70...$ & 4 & $\frac{5}{13} \approx 0,\m{0110}0..._2$ & 0110 \\
+$5$ & $\frac{1}{13} \approx 0,00010...$ & $3,70...$ & 4 & $\frac{6}{13} \approx 0,\m{0111}0..._2$ & 0111 \\
+$6$ & $\frac{1}{13} \approx 0,00010...$ & $3,70...$ & 4 & $\frac{7}{13} \approx 0,\m{1000}1..._2$ & 1000 \\
+$4$ & $\frac{5}{13} \approx 0,01100...$ & $1,38...$ & 2 & $\frac{8}{13} \approx 0,\m{10}011..._2$ & 10 "--- код не префиксный: начало $\text{Ш}(6)$  \\
+\hline
+\end{tabularx}
+
+}
+
+Накопленные вероятности $x(6)$ и~$x(4)$ различаются в~четвёртом знаке, но в~$\text{Ш}(4)$ этот знак не попал
+% "--- см. предпосылки на слайде \pageref{shannon_sort}
+
+\end{enumerate}
+\vspace*{-0.5\baselineskip}
+
+\end{frame}
+
+
+\section{Исторические коды: ШФ [не используются]. Марк.\,ветвей [актуальна] и~правило деления}
+
+
+% \section{Коды Шеннона--Фано [не используются]}
+
+\subsection{Коды Шеннона--Фано: предпосылки (исторически первый близкий к~оптимальному), построение}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+
+Коды Шеннона"--~Фано строятся как бинарное дерево:
+\begin{itemize}
+\item листья упорядочены по убыванию частот (выбор-1: при равных частотах  $0 \succ 1 \succ ... \succ 7$);
+\item дочерние ветви промаркированы как 0 и 1  (выбор-2: порядок маркировки?);
+\item сбалансированное (суммы частот обеих дочерних ветвей равны; выбор-3: деление?).
+\end{itemize}
+
+\vfill 
+
+Дерево Шеннона"--~Фано строится \termin{сверху вниз} (от~корня к~листьям):
+
+\begin{enumerate}
+\item 
+% На первом шаге 
+все символы % исходной информационной последовательности 
+сортируются %по убыванию или возрастанию вероятностей их появления (частоты их появления), 
+по частоте; %после чего 
+\item
+упорядоченный ряд символов в~некотором месте 
+делится на две части  так, чтобы в каждой из них сумма частот символов была примерно одинакова (без пересортировки!);
+
+\item новое деление.
+\end{enumerate}
+
+% \vfill
+
+% Исторически первый близкий к~оптимальному префиксный код.
+% 
+% Не лучше  Хаффмана по степени сжатия и~примерно аналогичен по скорости кодирования/декодирования.
+
+
+% Исторически первый близкий к~оптимальному.
+% Не лучше  Хаффмана по сжатию и~примерно аналогичен по скорости.
+
+\end{frame}
+
+
+
+% \subsection{Выбор-2: маркировка ветвей. Выбор-3: правило деления для Шеннона--Фано}
+\subsection[Выбор-2: маркировка ветвей. Выбор-3: правило деления Шеннона--Фано]{Выбор-2: маркировка ветвей}
+\begin{frame}{\insertsubsection}
+% \setlength{\parskip}{0.5\parskip}
+\setlength{\parskip}{0.\parskip}
+\setlength{\leftmargini}{0ex} 
+
+\label{alg_var_2_mark_0_1}
+
+% Выбор-2: 
+% Маркировка ветвей для Шеннона"--~Фано и~Хаффмана (для лекций выбираем \m{МВ1}):
+Маркировка ветвей для Шеннона"--~Фано и~Хаффмана (для лекций выбираем \m{0/1}):
+\\
+\enumerateball{1}
+% МВ1)  0 слева (со стороны б\'{о}льших частот),  1 справа  (со стороны меньших частот);
+0/1)  0 со стороны б\'{о}льших частот (слева),  1 со стороны меньших частот  (справа);
+\\
+% \enumerateball{2} МВ2)    1 слева,  0 справа;
+\enumerateball{2} 1/0)    1 со стороны б\'{о}льших,  0 "--- меньших;
+\hfill
+% \enumerateball{3}-\enumerateball{$\infty$} сложные схемы маркировки "--- возможно, но неудобно.
+\enumerateball{3}-\enumerateball{$\infty$} сложные схемы "--- возможно, но неудобно.
+% \hfill\strut
+
+\hrulefill
+ 
+Изменение схемы маркировки:
+\itemizeball меняет коды; % (битовая инверсия всех); сложные — не инверсия!
+\itemizeball не меняет их длину.
+
+
+
+\vfill
+
+
+\frametitlelike{Выбор-3 (только Шеннона"--~Фано): правило деления, если нельзя точно пополам}
+\label{alg_var_3_sf_div}
+
+\vfill
+
+Основные варианты деления $s$ на $s_1 + s_2$:
+\enumerateball{1}
+ШФД1) $\displaystyle
+%s_1 \leqslant s_2
+\min_{s_1 \leqslant s_2} |s_2 - s_1|;
+$
+
+\enumerateball{2} ШФД2)  $\displaystyle \min |s_2 - s_1|$, если он достигается в~одной точке; если в двух:
+$\displaystyle
+%s_1 \leqslant s_2
+\min_{s_1 \leqslant s_2} |s_2 - s_1|.
+$
+
+
+\hrulefill
+ 
+Изменение правила:
+\itemizeball меняет коды;
+\itemizeball \termin{меняет длину кода} (нет однозначно лучшего правила).
+
+\hrulefill
+
+
+Для лекций выбираем \m{ШФД2.}
+Для $C = 7431\,6500\,4444\,7$ ШФД1 лучше (код с~ШФД1 короче).
+
+\end{frame}
+
+
+
+
+% \subsection{Кодирование $C$: Шеннона--Фано, $0 \succ 1 \succ ... \succ 7$, МВ1 (0 слева,  1 справа), ШФД2}
+\subsection{Кодирование $C$: Шеннона--Фано, $0 \succ 1 \succ ... \succ 7$, 0/1, ШФД2}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize}
+\setlength{\leftmargini}{0ex} 
+\setlength{\leftmarginii}{0ex} 
+\setlength{\parskip}{0.1\parskip}
+
+\label{alg_s_f}
+
+$C = 7431\,6500\,4444\,7$,
+\hfill
+$|C| = 13 \, \text{триад} = 39 \, \text{бит}$,
+\hfill
+$I_{\SXBP}(C) = 32,5 ~ \text{бита} = 10,8 ~ \text{триады}.$
+% \hfill
+
+\vfill
+
+1)  
+$\Big(4^5, 0^2, 7^2, 1^1, 3^1, 5^1, 6^1\Big)^{13} 
+\to 
+\underbrace{\Big(4^5, 0^2\Big)^{7}}_{\text{коды начинаются с~0}} + \underbrace{\Big(7^2, 1^1, 3^1, 5^1, 6^1\Big)^{6}}_{\text{коды начинаются с~1}}$
+
+2) $\underbrace{\Big(4^5, 0^2\Big)^{7}}_{\text{коды начинаются с~0}}
+\to
+\underbrace{4^5}_{00} + \underbrace{0^2}_{01}
+$
+и т.\,д.: ~
+$\begin{array}{@{}|c|c|c|c|c|c|c|c|@{}}
+\hline
+4^5 & 0^2 & 7^2 & 1^1 & 3^1 & 5^1 & 6^1 \\\hline
+\multicolumn{2}{|c|}{0} & \multicolumn{5}{c|}{1} \\\hline
+0 & 1                   & \multicolumn{2}{c|}{0} & \multicolumn{3}{c|}{1} \\\cline{3-7} 
+  &                     & 0 & 1 & 0 &\multicolumn{2}{c|}{1} \\\cline{6-7} 
+  & & &  &  & 0 & 1 \\\hline
+  00  & 01  & 100 & 101 & 110 & 1110 & 1111 \\\hline
+% 4^5 & 0^2 & 7^2 & 1^1 & 3^1 & 5^1  & 6^1 \\\hline
+\end{array}$
+
+
+
+\vfill
+
+$\text{ШФ}(C = 7431\,6500\,4444\,7)=
+% 7431\,6500\,4444\,7$,
+% 100 00 110 101    1111 1110 01 01    00 00  00 00     100                           
+100 \,00 \,110\, 101  ~~  1111 \,1110 \,01 \,01  ~~  00\, 00 \, 00 \,00  ~~   100                           
+$
+
+
+$|\text{ШФ}(C)| = 2\cdot 5 + 2\cdot 2 + 3\cdot 2  + 3\cdot 1\cdot2  + 4\cdot 1 \cdot 2 
+= 34 \, \text{бит} ~ = ~ \left \lceil{
+11\frac{1}{3}
+}\right \rceil
+~ \text{триады} = 12 ~ \text{триад}.
+$
+
+\vfill
+
+Не лучше Хаффмана (при аналогичной скорости).
+Не используются.
+
+\end{frame}
+
+% \section{Актуальные коды: Хаффмана и~AC. Вырожденный случай}
+% \section{Актуальные коды: Хф и~AC. Вырожденный случай}
+\section{Актуальные коды: Хф и~AC}
+
+% \section{Коды Хаффмана}
+
+
+% \section{Коды Хаффмана, упоминание AC}
+
+% \subsection{Коды Хаффмана: предпосылки (улучшение баланса), построение}
+\subsection{Коды Хаффмана: предпосылки (длинные коды "--- редким символам), построение}
+
+% \subsection{Коды Хаффмана:  построение}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+
+\begin{itemize}
+\item если в~дереве оптимального кода максимальная длина кода $l_{\max}$,
+то есть и~второй код длины $l_{\max}$, с~тем же родительским узлом 
+% (иначе ветку можно укоротить $\implies$ код не оптимальный);
+(иначе можно укоротить $\implies$ не оптимальный);
+
+\item самые длинные коды ($l_{\max}$ и~$l_{\max}$) должны достаться двум самым редким символам;
+
+\item пусть $A_1$ отсортирован по убыванию частот: самые редкие $a_{|A_1|}$ и~$a_{|A_1|-1}$
+
+$\implies$  у~$a_{|A_1|}$ и~$a_{|A_1|-1}$ общий родительский узел (обозначим $S_1$)...
+
+% \item заменим в алфавите $a_{|A_1|}$ и~$a_{|A_1|-1}$ на $S_1$ ()   $A_2$
+
+\end{itemize}
+
+
+\vfill
+
+Коды Хаффмана строятся как бинарное дерево
+% , листья не упорядочены.
+% 
+% \vfill 
+% 
+% Дерево Хаффмана строится 
+\termin{снизу вверх} (от~листьев  к~корню):
+
+% Алгоритм Хаффмана подразумевает построение кодового дерева в обратном порядке, то есть снизу вверх (от листовых узлов к корневому узлу).
+
+{
+\setlength{\parskip}{0\parskip}
+
+
+\begin{enumerate}
+\item 
+все символы алфавита $A_i$ (узлы)
+сортируются по частоте (по убыванию); 
+
+\item два 
+последних (самых редких) узла $a_{|A_i|-1}$ и~$a_{|A_i|}$ отсортированного $A_i$
+заменяются на~новый узел $S_i$
+с~частотой, равной сумме исходных: $\nu(S_i)  = \nu(a_{|A_i|-1}) + \nu(a_{|A_i|})$;
+
+\item новый алфавит $A_{i+1}$ (короче старого: $|A_{i+1}| = |A_i|-1$) $\implies$ новая сортировка. 
+\end{enumerate}
+Узел, полученный на последнем,  ($|A_1|-1$)-м шаге "--- корень.
+
+}
+
+% Код Хаффмана имеет минимальную длину среди префиксных.
+% 
+% Не увеличивает размера исходных данных в~худшем случае.
+
+
+\end{frame}
+
+
+\subsection{Выбор-1 (сортировка при равных частотах) для Хаффмана --- восемь, а не две!}
+% \begin{frame}{Выбор-1 (сортировка при равных частотах) для Хаффмана (вариантов восемь, а не два!)}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+
+\itemizeball{} Порядок $0 \succ 1 \succ 2 \succ ... \succ 7$ (по возрастанию) для символов:
+
+\begin{tabularx}{\linewidth}{|l|L|L|}\hline
+\m{РЧС1} 
+& \m{$ ... \succ S_2 \succ S_1 \succ \hex{00} \succ \hex{01} \succ \hex{02} \succ ... \succ \hex{FF}$}
+& \m{$ ... \succ S_2 \succ S_1 \succ 0 \succ 1 \succ 2 \succ ... \succ 7$}
+\\\hline
+РЧС2
+&$S_1\succ S_2 \succ ...   \succ \hex{00} \succ \hex{01} \succ \hex{02} \succ ... \succ \hex{FF}$
+&$S_1\succ S_2 \succ ...   \succ 0 \succ 1 \succ 2 \succ ... \succ 7$
+\\\hline
+РЧС3
+&$\hex{00} \succ \hex{01} \succ \hex{02} \succ ... \succ \hex{FF} \succ  ... \succ S_2 \succ S_1$
+&$0 \succ 1 \succ 2 \succ ... \succ 7 \succ  ... \succ S_2 \succ S_1$
+\\\hline
+РЧС4
+&$\hex{00} \succ \hex{01} \succ \hex{02} \succ ... \succ \hex{FF} \succ S_1\succ S_2 \succ ...   $
+&$0 \succ 1 \succ 2 \succ ... \succ 7 \succ S_1\succ S_2 \succ ...$
+\\\hline
+\end{tabularx}
+
+
+\vfill 
+
+\itemizeball{} Порядок $7 \succ 6 \succ ... \succ 0$ (по убыванию) для символов:
+
+\begin{tabularx}{\linewidth}{|l|L|L|}\hline
+РЧС5
+& $ ... \succ S_2 \succ S_1 \succ \hex{FF} \succ \hex{FE} \succ \hex{FD} \succ ... \succ \hex{00}$
+& $ ... \succ S_2 \succ S_1 \succ 7 \succ 6 \succ ... \succ 0$
+\\\hline
+РЧС6
+&$S_1\succ S_2 \succ ...   \succ \hex{FF} \succ \hex{FE} \succ \hex{FD} \succ ... \succ \hex{00}$
+&$S_1\succ S_2 \succ ...   \succ 7 \succ 6 \succ ... \succ 0$
+\\\hline
+РЧС7
+&$\hex{FF} \succ \hex{FE} \succ \hex{FD} \succ ... \succ \hex{00} \succ  ... \succ S_2 \succ S_1$
+&$7 \succ 6 \succ ... \succ 0 \succ  ... \succ S_2 \succ S_1$
+\\\hline
+РЧС8
+&$\hex{FF} \succ \hex{FE} \succ \hex{FD} \succ ... \succ \hex{00} \succ S_1\succ S_2 \succ ... $
+&$7 \succ 6 \succ ... \succ 0 \succ S_1\succ S_2 \succ ...$
+\\\hline
+\end{tabularx}
+
+% РЧС5) $ ... \succ S_2 \succ S_1 \succ 7 \succ 6 \succ ... \succ 0$
+% 
+% РЧС6) $S_1\succ S_2 \succ ...   \succ 7 \succ 6 \succ ... \succ 0$
+% 
+% РЧС7) $0 \succ 7 \succ 6 \succ ... \succ 0 \succ S_1\succ S_2 \succ ...   $
+% 
+% РЧС8) $0 \succ 7 \succ 6 \succ ... \succ 0 \succ ... \succ S_2 \succ S_1$
+
+\vfill 
+
+В Кр1 и~в~отчёте о л/р лучше указывать человекочитабельный порядок ($ ... \succ S_2 \succ S_1 \succ \hex{00} \succ \hex{01} \succ \hex{02} \succ ... \succ \hex{FF}$),
+а~не случайно выбранный номер (РЧС1).
+
+\frametitlelike{Выбор-2 (маркировка ветвей) "--- как для Шеннона"--~Фано: {\m{0/1,}} \color{white} 1/0 и~неудобные}
+
+\end{frame}
+
+
+
+
+
+% \subsection{Кодирование $C$: Хаффмана, $ ... \succ S_2 \succ S_1 \succ 0 \succ 1 \succ ... \succ 7$, МВ1 (0 слева,  1 справа)}
+\subsection{Кодирование $C$: Хаффмана, $ ... \succ S_2 \succ S_1 \succ 0 \succ 1 \succ ... \succ 7$, 0/1}
+
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+
+\label{alg_hf}
+
+% \vspace{-2\baselineskip}
+
+$C = 7431\,6500\,4444\,7$,
+\hfill
+$|C| = 13 \, \text{триад} = 39 \, \text{бит}$,
+\hfill
+$I_{\SXBP}(C) = 32,5 ~ \text{бита} = 10,8 ~ \text{триады}.$
+
+\bigskip
+
+1) $4^5, 0^2, 7^2, 1^1, 3^1, \underbrace{5^1, 6^1}_{\hf{S_1^2}}$ "--- последний бит кода $5^1$ "--- 0, последний бит кода $6^1$ "--- 1
+
+2) $4^5, S_1^2, 0^2, 7^2, \underbrace{1^1, 3^1}_{\hf{S_2^2}}$ 
+
+3) $4^5, S_2^2, S_1^2, \underbrace{0^2, 7^2}_{\hf{S_3^4}}$ 
+
+4) $4^5, S_3^4, \underbrace{S_2^2, S_1^2}_{\hf{S_4^4}}$ 
+
+5) $4^5, \underbrace{S_4^4, S_3^4}_{\hf{S_5^8}}$ 
+
+6) $\underbrace{S_5^8, 4^5}_{\hf{S_6^{13}}}$ 
+
+% \vspace{-8\baselineskip}
+\vspace{-11\baselineskip}
+
+
+\begin{adjustwidth}{+13em}{0em}
+
+\setlength{\parskip}{10\parskip}
+{
+$\begin{array}{@{}|c|c|c|c|c|c|c|c|@{}}
+\hline
+0^2     & 1^1  & 2^0  & 3^1     & 4^5   & 5^1   & 6^1   & 7^2 \\\hline
+ 010    & 0000 & -    & 0001    & 1     & 0010  & 0011  &  011 \\\hline
+\end{array}$
+}
+\bigskip
+
+$\text{Хф}(C = 7431\,6500\,4444\,7)=
+% 7431\,6500\,4444\,7$,
+%  011 1 0001 0000       0011 0010 010 010        1 1  1 1       011                        
+ 011\, 1\, 0001 \,0000   ~~    0011 \,0010\, 010\, 010    ~~    1 \,1 \, 1\, 1  ~~     011                        
+$
+
+$|\text{Хф}(C)| = 1\cdot 5 + 3\cdot 2\cdot 2  + 4\cdot 1\cdot4 
+= 33 ~ \text{бита}  =  11~\text{триад}.
+$
+\bigskip
+
+Код Хаффмана имеет минимальную длину среди разделимых энтропийных кодов.
+
+\bigskip
+
+В~худшем случае $|\text{Хф}(C)| = |C|$ (не увеличивает размера исходных данных, \mbox{если не считать заголовка архива и~частот).}
+
+\end{adjustwidth}
+
+\end{frame}
+
+
+
+% \section{AC. Разные коды одного семейства. Вырожденный случай}
+% \section{AC. Вырожденный случай}
+
+\subsection{AC --- арифметические (интервальные) коды}
+\begin{frame}{\insertsubsection}
+\begin{adjustwidth}{+2.5em}{+2.5em}
+
+Арифметический (интервальный) код, AC "--- \termin{неразделимый} энтропийный код:\\
+код сообщения $C=  c_1 c_2 ... c_n$ не разделяется на $code(c_1)$, $code(c_2)$ и~т.\,д.
+
+% Неалфавитное неразделимое кодирование
+
+\vfill
+
+$ C =  c_1 c_2 ... c_n ~~~ \to  ~~~ z  \in [0, 1); \hfill (0, 1)\isomorphism \Realset$
+
+$I(z) \approx I(C)$, \hfill и~чаще всего  {$I(z) >> 64~\text{бит} > I(\mathlst{double})$}
+
+\vfill
+
+Концепт АС "--- всегда не хуже Хаффмана и~иногда лучше;
+% Для концепта AC общая длина кода меньше, чем для Хаффмана;
+\\
+реализации АС могут быть хуже Хаффмана (искажение частот + потеря точности).
+
+
+\end{adjustwidth}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Код и~архив с~кодом. Вырожденный случай. Приведение частот}
+
+
+\subsection{Запись кода в~файл}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+\widepressetfontsize{\small}
+
+На примере кода Шеннона"--~Фано со стр.~\pageref{alg_s_f} длины $11\frac{1}{3}$ триады (трёхбитного байта):
+
+$code(C = 7431\,6500\,4444\,7)=
+100 00 110 101    1111 1110 01 01    00 00  00 00     100                           
+% 100 \,00 \,110\, 101  ~~  1111 \,1110 \,01 \,01  ~~  00\, 00 \, 00 \,00  ~~   100                           
+$
+
+\vfill
+
+\begin{enumerate}
+
+\item 
+При записи в~файл код дополняется до целого числа байтов (до 12 триад), обычно нулями:
+
+$code(C)=
+100 \, 00 1\,10 1\,01    1~~111 \,111\,0 01\, 01    0~~0 00 \, 00 0\,0     10\,0  \m{00} = 4153 \, 7712 \, 0020                       
+$
+
+при декодировании добавленные  биты $00$ будут прочитаны как лишний символ «4»:
+
+$decode(4153 \, 7712 \, 0020) = 7431\,6500\,4444\,74 \neq C$
+$\implies$ проверять исходную длину $n = 13$.
+
+\vfill
+
+\item Для восстановления дерева необходимы исходные частоты байтов: 
+$ \vec\nu  = \Big(\nu(0), \nu(1), \nu(2), \nu(3), \nu(4), \nu(5), \nu(6), \nu(7)  \Big)
+% 2  1 0  1      5  1  1  2 
+= (2,  1, 0,  1,      5,  1,  1,  2  ) = 2  1 0  1   \,   5  1  1  2$.
+% ;
+
+% наиболее компактный способ записи "--- массив из всех $|A| = 2^k$ частот $k$-битного байта (включая нулевые, в естественном порядке);
+% $|\nu(j)| = 1$ байт $\implies$ весь массив частот займёт $2^k$ байтов (8 байтов на доске, 256 "--- в ЭВМ).
+% 
+
+\vfill
+
+\item Необходимо правильно выбрать алгоритм кодирования/декодирования.
+
+
+\end{enumerate}
+
+\end{frame}
+
+
+
+\subsection{Вырожденный случай}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.7\parskip}
+
+
+Для $C = 4444 4444 4444 4$  из $n=13_{10}=15_8$ 
+% Для $C = 4444 444$  из $n=7_{10}=7_8$ 
+% 
+байтов $I_{\SXBP}(C) %= |code(m)| 
+= 0$:
+
+
+\begin{itemize}
+\item длина кода Шеннона символа $4$ равна нулю, так как $I_{\SXBP}(4) = 0$;
+\item длина кода Хаффмана и Шеннона"--~Фано символа $4$ равна нулю, так как дерево состоит из одного узла (корня $4$) и~нуля ветвей.
+\end{itemize}
+
+Длина кода (Хаффмана, Шеннона"--~Фано или Шеннона) всего сообщения из $n$ {одинаковых} символов $4$ также \termin{нулевая.}
+
+Файл архива должен содержать $n$ и~массив приведённых к~байту частот $\vec\nu$:
+
+$15, ~~ 0 0 0 0 7 0 0 0$
+
+этого достаточно для восстановления такого сообщения.
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+\subsection{Код и~архив с~кодами}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+\widepressetfontsize{\footnotesize}
+\setlength{\leftmargini}{0ex}
+\setlength{\leftmarginii}{3ex}
+
+
+\begin{tabularx}{1\linewidth}{|l|l|l@{~}X|}
+\hline
+Смещение & Размер & Описание &  \\\hline
+0    & 4 & Сигнатура+версия формата &  всегда 0711  \\\hline
+4    & 1 & № алгоритма сжатия с контекстом & $0$ "--- нет сжатия      \\\hline
+5    & 1 & № алгоритма сжатия без контекста & $0$ "--- нет сжатия,  \mbox{$1$ "---  Шеннона со стр.~\pageref{alg_s}, } 
+\mbox{$2$ "--- Шеннона"--~Фано со стр.~\pageref{alg_s_f},}     
+\mbox{$3$ "--- Хаффмана  со стр.~\pageref{alg_hf}   }  
+\\\hline
+6    & 1 & № алгоритма шифрования & $0$ "--- нет шифрования      \\\hline
+7    & 1 & № алгоритма защиты от помех & $0$ "--- нет защиты  от помех    \\\hline
+% 8    & 4 & Исходная длина файла $n$ & беззнаковое 12-битное целое \\\hline
+% 12    & 4 & Резерв & %всегда 0000 
+% \\\hline
+8    & 8 & Исходная длина файла $n$ & беззнаковое 24-битное целое \\\hline
+16   & 8 & Массив частот $\vec\nu = (\nu(0), \nu(1), ..., \nu(7))$ & беззнаковые 3-битные целые  \\\hline
+24& до конца & Сжатые данные & выравнивание на 1 байт
+\\\hline
+\end{tabularx}
+\vfill
+
+\begin{itemize}
+\item Код Шеннона"--~Фано со стр.~\pageref{alg_s_f}: № алгоритма~$0200$;
+% \item исх.\,длина $n=13_{10}=15_8$ триад ($5100$);
+\item исх.\,длина $n=13_{10}=15_8$ триад ($5100\, 0000$);
+\hfill  $\implies$ архив $0711 \, 0200 \, 5100 \, 0000 ~~   2 1 0 1 \,5 1 1 2  \,  4153\, 7712 ~~  0020$.
+\item частоты $
+\vec\nu \sim 2  1 0  1   \,   5  1  1  2, $ ~ код $
+4153 \, 7712 \, 0020$;
+\end{itemize}
+% 
+% 
+% Код Шеннона"--~Фано со стр.~\pageref{alg_s_f}: алг.\,0200; \hfill
+% исх.\,длина $n=13_{10}=15_8$ триад
+% записывается как $5100$;
+% \\
+% частоты $
+% \vec\nu \sim 2  1 0  1   \,   5  1  1  2, $ код $
+% 4153 \, 7712 \, 0020$ \hfill $\to$ \hfill  
+% архив имеет вид $0711 \, 0200 \, 5100 \, 0000 ~~   2 1 0 1 \,5 1 1 2  \  4153 \, 7712 ~~ 0020$
+
+
+\end{frame}
+
+
+
+
+
+\subsection{Приведение частот: $count(a_j) \to \nu(a_j)$}
+\begin{frame}{\insertsubsection}
+
+Ненормированное $count(a_j)$ 
+может превышать допустимое $\max(\nu(a_j))$
+$\implies$ приведение% к~допустимому диапазону
+: 
+
+$\left\{
+\begin{array}{@{}l}
+\nu_0:\nu_1:...:\nu_N \approx count(0):count(1):...:count(N),\\
+\max(\nu_i) = \text{максимальное значение байта} %= N = T-1
+.\\
+\end{array}
+\right.
+$
+
+Для $m = 7754\, 4444\, 4444\, 4444\, 4444\, 3333\, 3333\, 3333\, 3333\, 1112$ 
+длины $n=%10\cdot4 = 
+40_{10}=50_8$
+\\
+$\overrightarrow{count} = (0, 3, 1, 16, 17, 1, 0, 2)$, но 
+$\vec{\nu} = (0, 2, 1, 7, 7, 1, 0, 1)$.
+
+В архив записываются:\setlength{\parskip}{0\parskip}
+\begin{itemize}
+\item исходная длина $n=40_{10}=50_8$ разрядности длины файла "--- $0500\,0000$;
+\item приведённые к~$\max(\nu_i)=7$ частоты
+$ %50, ~ 
+0 2 1 7 \, 7 1 0 1$;
+\item
+код, рассчитанный по $\vec{\nu} = (0, 2, 1, 7, 7, 1, 0, 1)$, а~не по исходным $\overrightarrow{count}$.
+\end{itemize}
+
+
+\end{frame}
+
+
+\subsection{Нулевые частоты и~приведение частот}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize}
+
+% При перенормировке частот $[0, \nu_{\max}] \to [0, Max]$ возможно 
+
+\begin{enumerate}
+\item 
+% Нулевые значения частот могут быть отброшены% при первой сортировке (как в~примерах на слайдах)
+% , и~символы с~нулевыми частотами не получат кода.
+По умолчанию байты с~нулевыми $\nu_i$ отбрасываются %(алфавит меньше $2^k$) 
+и~не получают кода.
+%
+Тогда при приведении частот 
+$count(i)\in[0, \max(count)] ~\to~ \nu_i\in[0, Max]$ необходимо, чтобы 
+% ненулевые малые $count(i)$ не перешли в~нулевые $\nu_i$:
+при $count(i)>0$ было $\nu_i>0$:
+% (то есть $0 \to 0, ~ 1\to 1, ..., \max(count)\to Max$):
+% $
+% \nu_i \to \left\{
+% \begin{array}{ll}
+% 0, & \nu_i = 0,\\
+% \mathrm{round}\left( \frac{\nu_i - 1}{\nu_{\max} - 1} \cdot (Max - 1) \right) + 1, & \nu_i \neq 0.
+% \end{array}
+% \right.
+% $
+
+\vfill
+
+\begin{itemize}
+\item соотношения всех частот незначительно искажаются:
+% ; 
+% для $count(i)\approx 1$ искажение немного больше, чем для $count(i)\approx \max(count)$:
+
+% б\'{о}льших частот
+$\left\{
+\begin{array}{ll}
+\nu_i = 0, & count(i) = 0,\\
+\nu_i = \mathrm{round}\left( \frac{count(i) - 1}{\max(count) - 1} \cdot (Max - 1) \right) + 1, & count(i) > 0;
+\end{array}
+\right.
+$
+\hfill(A)
+\vfill
+
+\item %соотношения частот 
+для $count(i) > \frac{\max(count)}{Max}$ передаются максимально точно; 
+для малых полностью искажаются:
+
+$\left\{
+\begin{array}{ll}
+\nu_i = 0, & count(i) = 0,\\
+\nu_i = 1, & 0 < count(i) \leqslant \frac{\max(count)}{Max},\\
+\nu_i = \mathrm{round}\left( \frac{count(i)}{\max(count)} \cdot Max \right), & count(i) > \frac{\max(count)}{Max};
+\end{array}
+\right.
+$
+\hfill(B)
+\end{itemize}
+
+\vfill
+для октетов ($Max = 255$) и~%относительно небольших (
+$\dfrac{\max(count)}{\displaystyle\min_{\neq 0}(count)} \leqslant Max$
+%) отклонений от~равновероятностности 
+обе формулы дают приемлемый результат.
+% \vfill
+
+\item 
+% Нулевые значения частот могут обрабатываться% по общему алгоритму
+% : символы с~нулевыми частотами получат коды, а~код символа с~наименьшей ненулевой частотой (последнего в~сортировке; здесь «$7=h$») удлинится на бит.
+Если хочется 
+% воспользоваться 
+% более простой формулой
+% $\nu_i  \to \mathrm{round}\left( \frac{\nu_i}{\nu_{\max}} \cdot {Max} \right).$
+$
+\begin{array}{ll}
+\nu_i = \mathrm{round}\left( \frac{count(i)}{\max(count)} \cdot Max \right)
+\end{array}
+$
+% (ненулевая $count(i)$ может стать нулевой $\nu_i$), 
+для всех (возможно $count(i)>0 ~\to~\nu_i = 0$),
+то:
+\begin{itemize}
+\item  необходимо модифицировать алгоритм, чтобы байты с~%нулевыми $\nu_i$
+$\nu_i = 0$
+получили коды \mbox{(возможно для Хаффмана и~Шеннона"--~Фано,} невозможно для AC и~Шеннона); 
+
+\item тогда коды получат и~байты с~$count(i)=0$, а~коды 
+$count(i)>0$ удлинятся.
+
+% \item при этом код байта с~наименьшей ненулевой $count(i)$ 
+% % им $count(i) \neq 0$
+% удлинится на бит $\implies$ код файла удлинится на~$count(i)$ бит;
+% % \item в~частности, в~вырожденном случае файла из $n$ одинаковых байтов (см.\,ниже) такой модифицированный алгоритм даст код длины $n$ бит вместо нулевой;
+
+% \item так можно модифицировать алгоритм Хаффмана (и~Шеннона"--~Фано), но не~арифметический кодек (и~не Шеннона).
+\end{itemize}
+
+
+
+\end{enumerate}
+\end{frame}
+
+
+
+
+
+% \subsection{Коды Шеннона, Шеннона--Фано, Хаффмана и~AC "--- семейства!}
+% \begin{frame}{\insertsubsection}
+% \setlength{\parskip}{0.\parskip}
+% % \widepressetfontsize{\small}
+% \widepressetfontsize{\small\setlistspacing{1}{0.4ex}}
+% 
+% Не существует единого «кода Хаффмана» и~тем более «алгоритма Хаффмана»:
+% \begin{itemize}
+% \item это~\termin{семейство} кодов (не совпадающих, но одинаковой общей длины при одинаковых $\nu$);
+% \item каждый код Хаффмана достигается как минимум двумя алгоритмами.
+% 
+% \end{itemize}
+% % Также н
+% 
+% \vfill
+% 
+% Нет единого кода/алгоритма Шеннона"--~Фано (разные длины), AC (длины, скорости, ОДЗ), Шеннона.
+% %  (даже длины разные); Шеннона.
+% 
+% \hrulefill 
+% 
+% \vfill
+% 
+% На Кр1 и~в~отчёте о л/р необходимо описывать, что привело к~конкретному коду: 
+% % все сделанные выборы, приводящие к~конкретному коду: 
+% \begin{enumerate}
+% \item порядок сортировки при равных частотах (сортировку по умолчанию) "--- всегда;
+% \item схему маркировки ветвей  "--- для Хаффмана и~Шеннона"--~Фано;
+% \item правило деления "--- для Шеннона"--~Фано;
+% \item получают ли коды символы с~нулевыми частотами  "--- для Хаффмана и~Шеннона"--~Фано;
+% \item алгоритм приведения частот (для л/р обязательно, для Кр1 "--- по необходимости);
+% \item а~также "--- если это поточный код, код марковской модели и т.\,п.
+% \end{enumerate}
+% 
+% \hrulefill 
+% 
+% 
+% 
+% % При проектировании формата "--- учитывать, что в~одном архиваторе часто реализуются разные коды АС (разной общей длины и/или с~разными «запрещёнными» сообщениями).
+% % В~одном архиваторе м.\,б. разные коды АС (разные: общая длина, «запрещённые» исх.\,тексты).
+% % В~одном архиваторе м.\,б. несколько АС.
+% 
+% При проектировании формата "--- учитывать, что в~одном архиваторе часто реализуются несколько АС.
+% \end{frame}
+
+
+
+
+
+
+\section{Оптимальные разделимые коды других моделей (на основе кода Хаффмана)}
+
+
+
+\subsection{Марковская модель первого порядка-1, ${\YMP}$: $I_{\SYMP}(C)$ (суммарное); ~ $I_{\SYMP}(C) \neq I_{\SXBP}(C)$}
+\begin{frame}{\insertsubsection}
+% \widepressetfontsize{\footnotesize}
+\widepressetfontsize{\scriptsize}
+\setlength{\parskip}{0.\parskip}
+
+$C = 7431~6500~4444~7$, ~~
+$|C| = 13 ~ [\text{триад}] = 39 ~ [\text{бит}]$,
+~~
+считаем $p_{\SYMP}(c_1 = 0) = p_{\SYMP}(c_1 = 1) \ldots = \frac{1}{|A|} 
+= \frac{1}{8}$.
+
+
+% \setlength{\tabcolsep}{3pt}
+\setlength{\arraycolsep}{4pt}
+
+$
+\begin{array}
+{@{}r@{}c|cccccccc@{}}
+% \multicolumn{2}{@{}c@{\,}|}{\nu(c_{i-1} a_j)}  & 0 & 1 & 2 & 3       & 4 & 5 & 6 & 7  \\\hline
+% \multirow{8}{*}{$c_{i-1}$}
+\multicolumn{2}{@{}c@{\,}|}{\nu(x a_j)}  & 0 & 1 & 2 & 3       & 4 & 5 & 6 & 7  \\\hline
+\multirow{8}{*}{$x$}
+&0               &\m1& 0 & 0 & 0     &\m1& 0 & 0 & 0     \\
+&1               & 0 & 0 & 0 & 0     & 0 & 0 &\m1& 0     \\
+&2               & 0 & 0 & 0 & 0     & 0 & 0 & 0 & 0     \\
+&3               & 0 &\m1& 0 & 0     & 0 & 0 & 0 & 0     \\
+%
+&4               & 0 & 0 & 0 &\m1    &\m3& 0 & 0 &\m1    \\
+&5               &\m1& 0 & 0 & 0     & 0 & 0 & 0 & 0     \\
+&6               & 0 & 0 & 0 & 0     & 0 &\m1& 0 & 0     \\
+&7               & 0 & 0 & 0 & 0     &\m1& 0 & 0 & 0     \\
+\end{array}
+$
+\hfill
+$
+\begin{array}
+{@{}r@{}c|cccccccc@{}}
+\multicolumn{2}{@{}c@{\,}|}{p_{\SYMP}(a_j|x)}    & 0 & 1 & 2 & 3       & 4 & 5 & 6 & 7  \\\hline
+\multirow{8}{*}{~~~$x$}
+&0               &\m{\frac{1}{2}}& 0 & 0 & 0     &\m{\frac{1}{2}}& 0 & 0 & 0    \\
+&1               & 0 & 0 & 0 & 0     & 0 & 0 &\m1& 0    \\
+&2               & 0 & 0 & 0 & 0     & 0 & 0 & 0 & 0    \\
+&3               & 0 &\m1& 0 & 0     & 0 & 0 & 0 & 0    \\
+%
+&4               & 0 & 0 & 0 &\m{\frac{1}{5}}    &\m{\frac{3}{5}}& 0 & 0 &\m{\frac{1}{5}}   \\
+&5               &\m1& 0 & 0 & 0     & 0 & 0 & 0 & 0    \\
+&6               & 0 & 0 & 0 & 0     & 0 &\m1& 0 & 0    \\
+&7               & 0 & 0 & 0 & 0     &\m1& 0 & 0 & 0    \\
+\end{array}
+$
+\hfill
+$
+\begin{array}
+{@{}r@{}c|cccccccc@{}}
+\multicolumn{2}{@{}c@{\,}|}{I_{\SYMP}(a_j|x) ~ [\text{бит}]}   & 0 & 1 & 2 & 3       & 4 & 5 & 6 & 7  \\\hline
+\multirow{8}{*}{~~~~~~$x$}
+&0               &\m{1}&   &   &       &\m{1}&   &   &      \\
+&1               &   &   &   &       &   &   &\m0&      \\
+&2               &   &   &   &       &   &   &   &      \\
+&3               &   &\m0&   &       &   &   &   &      \\
+&4               &   &   &   &\m{2,3}    &\m{0,7}&   &   &\m{2,3}   \\
+&5               &\m0&   &   &       &   &   &   &      \\
+&6               &   &   &   &       &   &\m0&   &      \\
+&7               &   &   &   &       &\m0&   &   &      \\
+\end{array}
+$
+% \vfill
+
+$
+p_{\SYMP}(C) 
+% = {}$
+% \mbox{$
+% {} 
+=
+p_{\SYMP}(7) \cdot p_{\SYMP}(4|7) \cdot p_{\SYMP}(3|4) \cdot p_{\SYMP}(1|3) \cdot
+p_{\SYMP}(6|1) \cdot 
+\ldots
+% p_{\SYMP}(5) \cdot p_{\SYMP}(0) \cdot p_{\SYMP}(0) \cdot
+% p_{\SYMP}(4) \cdot p_{\SYMP}(4) \cdot p_{\SYMP}(4) 
+\cdot p_{\SYMP}(4|4) \cdot 
+p_{\SYMP}(7|4)
+= \frac{1}{8} \cdot 1 \cdot \frac{1}{5}  \cdot 1  \cdot 1  \cdot 1  \cdot 1 
+\cdot \frac{1}{2} \cdot \frac{1}{2} \cdot \frac{3}{5} \cdot \frac{3}{5} \cdot \frac{3}{5} \cdot \frac{1}{5}
+$
+
+\vfill
+
+
+{\scriptsize
+
+$I_{\SYMP}(C) ~ [\text{бит}] \hfill=\hfill - \log_2 \Big( p_{\SYMP}(C) \Big)
+\hfill=\hfill
+- \log_2 \Big( p_{\SYMP}(7) \Big) - \log_2 \Big( p_{\SYMP}(4|7) \Big)
+- \log_2 \Big( p_{\SYMP}(3|4) \Big) 
+- \ldots - \log_2 \Big( p_{\SYMP}(7|4) \Big)
+= 
+$
+\\
+$
+= I_{\SYMP}(7) + I_{\SYMP}(4|7) %+ I_{\SYMP}(3|4) 
++ \ldots + I_{\SYMP}(7|4) 
+\approx 3 + 0 + 2,3 + 0 + 0 + 0 + 0 + 1 + 1 + 0,7 + 0,7 + 0,7+ 2,3 ~ \approx ~ 11,8 ~ \text{бит} ~ \approx ~ 4,0~ \text{триады}.
+$
+
+
+\vfill
+
+% Среднее на символ $I({\YMP})$ "--- не определено (информация в~символе зависит от контекста);
+% \mbox{среднее на $n$-символьное сообщение $I({\YMP})$ "--- усреднять по $|A|^n$ вариантам.}
+$I({\YMP})$ "--- усреднять $I_{\SYMP}(C)$ по всем сообщениям $C$ ($n$-символьное $\implies$  $|A|^n$ вариантов) и~по длине $|C|$.
+
+}
+
+\vfill
+
+
+Оптимальный разделимый код $\SYMP$:\hfill
+% , $|code(C)| \to  I_{\SYMP}(C)$: 
+$c_1$ пишем как есть (байтом), \hfill далее
+блочный код Хаффмана, 
+\termin{дерево на каждом шаге {перестраивается}} 
+по строке 
+% $\nu(c_{i-1} 0) \ldots \nu(c_{i-1} 7)$
+$\nu(c_{i-1} y)$
+\hfill
+% [оптимальный неразделимый "--- AC, частоты  меняются на строку $c_{i-1}$].
+[оптимальный неразделимый = AC, частоты  меняются].
+\hfill
+% % 
+% % \hfill
+% 
+% 
+% % Оптимальный разделимый код $\SYMP$, $|code(C)| \to  I_{\SYMP}(C)$: 
+% % $c_1$ как есть (байтом), далее
+% % Хаффман, 
+% % \termin{дерево кодов перестраивается} на каждом шаге {по $p_{\SYMP}(a_j|c_{i-1})$.}
+% % % \hfill
+% 
+% % \vfill
+% 
+Требует $|A|^2$ частот.
+% ; оптимальные для Маркова порядка $N$ требуют  $|A|^{N+1}$ частот $\implies$ неоптимальные выгоднее.
+% (семейства RLE, LZ77, LZ78).
+
+
+% $|code(C)| \to  I_{\SYMP}(C)$
+%  "--- блочный код Хаффмана, \termin{дерево кодов перестраивается} на каждом шаге \rlap{по $p_{\SYMP}(a_j|c_{i-1})$;}
+ 
+
+
+\end{frame}
+
+
+
+
+\subsection{Марковская модель первого порядка-2, $\YMPP$: не имеет смысла}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+
+$C = 7431~6500~4444~7$, ~~
+$|C| = 13 ~ [\text{триад}] = 39 ~ [\text{бит}]$,
+
+\setlength{\arraycolsep}{4pt}
+
+\begin{tabular}{@{}c@{}}
+считаем $p_{\SYMPP}(c_1 = a_j) = p_{\SXBP}(a_j)$, ~~
+при $i\geqslant 2$: ~~ $p_{\SYMPP}(c_i = a_j) = p_{\SYMP}(a_j|c_{i-1})$
+\\
+\\
+$
+p_{\SYMPP}(C) 
+=
+p_{\SXBP}(7) \cdot p_{\SYMP}(4|7) \cdot p_{\SYMP}(3|4) \cdot p_{\SYMP}(1|3) \cdot
+p_{\SYMP}(6|1) \cdot 
+\ldots
+\cdot p_{\SYMP}(4|4) \cdot 
+p_{\SYMP}(7|4)
+$
+\\
+\\
+$I_{\SYMPP}(C) ~ [\text{бит}] = - \log_2 \Big( p_{\SYMPP}(C) \Big) 
+% = {}$
+% \\
+% ${}
+= I_{\SXBP}(7) + I_{\SYMP}(4|7) %+ I_{\SYMP}(3|4) 
++ \ldots + I_{\SYMP}(7|4) 
+={}$\\${}
+= I_{\SXBP}(7) + (I_{\SYMP}(C) ~ [\text{бит}] - 3) = 2,7 + (11,8-3) ~ \text{бит} ~ \approx ~11,6 ~ \text{бит}.
+$
+\\
+\\
+В~общем случае:
+$I_{\SYMPP}(C) = I_{\SYMP}(C) - \log_2(|A|)  + I_{\SXBP}(c_1)$.
+\\
+Если $c_1$ "--- редкий, то $I_{\SYMPP}(C) > I_{\SYMP}(C)$.
+\end{tabular}
+\hfill
+$
+\begin{array}
+{@{}c|cccccccc@{}}
+\nu  & 0 & 1 & 2 & 3       & 4 & 5 & 6 & 7  \\\hline
+0               &\m1& 0 & 0 & 0     &\m1& 0 & 0 & 0     \\
+1               & 0 & 0 & 0 & 0     & 0 & 0 &\m1& 0     \\
+2               & 0 & 0 & 0 & 0     & 0 & 0 & 0 & 0     \\
+3               & 0 &\m1& 0 & 0     & 0 & 0 & 0 & 0     \\
+%
+4               & 0 & 0 & 0 &\m1    &\m3& 0 & 0 &\m1    \\
+5               &\m1& 0 & 0 & 0     & 0 & 0 & 0 & 0     \\
+6               & 0 & 0 & 0 & 0     & 0 &\m1& 0 & 0     \\
+7               & 0 & 0 & 0 & 0     &\m1& 0 & 0 & 0     \\
+\hline
+-               &2 & 1& 0 & 1     & 5 & 1 & 1 & 2     \\
+\end{array}
+$
+ 
+% \vspace{-\baselineskip}
+
+
+
+
+\vfill
+
+Оптимальный разделимый код $\SYMPP$:
+блочный код Хаффмана, 
+\\
+{дерево кодов перестраивается} на каждом шаге,
+включая первый.
+
+\vfill
+
+Отличается от оптимального кода $\SYMP$ только первым шагом:
+% 
+% \vfill
+% 
+% Оптимальные коды  $\SYMPP$ и~$\SYMP$ отличаются только первым шагом:
+\\
+\itemizeball{} в~лучшем случае экономим менее байта на $c_1$, но  частоты $|A|^2 + |A|$ байтов (против $|A|^2$ для  $\SYMP$);
+\\
+\itemizeball{} в~худшем случае ($c_1$ "--- редкий) теряем и~на $c_1$, и~на частотах.
+
+
+
+
+
+\end{frame}
+
+
+
+
+\subsection{Марковская модель первого порядка-3, $\YMPI$}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize}
+\setlength{\parskip}{0.\parskip}
+
+$C = 7431~6500~4444~7$, ~~
+$|C| = 13 ~ [\text{триад}] = 39 ~ [\text{бит}]$,
+
+\setlength{\arraycolsep}{4pt}
+
+
+\begin{tabular}{@{}c@{}}
+считаем $p_{\SYMPI}(c_1 = 7) = 1$, %для $a_j \neq 7$ $p_{\SYMPI}(c_1 = a_j) = 0$
+~~
+при $i\geqslant 2$:  $p_{\SYMPI}(c_i = a_j) = p_{\SYMP}(a_j|c_{i-1})$:
+\\
+\\
+$
+p_{\SYMPI}(C) 
+=
+1 \cdot p_{\SYMP}(4|7) \cdot p_{\SYMP}(3|4) \cdot p_{\SYMP}(1|3) \cdot
+p_{\SYMP}(6|1) \cdot 
+\ldots
+\cdot p_{\SYMP}(4|4) \cdot 
+p_{\SYMP}(7|4)
+$
+\\
+\\
+$I_{\SYMPI}(C) ~ [\text{бит}] = - \log_2 \Big( p_{\SYMPI}(C) \Big) 
+% = {}$
+% \\
+% ${}
+= 0 + I_{\SYMP}(4|7) %+ I_{\SYMP}(3|4) 
++ \ldots + I_{\SYMP}(7|4) 
+={}$\\${}
+= 0 + (I_{\SYMP}(C) ~ [\text{бит}] - 3) = 11,8-3 ~ \text{бит} ~ \approx ~10,8 ~ \text{бит}.
+$
+\\
+\\
+В~общем случае: ~
+$I_{\SYMPI}(C) ~ = ~ I_{\SYMP}(C) - \log_2(|A|) ~ < ~ I_{\SYMP}(C)$.
+\end{tabular}
+\hfill
+$
+\begin{array}
+{@{}c|cccccccc@{}}
+\nu  & 0 & 1 & 2 & 3       & 4 & 5 & 6 & 7  \\\hline
+0               &\m1& 0 & 0 & 0     &\m1& 0 & 0 & 0     \\
+1               & 0 & 0 & 0 & 0     & 0 & 0 &\m1& 0     \\
+2               & 0 & 0 & 0 & 0     & 0 & 0 & 0 & 0     \\
+3               & 0 &\m1& 0 & 0     & 0 & 0 & 0 & 0     \\
+%
+4               & 0 & 0 & 0 &\m1    &\m3& 0 & 0 &\m1    \\
+5               &\m1& 0 & 0 & 0     & 0 & 0 & 0 & 0     \\
+6               & 0 & 0 & 0 & 0     & 0 &\m1& 0 & 0     \\
+7               & 0 & 0 & 0 & 0     &\m1& 0 & 0 & 0     \\
+\hline
+-               &0 & 0& 0 & 0     & 0 & 0 & 0 & 1     \\
+\end{array}
+$
+ 
+% \vspace{-\baselineskip}
+
+
+
+
+\vfill
+
+Оптимальный разделимый код $\SYMPI$: блочный код Хаффмана, {дерево кодов перестраивается} на каждом шаге,\\
+первый шаг "--- ничего не пишем (вырожденный случай).
+
+\vfill
+
+Оптимальные коды  $\SYMPI$ и~$\SYMP$ отличаются только первым шагом:
+\\
+\itemizeball{} экономим байт на $c_1$, теряем $|A|$ байтов на частотах ($|A|^2 + |A|$ байтов для $\SYMPI$ против $|A|^2$ для  $\SYMP$).
+
+\vfill
+
+
+если хранить только байт $c_1=7$, а~не частоты $0000\,0001$ "--- получится оптимальный код~$\SYMP$. 
+
+
+\end{frame}
+
+
+
+
+
+
+\subsection{Марковская модель порядка $N$ и~неэффективность оптимального кода}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+
+Оптимальный разделимый код марковской модели порядка $N$:
+
+
+\begin{itemize}
+\item $c_1 c_2 \ldots c_N$ пишем как есть (один символ одним байтом); 
+
+\item на каждом шаге $i\geqslant N$
+% блочный код Хаффмана, 
+% дерево на каждом  шаге (шаг $i$) перестраивается
+дерево Хаффмана перестраивается
+по частотам  
+% $\nu(c_{i-N}\ldots c_{i-2}c_{i-1} y)$ для символа $y$.
+$\vec\nu = \Big( \nu(c_{i-N}\ldots c_{i-2}c_{i-1}\, 0), ~~ \nu(c_{i-N}\ldots c_{i-2}c_{i-1}\, 1), ~~ \nu(c_{i-N}\ldots c_{i-2}c_{i-1}\, 2), \ldots \Big)$.
+
+\end{itemize}
+
+Оптимальный неразделимый "--- аналогичный AC.
+
+\vfill
+ 
+Оптимальный код требует  $|A|^{N+1}$ частот (все $\nu(c_{i-N}\ldots c_{i-2}c_{i-1}\, y)$) $\implies$ невыгоден.
+
+На практике энтропийное кодирование применяется только для сжатия \termin{без учёта контекста.}
+\vfill
+ 
+Методы сжатия с~учётом контекста (семейства RLE, LZ77, LZ78):
+
+длина кода $C$ существенно больше, чем $I_{\text{M}N}(C)$, но для декодирования не требуются частоты.
+
+
+\end{frame}
+
+
+
+
+
+
+
+\subsection{Модель $S$. Поточный код Хаффмана без учёта контекста}
+\begin{frame}{\insertsubsection}
+\widepressetfontsize{\footnotesize}
+% \widepressetfontsize{\scriptsize}
+\setlength{\parskip}{0.\parskip}
+
+\begin{tabularx}{0.9\linewidth}{@{}Lc@{}}
+$C = 7431~6500~4444~7$, ~~
+$|C| = 13 ~ [\text{триад}] = 39 ~ [\text{бит}]$, &считаем $p_{S}(c_i = a_j)  = \frac{\nu_i(a_j)}{\sum\nu_i(x)}$,\\
+&уточняем на каждом шаге.
+\end{tabularx}
+
+\vspace{-\baselineskip}
+
+
+% \setlength{\tabcolsep}{3pt}
+\setlength{\arraycolsep}{4pt}
+
+$
+\begin{array}
+{@{}c|c|cccccccc|l@{}}
+ &     & \multicolumn{8}{c|}{\nu_i(a_j) } &\\\cline{3-10}
+i& c_{i-1}  & 0 & 1 & 2 & 3     & 4 & 5 & 6 & 7  & \sum\nu_i(x) \\\hline
+1& -        & 1 & 1 & 1 & 1     & 1 & 1 & 1 & 1  & 8 = |A|   \\
+2& 7        & 1 & 1 & 1 & 1     & 1 & 1 & 1 & 2  & 9   \\
+3& 4        & 1 & 1 & 1 & 1     & 2 & 1 & 1 & 2  & 10   \\
+4& 3        & 1 & 1 & 1 & 2     & 2 & 1 & 1 & 2  & 11   \\\hline
+5& 1        & 1 & 2 & 1 & 2     & 2 & 1 & 1 & 2  & 12   \\
+6& 6        & 1 & 2 & 1 & 2     & 2 & 1 & 2 & 2  & 13   \\
+7& 5        & 1 & 2 & 1 & 2     & 2 & 2 & 2 & 2  & 14   \\
+8& 0        & 2 & 2 & 1 & 2     & 2 & 2 & 2 & 2  & 15   \\\hline
+9& 0        & 3 & 2 & 1 & 2     & 2 & 2 & 2 & 2  & 16   \\
+10& 4       & 3 & 2 & 1 & 2     & 3 & 2 & 2 & 2  & 17   \\
+11& 4       & 3 & 2 & 1 & 2     & 4 & 2 & 2 & 2  & 18   \\
+12& 4       & 3 & 2 & 1 & 2     & 5 & 2 & 2 & 2  & 19   \\\hline
+13& 4       & 3 & 2 & 1 & 2     & 6 & 2 & 2 & 2  & 20 = |A|+n-1   \\
+\end{array}
+$\hspace{-2em}
+\begin{tabular}{@{}c@{}}\\\\
+\scriptsize
+$
+p_{S}(C) 
+= 
+\frac{1}{8}\cdot\frac{1}{9}\cdot\frac{1}{10}\cdot\frac{1}{11}
+~\cdot~
+\frac{1}{12}\cdot\frac{1}{13}\cdot\frac{1}{14}\cdot\frac{2}{15}
+~\cdot~
+\frac{2}{16}\cdot\frac{3}{17}\cdot\frac{4}{17}\cdot\frac{5}{19}
+~\cdot~
+\frac{6}{20} 
+% = {}$
+% \\
+% ${}
+% = \frac{2\cdot 2\cdot3\cdot4\cdot5\cdot6}{8 \cdot 9\cdot10\cdot11\cdot12\cdot13\cdot14\cdot15\cdot16\cdot17\cdot18\cdot19\cdot20}
+$
+\\
+$I_{S}(C) ~ [\text{бит}] \hfill=\hfill - \log_2 \Big( p_{S}(C) \Big)
+~ \approx ~ 38,3 ~ \text{бит} ~ \approx ~ 12,8~ \text{триады}.$
+\\\\
+Оптимальный разделимый код $S$ ($|code(C)| \to  I_{S}(C)$):
+\\
+\termin{поточный} код Хаффмана, 
+где статистика уточняется\\
+и~дерево кодов перестраивается на каждом шаге.
+\\\\
+Такой код 
+% всегда не длиннее $|C|$,
+может быть длиннее $|C|$,
+\\[1ex]
+% % не короче блочного без учёта контекста (кода модели $\XBP$), ??? а вдруг там непостоянные частоты?..
+% % % всегда длиннее блочного без учёта контекста (кода модели $\XBP$), ???
+% если файл действительно из источника БП "--- \\не короче блочного Хаффмана\\(файл из источника $S$ $\implies$ может быть короче);
+% может быть длиннее или короче блочного Хаффмана,
+часто длиннее блочного Хаффмана,\\
+не нашлось информации, может ли быть короче; 
+\\[1ex]
+\termin{не требует хранить массив частот}
+% \\ (может быть короче блочного+частот).
+\\ (часто короче блочного+частот).
+\end{tabular}
+
+
+
+% \vfill
+% 
+% Оптимальный код $S$ ($|code(C)| \to  I_{S}(C)$):
+% \termin{поточный} код Хаффмана, 
+% 
+% где статистика уточняется и~дерево кодов перестраивается на каждом шаге;
+%  
+% первый шаг: $c_1$ пишем как есть, байтом (можно рассчитать дерево Хаффмана по $1111\,1111$ "--- будет тоже байт).
+
+
+\end{frame}
+
+
+
+
+\subsection{Альтернативные поточные (блочно-поточные) коды}
+\begin{frame}{\insertsubsection}
+\setlength{\parskip}{0.\parskip}
+\widepressetfontsize{\small\setlistspacing{1}{0ex}}
+
+Дерево перестраивается раз в~$N$ шагов (поблочно), \itemizeball{} блок 1 ($1\ldots N$) всегда без сжатия. 
+
+\vfill
+
+
+\begin{enumerate}
+\item Статистика накапливается непрерывно:
+
+\begin{itemize}
+
+\item блок 2 ($(N+1)\ldots 2N$) "--- Хаффман по частотам блока 1;
+
+\item блок 3 ($(2N+1)\ldots 3N$) "--- Хаффман по частотам блоков 1+2;
+\item блок 4 ($(3N+1)\ldots 4N$) "--- Хаффман по частотам блоков 1+2+3...
+\end{itemize}
+быстрее, но хуже кода модели $S$.
+
+\vfill
+
+\item Статистика сбрасывается после каждого блока (частоты $\to ~ 1111\ldots1111$):
+\begin{tabularx}{\linewidth}{@{}LL@{}}
+
+\itemizeball{} блок 2 по частотам блока 1;
+
+\itemizeball{} блок 3 по частотам блока 2;
+&
+
+\itemizeball{} блок 4 по частотам блока 3;
+
+\itemizeball{} блок 5 по частотам блока 4...
+\end{tabularx}
+
+\vfill
+
+\item Статистика сохраняется для двух блоков ($N$ может быть меньше, чем в \enumerateball{2}):
+\begin{tabularx}{\linewidth}{@{}LL@{}}
+
+\itemizeball{} блок 2 по частотам блока 1 или без сжатия;
+
+\itemizeball{} блок 3 по частотам блоков 1+2;
+&
+
+\itemizeball{} блок 4 по частотам блоков 2+3;
+
+\itemizeball{} блок 5 по частотам блоков 3+4...
+\end{tabularx}
+\end{enumerate}
+
+\vfill
+
+и т. д. Для файла из неоднородных фрагментов \enumerateball{2} и~\enumerateball{3} иногда лучше  кода модели $S$.
+
+\vfill
+
+Каждая  реализация "--- своя модель.
+
+
+
+
+\end{frame}
+
+% \section{Семинар: подготовка к~КР1}
+\section{Семинар}
+
+\subsection{Вопросы и~задачи к~семинару 1 (введение в~коды без контекста и~модель БП)}
+\begin{frame}{\insertsubsection}
+\setlength{\leftmargini}{1em} 
+\setlength{\leftmarginii}{1em} 
+
+
+\begin{enumerate}
+\item Символ [первичного алфавита]=$2$-битный байт ($A = \{0, 1, 2, 3\}$), вторичный алфавит "--- биты, 
+рассматриваем блочный код без контекста $\{0, 1, 2, 3\}^+ \to \{0, 1\}^+$ 
+
+на примере сообщения 
+
+\item пусть задан код $K$:
+
+
+
+
+\end{enumerate}
+\end{frame}
+
+
+\subsection{Вопросы и~задачи к~семинару 2 (энтропийные коды)}
+\begin{frame}{\insertsubsection}
+\setlength{\leftmargini}{1em} 
+\setlength{\leftmarginii}{1em} 
+
+
+\begin{enumerate}
+\item Символ=$k$-битный байт. Найдите для оптимальных разделимых  кодов минимальную и~максимальную длины кода символа.
+
+\item Определите, при каких сочетаниях порядка при равн.\,част. и~маркировки ветвей для~$\vec\nu = 1111\ldots1111$ и~метода Хаффмана $\forall a{:} ~~ code(a) = a$.
+
+\vfill
+
+\item Символ=байт=триада. Дано сообщение $C = 6707\,4444\,4411\,55$:
+\begin{itemize}
+\item найдите $I_{\SXBP}(C)$;
+\item закодируйте $C$ методами: Хаффмана, Шеннона"--~Фано, Шеннона без учёта контекста (укажите выбранные: порядок при равн.\,част., маркировку ветвей, правило деления); 
+
+\item сравните длины кодов друг с~другом и~с~$I_{\SXBP}(C)$.
+
+\vfill
+
+% \item Для того же $C$ 
+\item найдите $I_{\SYMP}(C)$;
+\item закодируйте $C$ методом Хаффмана с~учётом предыстории в~1 символ (оптимальным разделимым кодом M1),
+порядок при равн.\,част. и~маркировка ветвей "--- те же;
+
+\item сравните длину кода с~$I_{\SYMP}(C)$.
+\end{itemize}
+
+\end{enumerate}
+\end{frame}
+
+
+\makethanks
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

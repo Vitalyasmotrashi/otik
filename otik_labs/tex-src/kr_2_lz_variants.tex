@@ -1,0 +1,285 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Список вопросов и билеты по 2 вопроса
+% расстояния подобраны методом тыка
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,14pt]{extarticle}
+\usepackage[
+  a4paper, mag=1000, %nohead,includefoot,
+  margin=12mm, top=5mm %headsep=20mm, footskip=0mm
+]{geometry}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+% \usepackage{cyrtimes}	% Times, Arial и Courier одновременно
+\usepackage{graphicx}
+\usepackage{enumitem}	% Настраиваемые списки
+\newcommand\No{№}
+\usepackage{mathtools}  % amsmath with extensions
+\usepackage{amssymb}  % (otherwise \mathbb does nothing)
+\DeclareMathOperator{\sal}{sal}
+\DeclareMathOperator{\sar}{sar}
+\DeclareMathOperator{\shl}{shl}
+\DeclareMathOperator{\shr}{shr}
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+
+\usepackage[pdftex,unicode=true,colorlinks]{hyperref}
+    \hypersetup{citecolor=blue,linkcolor=blue,urlcolor=blue}
+    
+
+\newcounter{count_variants}
+\setcounter{count_variants}{1}
+
+
+
+% Вариант с 3 семействами; аргументы -- 1=m, 2=RLE, 3=LZ77, 4=LZ78 ============
+% \newcommand\vRZZ[4]{
+% \begin{center}
+% Вариант 4-\arabic{count_variants}\addtocounter{count_variants}{1}
+% \end{center}
+% 
+% $m = \hex{#1}$
+% \bigskip
+% 
+% Размер байта $k=3$ бита. Закодировать $m$ алгоритмами подсемейств.
+% \begin{enumerate}
+% \if #2\empty \else \item #2. \fi
+% \if #3\empty \else \item #3. \fi
+% \if #4\empty \else \item #4. \fi
+% % ^^^ работает, но Вариант 4- ещё надо менять на 3- или 2-. И нудобны пустые скобки
+% \end{enumerate}
+% 
+% \clearpage
+% }
+
+% База; аргументы -- 1=размер команды, 2=\item + коды, 3=«указанными кодами»/«указанными кодом» 
+\newcommand\vRZZ[3]{
+Авторы:\hfill\the\year-\the\month-«\hspace{2em}»
+\bigskip
+
+% \begin{center}
+Вариант #1-\arabic{count_variants}\addtocounter{count_variants}{1}.
+Закодировать $C$ #3. Размер байта $k=3$ бита. 
+% \end{center}
+\medskip
+
+$C = \hex{\printnextmsg}$
+% \bigskip
+
+\begin{enumerate}
+#2
+\end{enumerate}
+
+\clearpage
+}
+
+% \newcommand\vCCC[3]{\vRZZ{4}{ \item #1. \item #2. \item #3. }{указанными кодами}}
+\newcommand\vCC[2]{\vRZZ{2(2)}{ \item #1. \item #2. }{указанными кодами} }
+\newcommand\vC[1]{\vRZZ{2(1)}{ \item #1. }{указанным кодом} }
+
+
+% #2
+% 
+% \newcommand\vCCC[3]{\vRZZ{4}{\begin{enumerate} \item #1. \item #2. \item #3. \end{enumerate}} }
+% \newcommand\vCC[2]{\vRZZ{3}{\begin{enumerate} \item #1. \item #2. \end{enumerate}} }
+% \newcommand\vC[1]{\vRZZ{1}{  #1. } }
+
+
+% =============================================================================
+
+\newcounter{count_msg}	% счётчик m
+\setcounter{count_msg}{0}
+\newcommand\mkmsgname[1]{q\arabic{#1}}
+
+\makeatletter
+% Печать текста по счётчику (1, 2, 3,... count_msg)
+\newcommand\printmsg[1]{\expandafter\@nameuse{\mkmsgname{#1}}}
+
+\newcommand\defmsg[1]{%
+  \stepcounter{count_msg}%
+  \global\expandafter\@namedef{\mkmsgname{count_msg}}{#1}%
+}
+\makeatother
+
+% =============================================================================
+\newcounter{msg_idx}	% счётчик m
+\setcounter{msg_idx}{0}
+
+\newcommand\printnextmsg{%
+    \addtocounter{msg_idx}{1}%
+    \ifnum \value{msg_idx}>\value{count_msg}
+        \setcounter{msg_idx}{1}%
+    \fi
+    \printmsg{msg_idx}
+    }
+% =============================================================================
+
+
+
+% \usepackage[small,indentafter]{titlesec}
+% \titlespacing*{\section}{0ex}{3.5ex plus 1ex minus .2ex}{2.3ex plus 0ex}
+% \titleformat{\section}{\filright\bfseries}{\thesection.}{.5em}{}
+% 
+% \usepackage{titletoc}
+% \titlecontents{section}[1.5cm]{}{\thecontentslabel.~}{}{\titlerule*[9pt]{.}{\contentspage}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\pagestyle{empty}
+
+% \defmsg{0123\,0123\,0123\,4567~~7777\,7777\,7700\,0000~~1122\,3344\,5566\,4455}
+% \defmsg{0000\,0000\,0123\,4567~~4566\,4566\,4566\,6666~~1122\,3344\,5577\,4455}
+% \defmsg{0000\,0123\,0000\,0123~~4567\,4567\,4567\,4566~~1122\,3344\,5577\,7777}
+
+\defmsg{0123~0123~0123~4567~~7777~7777~7700~0000}
+\defmsg{0000~0000~0123~4567~~4566~4566~4566~6666}
+\defmsg{0000~0123~0000~0123~~4567~4567~4567~4566}
+\defmsg{0101~0101~0101~0123~~4567~6767~6767~6767}
+\defmsg{0123~4567~4567~4566~~6666~6655~5555~0000}
+
+\defmsg{0123~3333~4567~4567~~4567~7777~7777~7777}
+\defmsg{0123~4567~4567~4567~~7777~7555~4444~3333}
+\defmsg{0123~4567~0123~4567~~7777~7222~2222~2223}
+\defmsg{0001~0001~1110~1110~~0001~1110~0123~4567}
+\defmsg{0000~0001~1111~1110~~0123~4567~4567~4555}
+
+\defmsg{0000~0000~0123~4567~~0123~0170~1230~0000}
+\defmsg{0000~1111~2222~3333~~4444~5555~5555~5567}
+\defmsg{0000~1010~1010~4567~~0123~0122~2222~0122}
+
+
+
+\setcounter{count_variants}{1}
+
+\vC{RLE с~флаг-битом, код $L$ с~максимальным смещением}
+\vC{LZ77 с~односимвольным префиксом, $|S|=3$ бита, код $L$ и~$S$ с~максимальным смещением}
+\vC{RLE с~односимвольным префиксом, код $L$ с~максимальным смещением}
+\vC{LZ77 с~флаг-битом ссылка/символ, $|S|=3$ бита, код $L$ и~$S$ с~максимальным смещением}
+%\vC{LZ78-концепт}
+%\vC{LZW (семейство LZ78)}
+
+\vC{RLE с~флаг-битом, код $L$ со смещением $1$}
+\vC{LZ77 с~односимвольным префиксом, $|S|=3$ бита, код $L$ и~$S$ со смещением $1$}
+\vC{RLE с~односимвольным префиксом, код $L$ со смещением $1$}
+\vC{LZ77 с~флаг-битом ссылка/символ, $|S|=3$ бита, код $L$ и~$S$ со смещением $1$}
+%\vC{LZ78-концепт}
+%\vC{LZW (семейство LZ78)}
+
+
+\vC{RLE с~флаг-битом, код $L$ с~максимальным смещением}
+\vC{LZ77 с~односимвольным префиксом, $|S|=4$ бита, код $L$ и~$S$ с~максимальным смещением}
+\vC{RLE с~односимвольным префиксом, код $L$ с~максимальным смещением}
+\vC{LZ77 с~флаг-битом ссылка/символ, $|S|=4$ бита, код $L$ и~$S$ с~максимальным смещением}
+%\vC{LZ78-концепт}
+%\vC{LZW (семейство LZ78)}
+
+\vC{RLE с~флаг-битом, код $L$ с~максимальным смещением}
+\vC{LZ77 с~односимвольным префиксом, $|S|=3$ бита, код $L$ и~$S$ с~максимальным смещением}
+\vC{RLE с~односимвольным префиксом, код $L$ с~максимальным смещением}
+\vC{LZ77 с~флаг-битом ссылка/символ, $|S|=3$ бита, код $L$ и~$S$ с~максимальным смещением}
+\vC{LZ77-концепт, $|S|=3$ бита}
+%\vC{LZ78-концепт}
+%\vC{LZW (семейство LZ78)}
+
+\vC{RLE с~флаг-битом, код $L$ со смещением $1$}
+\vC{LZ77 с~односимвольным префиксом, $|S|=4$ бита, код $L$ и~$S$ со смещением $1$}
+\vC{RLE с~односимвольным префиксом, код $L$ со смещением $1$}
+\vC{LZ77 с~флаг-битом ссылка/символ, $|S|=4$ бита, код $L$ и~$S$ со смещением $1$}
+\vC{LZ77-концепт, $|S|=4$ бита}
+%\vC{LZ78-концепт}
+%\vC{LZW (семейство LZ78)}
+
+
+
+% \setcounter{count_variants}{1}
+% 
+% \vCCC
+% {RLE с~флаг-битом}
+% {LZ77 с~флаг-битом ссылка/цепочка, $|S|=3$ бита}
+% {LZ78-концепт}
+% 
+% \vCCC
+% {RLE с~односимвольным префиксом}
+% {LZ77 с~односимвольным префиксом, $|S|=3$ бита}
+% {LZW (семейство LZ78)}
+% 
+% \vCCC
+% {Наивный RLE}
+% {LZ77-концепт, $|S|=3$ бита}
+% {LZ78-концепт}
+% 
+% \vCCC
+% {RLE с~флаг-битом}
+% {LZ77 с~флаг-битом ссылка/символ, $|S|=3$ бита}
+% {LZ78-концепт}
+% 
+% \vCCC
+% {RLE с~односимвольным префиксом}
+% {LZ77 с~односимвольным префиксом, $|S|=3$ бита}
+% {LZW (семейство LZ78)}
+% 
+% \vCCC
+% {Наивный RLE}
+% {LZ77-концепт, $|S|=3$ бита}
+% {LZ78-концепт}
+
+
+\setcounter{count_variants}{1}
+
+\vCC
+{RLE с~флаг-битом}
+{LZ77 с~флаг-битом ссылка/цепочка, $|S|=3$ бита}
+
+\vCC
+{RLE с~односимвольным префиксом}
+{LZ77 с~односимвольным префиксом, $|S|=4$ бита}
+
+\vCC
+{Наивный RLE}
+{LZ77-концепт, $|S|=3$ бита}
+
+\vCC
+{RLE с~флаг-битом}
+{LZ77 с~флаг-битом ссылка/символ, $|S|=3$ бита}
+
+\vCC
+{Наивный RLE}
+{LZ77-концепт, $|S|=3$ бита}
+
+\vCC
+{RLE с~односимвольным префиксом}
+{LZ77 с~односимвольным префиксом, $|S|=3$ бита}
+
+\vCC
+{Наивный RLE}
+{LZ77-концепт, $|S|=3$ бита}
+
+\vCC
+{RLE с~флаг-битом}
+{LZ77 с~флаг-битом ссылка/символ, $|S|=3$ бита}
+
+\vCC
+{RLE с~односимвольным префиксом}
+{LZ77 с~односимвольным префиксом, $|S|=3$ бита}
+
+\vCC
+{RLE с~флаг-битом}
+{LZ77 с~флаг-битом ссылка/символ, $|S|=4$ бита}
+
+% \vCC
+% {Наивный RLE}
+% {LZ77-концепт, $|S|=4$ бита}
+
+
+\vCC
+{RLE с~односимвольным префиксом}
+{LZ77 с~односимвольным префиксом, $|S|=4$ бита}
+
+
+
+
+
+
+
+
+\end{document}

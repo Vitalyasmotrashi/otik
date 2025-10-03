@@ -1,0 +1,402 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head>
+<link rel="stylesheet" href="%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20OGM%20%28OGG%20Vorbis%20media%20container%29%20%E2%80%94%20shounen.ru_files/base.css" type="text/css">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="http://shounen.ru/rss.xml">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+
+<title>Описание формата OGM (OGG Vorbis media container) — shounen.ru</title>
+<meta name="Description" content="Описание формата файла OGM, структур заголовков аудио, видео и текстовых (субтитров) потоков">
+<meta name="Keywords" content="OGM, OGG, Vorbis, описание структуры, заголовки, логический, физический, поток" lang="ru">
+<meta name="Keywords" content="OGM, OGG, Vorbis, file format, header, struct, audio, video, text, subtitle" lang="en">
+<style>
+body{font-family:Tahoma,Arial,sans-serif;letter-spacing:1px;line-height:130%}
+h1,h2{font-family:serif;font-weight:800;color:#040;}
+h1,h2,h3{text-align:left}
+h1{font-size:200%}
+h2{font-size:150%}
+h3{font-size:110%;font-family:sans-serif}
+.sample{width:100%;font-weight:800;border:solid 2px silver;text-align:center}
+.str1{background:#FAA}
+.str2{background:#AFA}
+.str3{background:#AAF}
+.etc{font-size:200%;line-height:50%}
+strong{text-transform:uppercase}
+.spec{border:solid 1px gray;margin:1ex;width:90%}
+.spec td{border-bottom:solid 1px gray;border-right:solid 1px gray;padding:0.5ex;letter-spacing:2px;}
+.spec .head{background:silver;font-weight:800}
+.name{font-family:Courier New,monospace;letter-spacing:0;color:#B00}
+code{font-family:Terminal;font-size:12pt;font-weight:100}
+.formula{background:#EEE}
+</style>
+</head><body>
+<div class="header">
+<a href="http://shounen.ru/">shounen.ru</a> • <a href="http://shounen.ru/docs/">Документация</a> • OGM <br>
+<a href="http://shounen.ru/docs/ogm/">Вcтупление</a> • <a href="http://shounen.ru/docs/ogm/ogm.shtml">Описание (html)</a> • <a href="http://shounen.ru/docs/ogm/ogm.txt">Описание (txt)</a> • <a href="http://shounen.ru/docs/ogm/oggnav.c">Пример навигационной программы (ANSI C)</a> • <a href="http://shounen.ru/docs/ogm/ogm_spec_rus.zip">ZIP</a>
+</div>
+<div class="main">
+
+<h1>Описание формата OGM</h1>
+
+<h2>Что есть в этом документе</h2>
+<p>Формат OGM-файла, принципы объединения нескольких элементарных потоков
+в один физический файл, структура заголовков аудио, видео и текстовых 
+потоков.
+
+</p><h2>Чего в этом документе нет</h2>
+<p>Структры данных внутри аудио, видео и текстовых потоков.
+
+</p><h2>Вступление</h2>
+<p>Некоторое время назад, на смену формата mp3 был создан формат
+OGG Vorbis. Для хранения звукового потока vorbis был разработан стандарт
+OGG Bitstream, который в дальнейшем применили для хранения видео.
+
+</p><h2>1. Порядок бит и байт.</h2>
+
+<p>Порядок бит в байте: <code>01234567</code> (другими словами, последний, правый бит имеет
+макисмальное значение) Порядок байт при записи многобайтовых чисел: <code>0123</code>
+(<code>0xAB</code> <code>0xCD</code> <code>0xEF</code> <code>0x12</code> в файле означают число <code>0x12EFCDAB</code>) (little-endian)
+
+
+</p><h2>2. Основные концепции.</h2>
+
+<ol>
+<li><strong>Логический поток</strong> — данные одного типа (например, видео-поток, первый
+аудио-поток, второй аудио-поток)
+</li><li><strong>Пакет</strong> — порция данных логического потока (его структура целиком и
+полностью лежит на совести кодера/декодера).
+</li><li><strong>Сегмент</strong> — кусок данных длиной в <code>255</code> байт (и менее) длиной. Сегмент 
+с нулевой длиной так же допустим. У сегмента так же нет ни заголовка ни
+каких-либо данных помимо содержимого (content'а).
+</li><li><strong>Страница</strong> — несколько сегментов с заголовком страницы. 
+</li><li><strong>Физический поток</strong> — объединение нескольких логических потоков.
+OGM-файл и представляет из себя этот самый физический поток.
+</li></ol>
+
+<h2>3. Методы объединения страниц нескольких логических потоков внутри одного
+физического потока</h2>
+
+<h3>Chaining (объединение по цепочке)</h3>
+<table class="sample" id="chaining">
+<tbody><tr><td class="str1">stream1</td><td class="str2">stream2</td><td class="str3">stream3
+</td></tr></tbody></table>
+
+<h3>Grouping (чередование)</h3>
+
+<table class="sample" id="grouping">
+<tbody><tr><td class="str1">page1</td><td class="str2">page1</td><td class="str3">page1</td><td class="str1">page2</td><td class="str1">page3</td><td class="str3">page2</td><td class="str2">page2</td><td class="str3">page3</td><td class="str1">page4</td><td class="etc">...
+</td></tr></tbody></table>
+
+<p>(В случае AVI-файла это называют interleave)
+
+</p><p>У каждого логического потока есть признаки <strong>начала потока</strong> (Begin of Stream,
+BoS) и <strong>конца потока</strong> (End of Stream, EoS). Эти признаки обозначаются флагами
+в заголовке страницы. (BoS - в первой странице логического потока, EoS — в
+последней). Соответственно, в физическом потоке может быть несколько BoS и
+EoS. (в случае одного видео и двух аудио, например, три BoS и три EoS).
+
+</p><p>В случае нескольких логических потоков внутри физического, все страницы с
+BoS (т.е. "начала логических потоков") должны быть расположены до первой
+страницы без флага BoS.
+
+</p><p>Порядок чередования страниц из разных логических потоков может быть
+произвольным, гарантируется только, что для каждого логического потока
+страницы расположены в хронологическом порядке (т.е. N-ая страница будет
+расположена в файле всегда позже, чем N-1).
+
+</p><p>В случае смешанного типа объединения (т.е. и Chaining'a и Grouping'а) все
+EoS (последние) страницы первой группы должны появиться до первой (BoS) 
+страницы второй группы.
+
+
+</p><h2>4. Структуры пакета, сегмента и страницы</h2>
+
+<p>Структура пакета, как было уже сказано выше, целиком и полностью
+определяется декодером. 
+
+</p><p>Пакет режется в несколько сегментов.
+
+</p><p>Сегмент так же не имеет собственной структруры. По длинне он должен 
+быть не более <code>255</code> байт (в частности, сегмент может быть нулевой длины, 
+т.е. не содержать в себе информации).
+
+</p><p>Сегменты объединяются в страницы, к ним добавляется заголовок страницы.
+(не более <code>255</code> сегментов в странице)
+
+</p><h3>Примечания</h3>
+<ul>
+<li>пакет всегда начинается с начала страницы.
+</li><li>пакет может быть в размере больше, чем максимально допустимый размер
+страницы, в этом случае он продолжается в следующей страницы, а в заголовке
+такой страницы (которая содержит продолжение пакета) выставляется
+соответствующий флаг (<span class="name">continued_packet_flag</span>)
+</li></ul>
+
+<h2>5. Заголовок страницы (<span class="name">page_header</span>)</h2>
+
+<table class="spec">
+<tbody><tr class="head"><td>смещение</td><td>размер </td><td>тип</td><td>имя, значение, комментарии
+</td></tr><tr><td>0x0     </td><td>4       </td><td>FourCC 		</td><td><span class="name">capture_pattern<span>, <code>'OggS'</code>, <code>0x4f 0x67 0x67 0x53</code>
+</span></span></td></tr><tr><td>0x4     </td><td>1       </td><td>?           </td><td>должна быть <code>0</code>, версия структуры заголовка
+</td></tr><tr><td>0x5     </td><td>1       </td><td>bitfield    </td><td><span class="name">header_type_flag</span>, <br>
+                                <code>0x1</code> — страница содержит продолжение пакета<br>
+                                <code>0x2</code> — BoS (Begin of Stream, начало потока)<br>
+                                <code>0x4</code> — EoS (End of Stream, конец потока)
+</td></tr><tr><td>0x6     </td><td>8       </td><td>int64       </td><td><span class="name">absolute_granule_position</span>, номер последнего 
+                            сэмпла/фрейма целиком закодированного в 
+                            этом пакете (сэмплы, закодированные в пакете, 
+                            который не умещается в эту страницу, а 
+                            продолжаются дальше, не засчитываются). 
+                            Число <code>-1</code> означает что в указанной странице нет 
+                            целиком закодированных сэмплов. <br>
+                            <b>N.B.</b> little-endian формат числа (как у Интела)
+</td></tr><tr><td>0xE     </td><td>4       </td><td>int32       </td><td><span class="name">page_serial_number</span>, номер логического потока в 
+                            указанном физическом потоке. 
+                            Должно быть уникальным в рамках одного 
+                            физического потока для всех логических.
+</td></tr><tr><td>0x12    </td><td>4       </td><td>int32       </td><td><span class="name">Page_sequence_no</span>, порядковый номер страницы 
+                            в логическом потоке.
+</td></tr><tr><td>0x16    </td><td>4       </td><td>uint32      </td><td><span class="name">Page_checksum</span>, CRC код страницы
+</td></tr><tr><td>0x1A    </td><td>1       </td><td>byte        </td><td><span class="name">page_segments</span>, число сегментов в странице, 
+                            диапазон значений <code>[0-255]</code> (<code>0</code> и <code>255</code> допустимы)
+</td></tr><tr><td>0x1B    </td><td>*       </td><td>byte[]      </td><td><span class="name">segment_table</span>, таблица размеров сегментов в 
+                            странице. Количество записей в таблице
+                            определяется <span class="name">page_segment</span>, в случае нулевого 
+                            значения, <span class="name">segment_table</span> отсутствует.
+</td></tr></tbody></table>
+
+<h3>Замечания</h3>
+<ul>
+<li>Страница может быть одновременной первой и последней в потоке (BoS и EoS
+установленны одновременно)
+</li><li>Размер данных страницы может быть нулевой, в этом случае страница просто
+пропускается.
+</li><li>Максимальный размер данных в странице составляет <code>255*255=65025</code> байт.
+</li><li>Если последний сегмент в странице имеет размер <code>255</code> байт, то после него, в
+<span class="name">segment_table</span> заносятся данные о "нулевом" сегменте (сегменте с длиной <code>0</code>).<br>
+Выглядит это так (например, данные у нас занимают <code>765</code> байт): <br>
+число сегментов:<code>4</code><br>
+таблица сегментов: <code>0xFF 0xFF 0xFF 0x0</code><br>
+Исключение — сегмент с размером данных <code>65025</code> байт, т.к. нулевой сегмент
+просто некуда дописывать.<br>
+Если последний сегмент отличен от <code>0xFF</code>, то нулевой после него не добавляется.
+</li></ul>
+<h2>6. Определение размера сегмента и данных</h2>
+
+<p><u>размер данных в сегменте</u>: сумма всех значений в <span class="name">segment_table</span>. Количество
+значений указано в <span class="name">page_segments</span>.
+</p><p><u>размер сегмента</u>: <span class="formula"><code>0x1B</code>+<span class="name">page_segments</span>+сумма всех значений <span class="name">segment_table</span></span>. (это
+значение всегда меньше <code>64k</code>).
+
+</p><h2>7. Стуктура заголовка видео-потока</h2>
+
+<table class="spec">
+<tbody><tr class="head"><td>смещение</td><td>тип</td><td>имя, значение, комментарии
+</td></tr><tr><td>0x0         </td><td>char        </td><td>тип пакета, для заголовка должен быть <code>0x1</code>
+</td></tr><tr><td>0x1         </td><td>char[8]     </td><td><span class="name">streamtype</span>, для видео должен быть <code>'video&nbsp;&nbsp;&nbsp;'</code>
+                        последние три символа — <code>0x0</code> (не пробелы)
+</td></tr><tr><td>0x9         </td><td>char[4]     </td><td><span class="name">subtype</span>, используемый кодек (<span class="name">FourCC</span>)
+</td></tr><tr><td>0xD         </td><td>int32       </td><td>размер структуры
+</td></tr><tr><td>0x11        </td><td>int64       </td><td><span class="name">time_unit</span>, интервал времени между "юнитами", 
+                        в <code>1/10000000</code> секунды 
+</td></tr><tr><td>0x19        </td><td>int64       </td><td><span class="name">samples_per_unit</span>, кадров в "юнит". 
+                        <span class="formula">fps=<code>10000000</code>*<span class="name">samples_per_unit</span>/<span class="name">time_unit</span></span>
+</td></tr><tr><td>0x21        </td><td>int32       </td><td><span class="name">default_len</span> (честно, не знаю что такое, обычно равно <code>1</code>)
+</td></tr><tr><td>0x25        </td><td>int32       </td><td><span class="name">buffersize</span> — размер необходимого буфера 
+                        для декодирования
+</td></tr><tr><td>0x29        </td><td>int32       </td><td><span class="name">bit_per_sample</span>, глубина цвета (битов на пиксел)
+                        <b>N.B.</b> В оригинальной спецификации указано,
+                        что эта величина - int16, но практика
+                        показывает, что всё-таки int32. 
+</td></tr><tr><td>0x2D        </td><td>int32       </td><td><span class="name">width</span>, ширина картинки (в пикселах)
+</td></tr><tr><td>0x31        </td><td>int32       </td><td><span class="name">Heigth</span>, высота картинки (в пикселах)
+</td></tr></tbody></table>
+
+<h2>8. Стурктура заголовка аудио-потока (для vorbis-audio)</h2>
+<table class="spec">
+<tbody><tr class="head"><td>смещение</td><td>тип</td><td>имя, значение, комментарии
+</td></tr><tr><td>0x0         </td><td>byte        </td><td>тип пакета, для заголовка должен быть <code>0x1</code>
+</td></tr><tr><td>0x1         </td><td>char[6]     </td><td>для vorbis-audio должен быть <code>'vorbis'</code>
+</td></tr><tr><td>0x7         </td><td>int32       </td><td>vorbis version, в настоящий момент <code>0</code>.
+</td></tr><tr><td>0xB         </td><td>byte        </td><td>число каналов
+</td></tr><tr><td>0xC         </td><td>int32       </td><td>частота дискретизации сигнала
+</td></tr><tr><td>0x10        </td><td>int32       </td><td>минимальный битрейт (обычно <code>0</code>)
+</td></tr><tr><td>0x14        </td><td>int32       </td><td>средний битрейт
+</td></tr><tr><td>0x18        </td><td>int32       </td><td>макисмальный битрейт (обычно <code>0</code>)
+</td></tr><tr><td>0x1C        </td><td>byte        </td><td>размеры блоков для декодирования (экспонента двойки)<br>
+                        старшие 4 бита - для blocksize_0<br>
+                        младшие 4 бита - для blocksize_1
+</td></tr><tr><td>0x1D        </td><td>byte        </td><td>младший бит - <span class="name">framing_flag</span>
+</td></tr></tbody></table>
+
+
+<h2>9. Стуктура заголовка текстового потока</h2>
+<table class="spec">
+<tbody><tr class="head"><td>смещение</td><td>тип</td><td>имя, значение, комментарии
+</td></tr><tr><td>0x0         </td><td>byte        </td><td>тип пакета, для заголовка должен быть <code>0x1</code>
+</td></tr><tr><td>0x1         </td><td>char[8]     </td><td>тип потока, для текста должен быть <code>'text    '</code>
+                        (последние четыре символы не пробелы, а <code>0x0</code>)
+</td></tr><tr><td>0x9         </td><td>char [4]    </td><td>subtype, для текста <code>0</code>.
+</td></tr><tr><td>0xD         </td><td>int32       </td><td>размер структуры
+</td></tr><tr><td>0x11        </td><td>int64       </td><td>длительность отсчёта (для текста 1мс, <code>0x2710</code>)
+</td></tr><tr><td>0x19        </td><td>int64       </td><td>всегда <code>1</code>
+</td></tr><tr><td>0x21        </td><td>int32       </td><td>default_len, <code>1</code>.
+</td></tr><tr><td>0x25        </td><td>int32       </td><td>увы, назначения не знаю (обычно или 96 или 60)
+</td></tr><tr><td>0x29        </td><td>4 x int32   </td><td>unknown, usually 0.
+</td></tr></tbody></table>
+
+<h2>10. Комментарии</h2>
+
+<p>Каждый поток может иметь комментарии. Они обычно находятся во второй
+или третьей странице потока.
+</p><p><b>N.B.</b> в комментариях строки не являются классическими C string'ами
+(ASCIIZ), и НЕ заканчиваются нулевым байтом. Строка состоит
+из размера (4 байта) и самой строки (что-то вроде строк в Pascal).
+</p><h3>Структура заголовка коментария</h3>
+<table class="spec">
+<tbody><tr class="head"><td>смещение</td><td>тип</td><td>имя, значение, комментарии
+</td></tr><tr><td>0x0        </td><td> byte        </td><td>тип пакета, для комментария должен быть <code>0x3</code>
+</td></tr><tr><td>0x1        </td><td> int32       </td><td><span class="name">vendor_vector_size</span>
+</td></tr><tr><td>0x5        </td><td> byte[]      </td><td>название софта, создавшего файл
+</td></tr><tr><td>???        </td><td> int32       </td><td><span class="name">user_comment_list_length</span>, количество комментариев
+</td></tr></tbody></table>
+<p>После заголовка следуют сами комментари.
+</p><p>Каждый комментарий состоит из 4байтного поля размера строки
+и самой строки.
+
+</p><p>Внутри каждая строка выглядит примерно так:
+
+</p><p>field_name=field_value
+
+</p><p>При этом название field_name регистронезависимое, и состоит
+только из ASCII7.
+</p><p>Точнее (цитирую спецификацию):
+</p><p>The <span class="name">field_name</span> is case-insensitive and may consist of ASCII <code>0x20 through
+0x7D</code>, <code>0x3D</code> ('=') excluded. ASCII <code>0x41 through 0x5A</code> inclusive (characters
+A-Z) is to be considered equivalent to ASCII <code>0x61 through 0x7A</code> inclusive
+(characters a-z).
+</p><p>Значение поля (<span class="name">field_value</span>) представяет из себя UTF-8 строку без
+заключительного <code>0</code>.
+
+</p><p>В случае, если комментарии отсутствуют (<span class="name">user_comment_list_length</span>=<code>0</code>),
+то, соответствено, списка комментариев нет.
+
+</p><p>В конце после списка комментариев (или даже в случае отсутствия такого 
+списка) следует байт <code>0x1</code> (<span class="name">framing_bit</span>), его отстутствие — признак 
+повреждённой страницы.
+</p><p>Названия полей могут быть произвольные, могут повторяться 
+(т.е. например, три строки вида AUTHOR=...).
+</p><h3>Примерный список возможных названий полей </h3>
+(список не полный)
+<ul>
+<li>LANGUAGE
+</li><li>TITLE
+</li><li>VERSION
+</li><li>ALBUM
+</li><li>TRACKNUMBER
+</li><li>ARTIST
+</li><li>PERFORMER
+</li><li>DESCRIPTION
+</li><li>GENRE
+</li><li>DATE
+</li><li>LOCATION
+</li></ul>
+
+<h2>11. Пример кода, работающего с OGM файлом</h2>
+
+<p>Код находится в файле <a href="http://shounen.ru/docs/ogm/ogmnav.c">ogmnav.c</a>
+
+</p><p>Замечания к коду:
+</p><ul>
+<li> Код не является оптимальным по скорости, и написан так, чтобы в 
+максимально-удобной форме показать принципы навигации между пакетами.
+Две простейшие оптимизации, которые можно применить - это буфферизация
+чтения и более аккуратный пропуск ненужных страниц. (при помощи
+fseek, а не чтения "в никуда").
+</li><li> Относительно использования массива unsigned char вместо структуры,
+описывающей заголовок страницы. Причины использования очевидны. Во-первых,
+компилятор далеко не всегда распологает структуру в памяти так, как она
+записана в декларации. Так, вполне может быть, что компилятор,
+с целью оптимизации, выравняет все переменные на границы машинных слов.
+(т.е. внутри структуры появятся "дырки" и fread этой структуры из
+памяти даст некорректный результат).
+Второе - код с массивом будет одинаково хорошо работать как на машине
+с litte-endian архитектурой (Intel), так и на big-endian (Mac, Alpha).
+
+</li><li> В программе не проверяется CRC каждой страницы.
+</li><li>Более "живой" пример находится в модуле ogm.c из состава
+AVInfo (http://shounen.ru/soft/avinfo/), специфика модуля такова, 
+что ему передаются два парметра - хэндл уже открытого на чтение 
+файла и численный параметр, отвечающий за степень детализации 
+собираемой информации.
+</li></ul>
+
+<h2>12. Ссылки на ресурсы</h2>
+
+<ul>
+<li><a href="http://vorbis.org/">http://vorbis.org/</a> — авторы спецификации контейнера
+</li><li><a href="http://tobias.everwicked.com/">http://tobias.everwicked.com/</a> — автор DirectShow фильтра
+                                для воспроизведения,
+                                собственно, автор идеи
+                                засунуть видео в OGM.
+                                (Документация содержит ошибки!)
+
+</li><li><a href="http://mplayerhq.hu/">http://mplayerhq.hu/</a> — довольно популярный плеер, не использует VfW,
+                      в частности, играет OGM. Идёт под лицензией GPL, и, соответственно, имеет открытые исходные тексты
+
+</li></ul>
+<h2>13. Заключение, копирайты</h2>
+
+<p>Использование статьи для разработчиков, в т.ч. для написания коммерческого
+софта абсолютно свободное. Публикация на web-сайтах и в бумажных изданиях 
+возможна при сохранении явно указанного авторства и ссылок, приведённых  
+в статье (при условии их действительности на момент публикации).
+
+</p><p>Если вы заметили в статье грамматическую, синтаксическую, логическую 
+ошибку, опечатку, неточность, имеете уточнённые данные по значению полей,
+отмеченных вопросительными знаками, хотите добавить линк в список 
+ресурсов, пишите на указанный адрес.
+</p><p>© George Shuklin,2004 <a href="mailto:gs@shounen.ru">gs@shounen.ru</a>, <a href="http://shounen.ru/">shounen.ru</a> .
+<script type="text/javascript">
+<!--
+var _acic={dataProvider:10};(function(){var e=document.createElement("script");e.type="text/javascript";e.async=true;e.src="//www.acint.net/aci.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)})()
+//-->
+</script>
+
+<noindex>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-3900246060300284";
+/* 728x90, создано 29.10.10 */
+google_ad_slot = "3746622273";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript" src="%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20OGM%20%28OGG%20Vorbis%20media%20container%29%20%E2%80%94%20shounen.ru_files/show_ads.js">
+</script>
+
+</noindex></p><div style="display: none">
+<!--Rating@Mail.ru counter-->
+<script language="javascript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer);js=10;//--></script>
+<script language="javascript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled();js=11;//--></script>
+<script language="javascript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height;
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth);js=12;//--></script>
+<script language="javascript1.3" type="text/javascript"><!--
+js=13;//--></script><script language="javascript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1809226" target="_top">'+
+'<img src="http://db.c9.bb.a1.top.mail.ru/counter?id=1809226;t=69;js='+js+
+a+';rand='+Math.random()+'" alt="Рейтинг@Mail.ru" border="0" '+
+'height="31" width="38"><\/a>');if(11<js)d.write('<'+'!-- ');//--></script>
+<noscript><a target="_top" href="http://top.mail.ru/jump?from=1809226">
+<img src="%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5%20%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82%D0%B0%20OGM%20%28OGG%20Vorbis%20media%20container%29%20%E2%80%94%20shounen.ru_files/counter.gif" alt="Рейтинг@Mail.ru" height="31" width="38" border="0"></a></noscript>
+<script language="javascript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>');//--></script>
+<!--// Rating@Mail.ru counter-->
+</div>
+
+</div>
+
+</body></html>

@@ -1,0 +1,144 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не раст€гивать недозаполненные страницы по высоте, а оставл€ть место внизу
+
+%  оманда, заставл€юща€ LaTeX не создавать выступающие за край страницы строки (overfull),
+% а вместо этого раст€гивать их сильнее, чем обычно (underfull).
+\setlength{\emergencystretch}{2pt} % Explanation: if TeX can't typeset a paragraph without bad boxes, and \emergencystretch is nonzero, it tries once again, but this time increasing the stretchability of the space by the value of this parameter.
+
+
+%подавление вис€чих строк.
+\clubpenalty=10000
+\widowpenalty=10000
+
+\interfootnotelinepenalty=10000 % не разрывать сноску между страницами
+
+
+\usepackage[pdftex,unicode=true,colorlinks]{hyperref}
+
+\usepackage{geometry}
+
+
+% \geometry{
+%   papersize={17.06cm,9.6cm},  hmargin=6mm% 16/9 Ч под весь экран, пол€ маленькие
+% }
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+% % % 
+% % % \newcommand{\shline}{%
+% % % \raisebox{0ex}[extend-above][extend-below]{}%
+% % % }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+
+% \begin{frame}[plain]
+% \widepressetfontsize{\scriptsize}
+\scriptsize
+
+% \sfseries
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+% \def\refinedW{W_1}
+
+\newcommand{\upair}[2]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+{#1}\\ {#2}
+\end{array}\right\}
+}}
+    
+
+% размеры
+\tikzstyle{espdnormalsize}  = [minimum height=6ex, text width=12em, inner sep = 0.2em]
+\tikzstyle{espdwide}        = [minimum height=6ex, text width=20em, inner sep = 0.2em]
+\tikzstyle{espdnarrow}      = [minimum height=6ex, text width=8em, inner sep = 0.2em]
+\tikzstyle{espddatafilesize} = [minimum width=6ex, minimum height=8em, inner sep = 0.2em] % дл€ цилиндра высота Ч это width!
+
+
+\tikzstyle{connector}=[espdconnector, minimum height=3ex, ]
+
+\tikzset{node distance = 1ex and 1em}
+
+
+
+
+\tikzset{node distance = 3ex and 3em}
+
+\node[espdnormalsize, espdblackcenter, espddata] (i) {“екуща€ позици€ $i$ (текущий размер декодированного файла $C$)};
+
+\node[espdnormalsize, espdblackcenter, espdprocess, above = of i ] (write_c) {«апись $c$ в~конец $C$, $i = i+1$};
+\node[espdnormalsize, espdblackcenter, espdprocess, below = of i ] (write_LS) {ѕоследовательно $L$ раз: 
+$\left\{\begin{array}{@{\,}l@{}}\text{запись $c_{i-S}$ в~конец $C$,}\\i = i+1\end{array}\right.$};
+
+\node[espdnarrow, espdblackcenter, espddata, left = of write_c ] (c_i) {—имвол $c\phantom{\bigg|}$};
+\node[espdnarrow, espdblackcenter, espddata, left = of write_LS] (LS) {—сылка $\upair{L}{S}$};
+
+\node[espddatafilesize, espdblackcenter, espddatafile, left = of LS.west|-i] (arch)  {јрхив};
+
+\node[espddatafilesize, espdblackcenter, espddatafile, right = of write_LS.east|-i] (C)  {$C = c_1 c_2 \ldots c_i$};
+
+
+
+
+\draw[espdstreamto] (arch) |- (c_i);
+\draw[espdstreamto] (arch) |- (LS);
+
+
+\draw[espdstreamto] (c_i) -- (write_c);
+\draw[espdstreamto] (LS) -- (write_LS);
+\draw[espdstreamto] (write_c) -- (i);
+\draw[espdstreamtofrom] (write_LS) -- (i);
+
+
+\draw[espdstreamto] (write_c) -| (C);
+\draw[espdstreamtofrom] (write_LS) -| (C);
+
+% \draw[espdstreamto] () -- ();
+% \draw[espdstreamto] () -- ();
+
+
+
+
+
+
+
+
+
+
+
+\end{tikzpicture}
+}
+% \end{frame}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

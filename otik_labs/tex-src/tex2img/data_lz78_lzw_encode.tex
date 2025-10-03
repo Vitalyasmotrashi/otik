@@ -1,0 +1,181 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+\newcommand{\hex}[1]{\ensuremath{\mathtt{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+   
+\tikzstyle{normalblockheight}      = [minimum height=7ex]
+\tikzstyle{miniblockheight}      = [minimum height=4ex]
+
+\tikzstyle{normalblocksep}      = [inner sep = 0.2em]
+
+\tikzstyle{curvedblockxsep}      = [inner xsep = 0em]
+\tikzstyle{ddblockxsep}      = [inner xsep = -0.8em]
+
+
+% размеры
+\tikzstyle{normalblock}  = [normalblockheight, text width=10em, normalblocksep]
+
+\tikzstyle{wideblock}        = [normalblockheight, text width=18em, normalblocksep]
+\tikzstyle{narrowblock}      = [normalblockheight, text width=7em, normalblocksep]
+
+\tikzstyle{normaldatafile} = [minimum width=7ex, minimum height=8em, normalblocksep] % для лежачего цилиндра высота — это width!
+
+\tikzstyle{connector}=[espdconnector, minimum height=2ex, scale=0.7, normalblocksep]
+
+
+
+
+\tikzset{node distance = 2ex and 2em}
+% \tikzset{node distance = 3ex and 2em}
+
+
+
+
+\tikzstyle{Gblock}  = [normalblock,   inner xsep = -0.8em]
+\node[Gblock,  espdblackcenter, espddata ] (EL) {Тек.\,слово длины~$L$: $E_L = c_i \ldots c_{i+L-1}$};
+\node[Gblock,  espdblackcenter, espddata, below = of EL] (EL1) {\mbox{Тек.\,слово длины~$L+1$:} $E_{L+1} = c_i \ldots c_{i+L}$};
+\node[Gblock,  espdblackcenter, espddata, below = of EL1] (PL) {Номер $P_L$ слова $E_L$ в~словаре};
+
+
+
+
+\node[wideblock,  espdblackcenter, espdprocess, right=of EL1.top right corner, anchor = north west] (find) {\underline{Поиск слова $E_{L+1}$ в~словаре:}
+        \medskip
+
+если найдено под номером $P_{L+1}$, то: $L = L+1$, $E_L = E_{L+1}$, $P_L = P_{L+1}$,
+
+чтение нового $c_{i+L}$, обновление $E_{L+1}$;
+
+        \medskip
+
+% если  $E_{L+1}$ не найдено в~словаре~$W$ "--- добавление  $E_{L+1}$ в~словарь,
+если  $E_{L+1}$ не найдено в~словаре "--- добавление  $E_{L+1}$ в~словарь,
+
+запись $P_L$ %и~$c_{i+L}$ 
+в~архив, $i = i+L$
+
+};
+
+
+% \node[Gblock, text width=4em,  espdblackcenter, espddata, above = of find] (W) {Словарь~$W$};
+\node[Gblock, text width=4em,  espdblackcenter, espddata, above = of find] (W) {Словарь};
+
+
+\node[wideblock,  espdblackcenter, espdprocess, above=of W] (init_1) {\underline{Первичная инициализация:} $i = 1$,
+%         $W = \big\{ (0, \hex{00}), (1, \hex{01}), \ldots (254, \hex{FE}),  (255, \hex{FF}) \big\} $
+        \mbox{$W = \big\{ (0, \hex{00}), (1, \hex{01}), (2, \hex{02}), \ldots  (255, \hex{FF}) \big\} $}
+
+};
+
+\node[wideblock,  espdblackcenter, espdprocess, above=of EL, text width=13em,] (init_i) {\underline{Инициализация для нового $i$:}
+    $L=1$, $E_L = c_i$, $P_L = c_i$
+};
+
+
+
+% \node[espddatafilesize, espdblackcenter, espddatafile, left = of EL, ] (C)  {Вх. поток $\underbrace{c_1\, c_2 \ldots c_n}_{\text{исх.\,файл~$C$}} 0\,0\ldots$};
+\node[espddatafilesize, espdblackcenter, espddatafile, left = of EL, ] (C)  {Вх. поток $\underbrace{c_1\, c_2 \ldots c_n}_{\text{исх.\,файл~$C$}} 0\ldots$};
+
+
+\node[espddatafilesize, espdblackcenter, espddatafile] (arch) at (C|-PL) {Архив\rule[-.8\baselineskip]{0pt}{2\baselineskip}};
+
+
+\node[miniblockheight,  espdblackcenter, espddata] (c) at (C|-EL1) {$c_{i+L}$};
+
+{
+\tikzset{node distance = 1.5\baselineskip and 1.em}
+
+\coordinate[left = of current bounding box] (init_i_to_P_left);
+\coordinate[right = of current bounding box] (find_to_W_right);
+
+}
+
+
+\coordinate[below = of PL] (init_i_to_P_below);
+
+
+\coordinate (init_i_to_P_start) at ($(init_i.south west)!0.67!(init_i.north west)$);
+\coordinate (init_i_from_C)     at ($(init_i.south west)!0.33!(init_i.north west)$);
+
+
+\coordinate (find_from_El1) at (find.west|-EL1);
+\coordinate (find_to_P)     at (find.west|-PL);
+\coordinate (find_to_EL)    at ($(find.north west)!0.5!(find.north)$);
+
+
+\draw[espdstreamto] (init_1) -- (W);
+% \draw[espdstreamtofrom] (W) -- (find);
+\draw[espdstreamto] (W) -- (find);
+
+\draw[espdstreamto] (init_i) -- (EL);
+\draw[espdstreamto] (init_i_to_P_start) -| (init_i_to_P_left) |- (init_i_to_P_below) -- (PL);
+
+\draw[espdstreamto] (PL) -- (arch);
+
+
+\draw[espdstreamto] (C) |- (init_i_from_C);
+\draw[espdstreamto] (C) -- (c);
+
+\draw[espdstreamto] (c) -- (EL1);
+\draw[espdstreamto] (EL) -- (EL1);
+
+
+\draw[espdstreamto] (EL1) -- (find_from_El1);
+\draw[espdstreamto] (find_to_EL) |- (EL);
+\draw[espdstreamto] (find_to_P) -- (PL);
+
+
+
+\end{tikzpicture}
+}
+
+
+
+
+
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

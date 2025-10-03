@@ -1,0 +1,401 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+\newcommand{\utriple}[3]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+{#1}\\{#2}\\{#3}
+\end{array}\right\}
+% \left\{
+% {#1}, ~ {#2}, ~ {#3}
+% \right\}
+}}
+    
+\newcommand{\LM}{\ensuremath{%
+L_{\min}^{\text{сж}}
+}}
+   
+% размеры
+\tikzstyle{espdnormalsize}  = [minimum height=6ex, text width=12em, inner sep = 0.2em]
+\tikzstyle{espdwide}        = [minimum height=6ex, text width=18em, inner sep = 0.2em]
+\tikzstyle{espdhuge}        = [minimum height=6ex, text width=33em, inner sep = 0.2em]
+% \tikzstyle{espdwide}        = [minimum height=6ex, text width=20em, inner sep = 0.2em]
+\tikzstyle{espdnarrow}      = [minimum height=6ex, text width=9.5em, inner sep = 0.2em]
+\tikzstyle{espdmini}      = [minimum height=4ex]
+\tikzstyle{espddatafilesize} = [minimum width=6ex, minimum height=8em, inner sep = 0.2em] % для цилиндра высота — это width!
+
+\tikzstyle{connector}=[espdconnector, minimum height=2ex, inner sep = 0.2em]
+
+\tikzstyle{readonecharblock}      = [espdnarrow, espdblackcenter, espdprocess, text width=7em]
+\tikzstyle{initUblock}      = [minimum height=6ex, text width=16em, inner sep = 0.2em]
+
+\tikzset{node distance = 2ex and 2em}
+
+\node[espdblackcenter, espddata, espdmini ] (LR) {$L$};
+\node[espdblackcenter, espddata, espdmini, right = of LR] (c) {$c$};
+% \node[fit=(LR)(c), inner sep = 0.em] (LRc) {};
+
+\node[espdblackcenter, espddata, espdmini, left = of LR] (c_after_R)  {$c_{i+L}$};
+% \node[readonecharblock, left = of c_after_R ] (c_after_R_read) {Чтение одного символа из~$C$};
+% \coordinate (c_after_R_read) at (c_after_R.west);
+
+% \node[fit=(LR)(c)(c_after_R)(c_after_R_read.center), inner sep = 0.em] (LRc) {};
+\node[fit=(LR)(c)(c_after_R), inner sep = 0.em] (LRc) {};
+
+\tikzset{node distance = 2ex and 1em}
+
+
+% \node[espdblackcenter, espddata, espdmini, right = 4.5em of LRc ] (LU) {$L$};
+\node[espdblackcenter, espddata, espdmini, right = 3.6em of LRc ] (LU) {$L$};
+\node[espdnarrow, espdblackcenter, espddata, right = of LU] (U) {Цепочка $U$ длины~$L$: $U = c_i \ldots c_{i+L-1} $};
+% % \node[espdnormalsize, espdblackcenter, espddata, right = of U] (F) {После $U$ ($\LM-1$ симв.): $F = c_{i+L} \ldots c_{i+L+\LM-2}$};
+% % % \node[espdnormalsize, espdblackcenter, espddata, right = of F] (G) {След.~$\LM$ символов: $G = c_{i+L} \ldots c_{i+L+\LM-1}$};
+% % 
+% % \node[espdnarrow, espdblackcenter, espddata, right = of F] (c_G_end_read) {След.~за~$F$ символ: $c_{i+L+\LM-1}$};
+% % \node[fit=(F)(c_G_end_read), inner sep = 0.em] (F__c_G_end) {};
+% % \node[espdnormalsize, espdblackcenter, espddata, below = of F__c_G_end] (G) {После $U$ ($\LM$ симв.): $G = c_{i+L} \ldots c_{i+L+\LM-1}$};
+% \node[espdwide, espdblackcenter, espddata, right = of U] (G) {Следующие $\LM$ симв. после $U$: $G = c_{i+L} \ldots c_{i+L+\LM-1}$};
+
+% \node[fit=(LU)(F)(G), inner sep = 0.em] (LUc) {};
+\node[fit=(LU)(U), inner sep = 0.em] (LUc) {};
+
+
+% \node[espdhuge, espdblackcenter, espdprocess, above = of LUc  ] (initU) {
+% %     \uline{Инициализация несжатой цепочки:}\hfill     
+%     \uline{Инициализация несжатой цепочки $U$:}\hfill     
+%     $U = E(1) = c_i,$ ~ $L=1=L_{\min}^{\text{несж}}$, 
+%     
+%     остаток $E\setminus \{c_i\} %= E(2)\ldots E(\LM-1) 
+% %     = c_{i+1} \ldots c_{i+1+\LM-2}
+%     $ длины~$\LM-1$  дополняется ещё одним символом из $C$
+% }; 
+\node[initUblock, espdblackcenter, espdprocess, above = of LUc.north west, anchor = south west , text width=15em  ] (initU) {
+% \node[initUblock, espdblackcenter, espdprocess, above = of LUc  ] (initU) {
+%     \uline{Инициализация несжатой цепочки:}\hfill     
+    \uline{Инициализация несж. цепочки $U$:}\hfill     
+    $U = E(1) = c_i,$ ~ $L=1=L_{\min}^{\text{несж}}$
+};
+
+% \node[espdnarrow, espdblackcenter, espddata, right = of initU, text width=8em ] (F) {Остаток $E\setminus \{c_i\}  $ %(позже  $G\setminus \{c_{i+L}\}$) 
+% длины~$\LM-1$};
+\node[initUblock, espdblackcenter, espddata, right = of initU, text width=14em ] (F) 
+{Остаток $E\setminus \{c_i\}  $ "--- следующие $(\LM-1)$ символов после $U$};
+
+
+% % \node[espdnarrow, espdblackcenter, espddata, right = of F] (c_G_end_read) {След.~один символ: $c_{i+L+\LM-1}$};
+% \node[readonecharblock, right = of F] (c_G_end_read) {Чтение одного символа из~$C$};
+
+% \node[fit=(F)(c_G_end_read), inner sep = 0.em] (F_c_G_end) {};
+
+\node[initUblock, espdblackcenter, espddata, 
+% below = of F_c_G_end, 
+% below = of c_G_end_read.south east, anchor = top right corner,
+% below = of F.south-|F.top right corner,
+below = of F.south east,
+text width=14.5em] (G) {Следующие $\LM$ симв. после $U$: $G = c_{i+L} \ldots c_{i+L+\LM-1}$};
+
+\node[fit=(initU)(LU)(U)(F), inner sep = 0.em] (LUc) {}; % переопределяем!!!
+
+\tikzstyle{hugeheight}        = [minimum height = 9.5\baselineskip]
+
+
+% \node[espdhuge, espdblackcenter, espdprocess, below = of LUc  ] (endU) {
+% \node[espdhuge, espdblackcenter, espdprocess, below = of LUc.south west, anchor = north west , minimum height = 10\baselineskip  ] (endU) {
+\node[espdhuge, espdblackcenter, espdprocess, below  =3ex of LUc.south west, anchor = north west , hugeheight ] (endU) {
+    Если $L<L_{\max}^{\text{несж}}$ и~не все символы $G$ одинаковые "--- \uline{продолжение~$U$:}
+%     то~$\left\{\begin{array}{@{\,}l@{}}\text{символ $G(1) = c_{i+L}$ добавляется к~$U$,}\\L = L+1,\\\text{остаток $F = G\setminus \{c_{i+L}\} $ длины $\LM-1$}\end{array}\right.$ 
+
+символ~$G(1) = c_{i+L}$ добавляется к~$U$, ~ $L = L+1$;
+
+%     остаток $G\setminus \{c_{i+L}\}$   дополняется ещё одним символом из $C$
+
+%     \medskip
+
+\strut
+    
+% \strut
+
+    иначе
+    {запись} $\utriple{\theta^{\text{несж}}}{L}{U = c_i \ldots c_{i+L-1}}$ и~$i=i+L$ 
+%     ($G$ становится $E$)
+
+    \medskip
+    ($G$ становится $E$, 
+    дополнительно читать ничего не требуется)
+
+}; 
+
+
+
+
+% \node[espdwide, espdblackcenter, espdprocess, above = of LRc  ] (initR) {
+\node[initUblock, espdblackcenter, espdprocess,] (initR) at (LRc|-initU) {
+%     \uline{Инициализация сжатой цепочки:}
+        \uline{Инициализация сж. цепочки $R = E$:}
+
+    $c = c_i,$ ~ $L=|E|=\LM$
+};
+
+\coordinate (init_center) at ($(initR.east)!0.5!(initU.west)$);
+\coordinate[left = of initR] (left_of_initR);
+
+\node[espdblackcenter, espddata, espdmini, above = of init_center|-current bounding box.north] (flag) {$\theta$};
+
+% % \node[espdwide, espdblackcenter, espdprocess, above = of current bounding box ] (init_flag) {
+% \node[espdwide, espdblackcenter, espdprocess, above = 6ex of init_center|-current bounding box.north , text width=24em  ] (init_flag) {
+\node[espdwide, espdblackcenter, espdprocess, above =  of flag, text width=22em  ] (init_flag) {
+    \uline{Определение типа цепочки:}
+    
+    Если $c_i = c_{i+1} = \ldots = c_{i+\LM-1}$
+    
+    (все~символы $E$ одинаковые):
+    $\theta = \theta^{\text{сж}}$,
+    \medskip
+    
+    иначе (не~все~символы $E$ одинаковые):
+    $\theta = \theta^{\text{несж}}$
+    
+};
+% \node[espdblackcenter, espddata, espdmini, right = of init_flag] (flag) {$\theta$};
+
+% \node[espdwide, espdblackcenter, espddata, above = of init_flag] (E) {Текущие $\LM$ символов: $E = c_{i} \ldots c_{i+\LM-1}$};
+\node[espdwide, espdblackcenter, espddata, above = of init_flag] (E) {Первые $\LM$ символов: $E = c_{i} \ldots c_{i+\LM-1}$};
+
+
+
+% % \node[espdnarrow, espdblackcenter, espdprocess, 
+% \node[readonecharblock, 
+% % left = of initR
+% above = of left_of_initR|-initR.north
+% ] (c_after_R_read) {Чтение одного символа из~$C$};
+% % \node[espdnarrow, espdblackcenter, espddata, below = of c_after_R_read] (c_after_R) 
+% % % {Следующий за $R$ один символ: $c_{i+L}$};
+% % {Следующий символ после $R$: $c_{i+L}$};
+% 
+% 
+% % \node[espdblackcenter, espddata, espdmini, below = of c_after_R_read] (c_after_R) {$c_{i+L}$};
+% \node[espdblackcenter, espddata, espdmini] (c_after_R) at (c_after_R_read|-LR) {$c_{i+L}$};
+
+% \node[fit=(LR)(c)(c_after_R)(c_after_R_read), inner sep = 0.em] (LRc2) {};
+\node[fit=(LR)(c)(c_after_R), inner sep = 0.em] (LRc2) {};
+
+% \node[espdwide, espdblackcenter, espdprocess, below = of LRc ] (endR) {
+\node[initUblock, espdblackcenter, espdprocess, hugeheight] (endR) at (LRc|-endU) {
+% \node[initUblock, espdblackcenter, espdprocess,, minimum height = 10\baselineskip, text width=19em, below = of LRc2.south-|initR.east, anchor = north east  ] (endR)  {
+    Eсли $L<L_{\max}^{\text{сж}}$ и~$c_{i+L} = c$,
+    то~$L = L+1$;
+%     Eсли $L<L_{\max}^{\text{сж}}$ и~$c_{i+L} = c$ 
+%     
+%     "--- \uline{продолжение  $R$:}~$L = L+1$;
+    
+    \medskip
+    иначе {запись} $\utriple{\theta^{\text{сж}}}{L}{c}$, ~ $i = i+L$
+    
+    ($c_{i+L}$ становится  $E(1) = c_i$)
+    \medskip
+    
+    и~чтение $\LM-1$ символов из~$C$  (дополнить $E(1)$ до $E$)
+};
+
+% \node[espdwide, espdblackcenter, espdprocess, below = of endR ] (RnextE) {
+%     Чтение $\LM-1$ символов из~$C$  (дополнить $E(1)$ до $E$)
+% };
+
+% \node[espddatafilesize, espdblackcenter, espddatafile, left = of init_flag] (C)  {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+\node[espddatafilesize, espdblackcenter, espddatafile, left = of init_flag] (C)  {Исх. $C = c_1\, c_2 \ldots c_n$};
+
+\node[espdnormalsize, espdblackcenter, espdprocess, above = 3ex of C, text width=10.5em, inner xsep=0.1em] (init_first) {Первичная иниц.: $i=1$, чтение $E=c_1\ldots c_{\LM}$};
+
+
+% \tikzstyle{fffit}  = [espdfit, inner sep = 0.6em]
+\tikzstyle{fffit}  = [espdfit, inner sep = 0.3em]
+% \node[fffit, fit=(initU)(endU)(c_G_end_read)] (Utotal) {}; % ???
+\node[fffit, fit=(initU)(endU)(G)] (Utotal) {};
+
+% \node[fffit, fit=(initR)(endR)(c_after_R_read)] (Rtotal) {};
+\node[fffit, fit=(initR)(endR)] (Rtotal) {};
+
+\node[espddatafilesize, espdblackcenter, espddatafile, below = of flag|-endU.south] (arch)  {Архив};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\draw[espdstreamto] (E) -- (init_flag);
+
+\draw[espdstreamto] (init_flag) -- (flag);
+% \coordinate[above = 2.5ex of initR] (flag_to_initR);
+% \draw[espdstreamto] (flag) |- (flag_to_initR) -- node[auto, swap, pos=0]{$\theta^{\text{сж}}$}  (initR);
+\draw[espdstreamto] (flag) -| node[auto, swap, pos=0.45]{$\theta^{\text{сж}}$}  (initR);
+\draw[espdstreamto] (flag) -| node[auto,  pos=0.45]{$\theta^{\text{несж}}$}  (initU);
+
+\draw[espdstreamto] (LR|-initR.south) -- (LR);
+\draw[espdstreamto] (c|-initR.south) -- (c);
+
+\draw[espdstreamtofrom] (LR|-endR.north) -- (LR);
+\draw[espdstreamfrom] (c|-endR.north) -- (c);
+
+
+\draw[espdstreamto] (LU|-initU.south) -- (LU);
+\draw[espdstreamto] (U|-initR.south) -- (U);
+
+\draw[espdstreamtofrom] (LU|-endU.north) -- (LU);
+\draw[espdstreamtofrom] (U|-endU.north) -- (U);
+% {
+% \tikzset{node distance = 2ex and 0.3em}
+% \coordinate[left = of U.south] (U_to_endU);
+% \coordinate[right = of U.south] (U_from_endU);
+% }
+% \draw[espdstreamto] (U_from_endU|-endU.north) -- (U_from_endU|-U.south);
+% \draw[espdstreamfrom] (U_to_endU|-endU.north) -- (U_to_endU|-U.south);
+
+
+
+% \coordinate (R_to_c_after_R_read) at ($(c_after_R_read.west)!0.5!(initR.west)$); % !!!
+% \draw[espdstreamto] (R_to_c_after_R_read|-C.south) -- (R_to_c_after_R_read|-c_after_R_read.north);
+% 
+% \draw[espdstreamto] (c_after_R_read) -- (c_after_R);
+\draw[espdstreamto] (c_after_R) -- (c_after_R|-endR.north);
+\coordinate (R_to_c_after_R_x) at ($(C.west)!0.5!(C.south)$); % !!!
+\draw[espdstreamto] (R_to_c_after_R_x|-C.south) |- (c_after_R);
+
+
+\node[espdblackcenter, connector, below = of C ] (C_to_c_G_end_read) {$1$};
+\draw[espdstreamto] (C) -- (C_to_c_G_end_read);
+
+\coordinate[left = 0.7em of G.top right corner] (c_G_end_read);
+\node[espdblackcenter, connector, above= of c_G_end_read ] (C_to_c_G_end_read) {$1$}; % ???
+\draw[espdstreamto] (C_to_c_G_end_read) -- (c_G_end_read);
+
+% \coordinate[left = 0.7em of C] (C_to_read_endR);
+% \coordinate[above = 2\baselineskip of endR.south west] (C_to_read_endR_2);
+% \draw[espdstreamto] (C) -- (C_to_read_endR) |- (C_to_read_endR_2);
+\coordinate[left = 0em of C] (C_to_read_endR);
+\coordinate[above = 2\baselineskip of endR.south west] (C_to_read_endR_2);
+\draw[espdstreamto] (R_to_c_after_R_x|-C.south) |- (C_to_read_endR_2);
+\coordinate (arrow_1) at (R_to_c_after_R_x|-flag);
+\coordinate[below = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+\coordinate (arrow_1) at (R_to_c_after_R_x|-endR.north);
+\coordinate[below = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+\coordinate[above = 1\baselineskip of endR.south west] (endR_to_E);
+\coordinate[left = of endR_to_E-|C_to_read_endR] (endR_to_E_2);
+% \coordinate (endR_to_E_3) at (E.176);
+\coordinate (endR_to_E_3) at (E.175);
+\draw[espdstreamto] (endR_to_E) -- (endR_to_E_2) |- (endR_to_E_3);
+\coordinate (arrow_2) at (endR_to_E-|C.west);
+\coordinate[right = 1pt of arrow_2] (arrow_1);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+\coordinate (arrow_1) at (endR_to_E_2|-c);
+\coordinate[above = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+% \coordinate (init_first_to_E) at (E.-177);
+\coordinate (init_first_to_E) at (E.west);
+\draw[espdstreamto] (init_first.east|-init_first_to_E) -- (init_first_to_E);
+\draw[espdstreamto] (C) -- (init_first);
+
+\coordinate (E_to_initR) at (E.-176);
+\coordinate (E_to_initR_2_x) at ($(C.east)!0.5!(init_flag.west)$);
+\draw[espdstreamto] (E_to_initR) -| (E_to_initR_2_x|-initR.north);
+\coordinate (arrow_2) at (E_to_initR-|init_flag.west);
+\coordinate[right = 1pt of arrow_2] (arrow_1);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+\coordinate (E_to_initU) at (E.-5);
+\coordinate[right = of initU.north-|init_flag.east] (E_to_initU_2);
+\draw[espdstreamto] (E_to_initU) -| (E_to_initU_2);
+
+
+
+
+\coordinate[above = 1\baselineskip of endU.south east] (endU_to_E);
+% \coordinate[right = of endU_to_E-|Utotal.east] (endU_to_E_2);
+\coordinate[right = 0.5em of endU_to_E-|Utotal.east] (endU_to_E_2);
+\coordinate (endU_to_E_3) at (E.4);
+\draw[espdstreamto] (endU_to_E) -- (endU_to_E_2) |- (endU_to_E_3);
+\coordinate (arrow_1) at (endU_to_E_2|-c);
+\coordinate[above = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+
+
+\draw[espdstreamto] (initU) -- (F);
+\draw[espdstreamto] (F) -- (F|-G.north);
+% \draw[espdstreamto] (c_G_end_read) -- (c_G_end_read|-G.north);  % ???
+\draw[espdstreamto] (F|-G.south) -- (F|-endU.north);
+
+\coordinate[left = of G.west] (endU_to_F);
+
+\draw[espdstreamto] (endU_to_F|-endU.north) -- 
+% node[auto, sloped, pos=0.5, scale=0.7]{$G\setminus \{c_{i+L}\}$} 
+node[auto, sloped, pos=0.5, scale=0.7, text width=8em, text badly centered ]{остаток $G\setminus \{c_{i+L}\}$} 
+(endU_to_F|-F.south);
+
+
+\draw[espdstreamto] (endR) |- (arch);
+\draw[espdstreamto] (endU) |- (arch);
+
+
+% \coordinate (voidcenter_x) at ($(E_to_initU_2)!0.5!(endU_to_E_2)$);
+% \coordinate (voidcenter_y) at ($(Utotal.north)!0.5!(endU_to_E_3)$);
+% \node[text width=11em, text badly centered] at (voidcenter_x|-voidcenter_y) {$\LM \in \{2, 3\}$ "--- одно для~всех файлов; выбирается на этапе реализации кодека};
+
+\end{tikzpicture}
+}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

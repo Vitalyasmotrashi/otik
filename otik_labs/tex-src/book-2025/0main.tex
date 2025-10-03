@@ -1,0 +1,177 @@
+% 
+%  Сборка:
+% 
+%  bash runme bx
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% cp1251
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{commonpath}
+
+\def\PREAMBLEPATH{\SRCROOTPATH/book-2025/}
+% \def\CHAPTERSPATH{\SRCROOTPATH/book-2025/chapters}
+% \def\SECTIONSPATH{\SRCROOTPATH/book-2025/sections}
+\def\CHAPTERSPATH{\SRCROOTPATH/book-2025/}
+\def\SECTIONSPATH{\SRCROOTPATH/book-2025/}
+\def\LABSPATH{\SRCROOTPATH/labs-2025}
+\def\IMGPATH{\SRCROOTPATH/img/}
+
+\def\OEVMOTIKCOMMONPATH{\COMMONPATH/oevm_otik}
+
+% Путь к файлам с иллюстрациями
+% \graphicspath{{\IMGPATH}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{\OEVMOTIKCOMMONPATH/preamble}
+\input{\OEVMOTIKCOMMONPATH/epigraph}
+
+\newcounter{mpimgPageCounter}
+\newcounter{mpimgLetterCounter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% 0/1
+% \def\oevm{1}
+\def\oevm{0}
+% % % % \def\otik{1} не ОЭВМ => пока точно ОТИК
+
+% \newcommand\repoUrl{https://gitlab.com/illinc/otik}
+\newcommand\bookUrl{https://gitlab.com/illinc/otik/-/raw/master/otik-labs.pdf}
+
+\providecommand\utask[1]{\subsection{Упрощённое задание (не более #1 баллов за работу)}}
+
+\begin{document}
+\input{\PREAMBLEPATH/afterbegindocument}
+
+\title{Основы теории информации и~кодирования}
+
+\maketitle
+
+
+\setcounter{tocdepth}{2}
+  \addtocontents{toc}{%
+    \protect\renewcommand{\protect\chaptertitlename}{Глава}%
+  }%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% главы
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+ \newcommand{\rleLC}[2]{\ensuremath{%
+% \left\{\begin{array}{@{}c@{}}
+% {#1}\\ {#2}
+% \end{array}\right\}
+\{#1, #2\}
+}}
+  
+\chapter{Общие положения данного пособия}
+% \input{\SECTIONSPATH/a_intro}
+\input{\SECTIONSPATH/a_intro_mini}
+
+
+\chapter{Энтропийное кодирование}
+\epigraph{\begin{stanza}[0em]%
+% По мере того как  он  мужал  и
+% учился, каждый год его лишали одного титула\\и частички имени, а 
+...А поскольку
+способности он выказывал необычайные, 
+% уже на тридцать третьем году  жизни
+% у него отобрали последнее отличие, спустя же еще два года у него вообще не
+% осталось  титулов, а 
+<...>
+\\
+имя его обозначалось одной только "---  да  к  тому  же
+немой "--- буквой.\end{stanza}}{Станислав Лем. Звёздные дневники Ийона Тихого. Путешествие тринадцатое}
+\input{\SECTIONSPATH/c1_compress_letters}
+
+% \chapter{Методы сжатия с~учётом контекста}
+% \chapter{Кодирование длин повторений}
+\chapter{Метод кодирования длин повторений (RLE)}
+\epigraph{%
+\begin{stanza}[0em] 
+Рыбак сел в лодку и перевёз одну козу, потом вернулся\\и перевёз вторую, потом опять вернулся и перевёз третью... 
+% Хорошенько считайте, ваша милость, сколько коз он перевез на другой берег, потому что, если вы хоть на одну ошибетесь, дальше я не смогу рассказывать, и история моя тут же кончится. %
+\end{stanza}
+}{Мигель де Сервантес Сааведра. Дон Кихот}
+\input{\SECTIONSPATH/c2_compress_chains_rle}
+
+
+\chapter{Словарные методы сжатия}
+\epigraph{\begin{stanza}[0em] --- Что это вы делаете?\\
+--- Рассказываем анекдоты. Но для экономии времени мы их
+пронумеровали.
+\end{stanza}}{Фольклор}
+
+\section{Словарные методы, где словарём является несжатый текст: семейство LZ77}
+% \chapter[Семейство LZ77 (словарём является несжатый текст)]{Словарные методы сжатия, где словарём является несжатый текст: семейство LZ77}
+% \epigraph{\begin{stanza}[0em] ...Отказаться от понятий «прошлое», «настоящее», «будущее» как вредных\\ для ясности мысли и считать настоящее время исходной точкой счета,\\ прошлое "--- отрицательным рядом, будущее "--- рядом положительных чисел.
+% \end{stanza}}{В.\,Хлебников. Мысли и заметки}
+
+
+\input{\SECTIONSPATH/c2_compress_chains_lz77}
+
+\section{Словарные методы с~отдельным словарём: семейство LZ78}
+% \chapter[Семейство LZ78 (отдельный словарь)]{Словарные методы сжатия с~отдельным словарём: семейство LZ78}
+% \epigraph{\begin{stanza}[0em] --- Что это вы делаете?\\
+% --- Рассказываем анекдоты. Но для экономии времени мы их
+% пронумеровали.
+% \end{stanza}}{Фольклор}
+
+  
+
+\appendix
+% \settocdepth{section}
+
+% https://tex.stackexchange.com/questions/103512/how-to-exclude-an-appendix-table-from-list-of-table
+% здесь (extbook) тоже работает
+% \captionsetup{list=no}
+
+\begingroup
+
+\input{\OEVMOTIKCOMMONPATH/1regl-nolabs}
+
+\chapter[Лабораторный практикум]{Лабораторный практикум по основам теории информации и~кодирования}
+\label{sec_app_labs}
+\input{\OEVMOTIKCOMMONPATH/labchapter-defs}
+\input{\OEVMOTIKCOMMONPATH/2regl-labs}
+\input{\OEVMOTIKCOMMONPATH/2bonuspenalties}
+
+
+\input{\OEVMOTIKCOMMONPATH/oevm_print32}
+
+\input{\OEVMOTIKCOMMONPATH/otik_hexedit_ruenc}
+\input{\LABSPATH/otik_letters_stat}
+\input{\LABSPATH/otik_hex_prog}
+
+\input{\LABSPATH/otik_letters_huff}
+\input{\LABSPATH/otik_chains_lz}
+\input{\LABSPATH/otik_hm}
+
+
+
+% \input{\OEVMOTIKCOMMONPATH/otik_hexedit_ruenc} уже есть!!!
+
+
+\endgroup
+
+
+\chapter{Коды ASCII}
+\label{sec:ascii}\index{ASCII}
+\bigskip
+
+\noindent\resizebox{\linewidth}{!}
+{
+\input{\OEVMOTIKCOMMONPATH/ascii}
+}
+\clearpage
+
+{
+\tableofcontents
+}
+\end{document}
+
+
+

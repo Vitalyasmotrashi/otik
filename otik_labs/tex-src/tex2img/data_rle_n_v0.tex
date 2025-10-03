@@ -1,0 +1,196 @@
+\input{commonpath}
+% \input{\SRCROOTPATH/widepresnocommon}
+
+\documentclass[11pt]{extarticle} % дома (buster)
+
+\usepackage{cmap}
+\usepackage[T2A]{fontenc}
+\usepackage[cp1251]{inputenc}
+% \usepackage{tempora}
+% \usepackage[defaultsans]{opensans}
+
+\usepackage[english,russian]{babel}
+\raggedbottom 	% не растягивать недозаполненные страницы по высоте, а оставлять место внизу
+
+
+\usepackage{geometry}
+
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm} % \bm
+\usepackage{icomma}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+
+\input{\COMMONPATH/preamble-complex/tikz2}
+\input{\COMMONPATH/mixin-elementary/tikz-espdblocks2.tex}
+
+\usepackage{ulem}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\scriptsize
+
+\sffamily
+
+\pagestyle{empty}
+
+\resizebox{\linewidth}{!}{
+\begin{tikzpicture}\scriptsize
+
+
+\newcommand{\upair}[2]{\ensuremath{%
+\left\{\begin{array}{@{}c@{}}
+{#1}\\ {#2}
+\end{array}\right\}
+}}
+    
+
+% размеры
+\tikzstyle{espdnormalsize}  = [minimum height=6ex, text width=10.5em, inner sep = 0.2em]
+\tikzstyle{espdwide}        = [minimum height=6ex, text width=18em, inner sep = 0.2em]
+% \tikzstyle{espdwide}        = [minimum height=6ex, text width=20em, inner sep = 0.2em]
+\tikzstyle{espdnarrow}      = [minimum height=6ex, text width=8em, inner sep = 0.2em]
+\tikzstyle{espddatafilesize} = [minimum width=6ex, minimum height=8em, inner sep = 0.2em] % для цилиндра высота — это width!
+
+\tikzstyle{connector}=[espdconnector, minimum height=3ex, ]
+
+
+
+% \tikzset{node distance = 3ex and 3em}
+% 
+% \node[espddatafilesize, espdblackcenter, espddatafile] (C)  {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+% 
+% \node[espdnarrow, espdblackcenter, espddata, below = of C] (c_i) {Текущий символ $c_i$};
+% \node[espdnarrow, espdblackcenter, espddata, left = of c_i  ] (i) {Текущая позиция $i$};
+% 
+% % \node[espdnarrow, espdblackcenter, espddata, above = of i  ]  {$i_\text{начальное} = 1\phantom{\bigg|}$};
+% 
+% \node[espdnormalsize, espdblackcenter, espdprocess, below = of c_i  ] (initL) {
+%     \uline{Инициализация $\{L, c\}$:}\medskip
+%     
+%     $c = c_i,$ ~ $L=1=L_{\min}$
+% }; 
+% 
+% \node[espdblackcenter, espddata, minimum height=4ex, below = of initL] (c) {$c$};
+% \node[espdblackcenter, espddata, minimum height=4ex, right = of initL] (L) {$L$};
+% 
+% \node[fit=(L)(c), inner sep = 0.em] (Lc) {};
+% 
+% % \node[espdnarrow, espdblackcenter, espddata, right =  of c-|L   ] (c_i_L) {Следующий символ $c_{i+L}$};
+% \node[espdnarrow, espdblackcenter, espddata, right = of  c_i ] (c_i_L) {Следующий символ $c_{i+L}$};
+% 
+% \node[espdwide, espdblackcenter, espdprocess, below = of Lc.south-|initL.west, anchor=north west  ] (endL) {
+%     Eсли $L<L_{\max}$ и~$c_{i+L} = c$,
+%     то~$L = L+1$
+%     
+%     \medskip
+%     иначе "--- запись $\upair{L}{c}$, ~ $i = i+L$
+%     
+%     (после этого прочитанный ранее $c_{i+L}$ становится текущим $c_i$)
+% }; 
+% 
+% \node[espddatafilesize, espdblackcenter, espddatafile, right = of endL.south east, anchor=before bottom] (arch)  {Архив};
+% 
+
+
+\tikzset{node distance = 3ex and 3em}
+
+
+
+\node[espdblackcenter, espddata, minimum height=4ex ] (L) {$L$};
+\node[espdblackcenter, espddata, minimum height=4ex, right = of L] (c) {$c$};
+
+% \node[espdfit, inner sep = 0.5em, inner xsep = 0.7em, fit=(L)(c)] (Lc) {};
+\node[fit=(L)(c), inner sep = 0.em] (Lc) {};
+
+
+\node[espdnormalsize, espdblackcenter, espdprocess, above = of Lc  ] (initL) {
+    \uline{Инициализация $\{L, c\}$:}\medskip
+    
+    $c = c_i,$ ~ $L=1=L_{\min}$
+}; 
+
+\node[espdnarrow, espdblackcenter, espddata, above = of initL] (c_i) {Текущий символ $c_i$};
+% \node[espdnarrow, espdblackcenter, espddata, right = of  c_i ] (c_i_L) {Следующий символ $c_{i+L}$};
+\node[espdnarrow, espdblackcenter, espddata, right = of  c ] (c_i_L) {Следующий символ $c_{i+L}$};
+
+\node[espdwide, espdblackcenter, espdprocess, below = of Lc.south-|initL.west, anchor=north west  ] (endL) {
+    Eсли $L<L_{\max}$ и~$c_{i+L} = c$,
+    то~$L = L+1$
+    
+    \medskip
+    иначе "--- запись $\upair{L}{c}$, ~ $i = i+L$
+    
+    (после $i = i+L$ прочитанный ранее $c_{i+L}$ становится текущим $c_i$)
+}; 
+
+\node[espddatafilesize, espdblackcenter, espddatafile, right = of endL] (arch)  {Архив};
+
+{
+
+% \tikzset{node distance = 1.7 ex and 0em} % работает! 0em не сохраняется вне скобок
+% но все три расстояния разные, а то некрасиво
+
+\coordinate[above = 2ex of c_i] (to_c_i_L);
+
+% \coordinate[above = 1ex of to_c_i_L] (C_and_i);
+\coordinate[above = 1.3ex of to_c_i_L] (C_and_i);
+
+\node[espddatafilesize, espdblackcenter, espddatafile, above = 1.5 ex of C_and_i] (C)  {Исх.\,файл $c_1\, c_2 \ldots c_n$};
+
+}
+
+\node[espdnarrow, espdblackcenter, espddata, left = of C  ] (i) {Текущая позиция $i$};
+
+{
+\tikzset{node distance = 0ex and 1.5em}
+
+\coordinate[left = of i.south] (from_endL);
+\coordinate[right = of i.south] (to_C_and_i);
+}
+
+% \draw[espdstreamto] (i) |- (C_and_i);
+\draw[espdstreamto] (to_C_and_i) |- (C_and_i);
+\draw[espdstreamto] (C) -- (c_i);
+\draw[espdstreamto] (to_c_i_L) -| (c_i_L);
+
+\draw[espdstreamto] (c_i) -- (initL);
+\draw[espdstreamto] (initL.south-|L) -- (L);
+\draw[espdstreamto] (initL.south-|c) -- (c);
+
+\draw[espdstreamtofrom] (endL.north-|L) -- (L);
+\draw[espdstreamfrom]   (endL.north-|c) -- (c);
+\draw[espdstreamfrom]   (endL.north-|c_i_L) -- (c_i_L);
+
+\draw[espdstreamto] (endL) -| (from_endL);
+\draw[espdstreamto] (from_endL|-c_i) -- (c_i);
+
+\coordinate (arrow_1) at (from_endL|-L);
+\coordinate[above = 1pt of arrow_1] (arrow_2);
+\draw[espdstreamto] (arrow_1) -- (arrow_2);
+
+
+\draw[espdstreamto] (endL) -- (arch);
+
+% \draw[espdstreamto] () -- ();
+
+
+\coordinate[below = 0.5\baselineskip of endL.north east] (endL_to_c_i_L__0);
+\coordinate[right = of endL_to_c_i_L__0-|c_i_L.east] (endL_to_c_i_L__1);
+\coordinate[above = of c_i_L] (endL_to_c_i_L__2);
+
+\draw[espdstreamto] (endL_to_c_i_L__0) -- (endL_to_c_i_L__1) |-  (endL_to_c_i_L__2);
+
+
+
+\end{tikzpicture}
+}
+
+
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

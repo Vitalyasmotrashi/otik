@@ -1,0 +1,58 @@
+\input{\COMMONPATH/classes/pres11ucs}
+
+\graphicspath{{\SRCROOTPATH/fig/}}
+
+
+\let\originsertdate\insertdate
+\def\insertdate{\originsertdate{} --- актуальную версию можно найти на \url{https://gitlab.com/illinc/otik}}
+
+% \setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+
+\def\MsgAsX{C}
+
+
+\DeclareMathOperator*{\round}{round}
+
+
+\setbeamerfont{frametitle}{size=\linespread{1.0}\normalsize}
+
+
+% по умолчанию в beamer 4:3, 12.8x9.6, hmargin=1 (см. beamer.cls)
+% опции мен€ют и ширину, и высоту, поэтому вручную, сохран€€ высоту: 9.6*16/9 = 17.06(6)
+% пол€ слева-справа (hmargin) выбираем так, чтобы \linewidth не мен€лось: (17.06 - 12.8)/2 + 1 = 3.13
+\geometry{
+  papersize={17.06cm,9.6cm},  hmargin=3.13cm% 16/9 Ч под весь экран
+%   papersize={15.36cm,9.6cm},  hmargin=2.28cm% 16/10 Ч под просмотр в окне
+%   papersize={15.cm,9.6cm},  hmargin=2.1cm% 
+}
+
+% \newlength{\slideheight} ? в common/classes/pres11ucs.tex уже есть
+% \setlength{\slideheight}{15cm} ? 17 Ч это ширина
+
+% \renewcommand\frametitlelike[1]{
+%   \hspace*{-31.3mm}%\tikz
+%   \begin{tikzpicture}[baseline=(txtline)]\node[rectangle, shade, shading=axis, left color=frametitle.bg, right color=frametitle right.bg, minimum width=\paperwidth,text=frametitle.fg, font=\linespread{1.0}\bfseries,outer sep = 0mm] (txtline) {#1};
+% \end{tikzpicture}%  %   \vspace{-\baselineskip}
+% }
+
+\renewcommand\frametitlelike[2][0em]{
+  \hspace*{-31.3mm}%\tikz
+  \begin{tikzpicture}[baseline=(txtline)]\node[rectangle, shade, shading=axis, left color=frametitle.bg, right color=frametitle right.bg, minimum width=\paperwidth+#1,text=frametitle.fg, font=\linespread{1.0}\bfseries,outer sep = 0mm] (txtline) {#2};
+\end{tikzpicture}%  %   \vspace{-\baselineskip}
+}
+
+
+
+
+
+\newcommand{\makethanks}{%
+\section*{}
+\begin{frame}{—пасибо за внимание!}
+
+\insertinstitute\\ \AlmaMaterUrl{}\bigskip
+
+\insertauthor\\ {\MyEmail}\\
+\url{gitlab.com/illinc/raspisanie}\bigskip
+
+\end{frame}
+}

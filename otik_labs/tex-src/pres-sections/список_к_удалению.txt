@@ -1,0 +1,3 @@
+% \input{\SRCROOTPATH/pres-sections/00_code_header.tex} !!! не используем, вносим сюда
+% \input{\SRCROOTPATH/pres-sections/01_simplecodes.tex}
+% \input{\SRCROOTPATH/pres-sections/ieee754_floats.tex}
