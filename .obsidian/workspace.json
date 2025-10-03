@@ -1,0 +1,197 @@
+{
+  "main": {
+    "id": "399440537020cd70",
+    "type": "split",
+    "children": [
+      {
+        "id": "bf73cc0c1e63a1cf",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bf8cb852e611ccf7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "lab_1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "lab_1"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "80ba8f05f3985eb6",
+    "type": "split",
+    "children": [
+      {
+        "id": "28a3550380e04a39",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e8b733bc6288ccad",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Файловый менеджер"
+            }
+          },
+          {
+            "id": "67147d618ef654ce",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Поиск"
+            }
+          },
+          {
+            "id": "4207ab1020c39d86",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Закладки"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "e7063cb532d1f612",
+    "type": "split",
+    "children": [
+      {
+        "id": "3b808d3dc1d85fd0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b0d44bc72fffa614",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "lab_1.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Обратные ссылки для lab_1"
+            }
+          },
+          {
+            "id": "8a053ea5583193eb",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "lab_1.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Исходящие ссылки из lab_1"
+            }
+          },
+          {
+            "id": "d10de01a2c737b30",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Теги"
+            }
+          },
+          {
+            "id": "0a1b14140892043a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "lab_1.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Структура lab_1"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Меню быстрого перехода": false,
+      "graph:Граф": false,
+      "canvas:Создать новый холст": false,
+      "daily-notes:Сегодняшняя заметка": false,
+      "templates:Вставить шаблон": false,
+      "command-palette:Открыть палитру команд": false,
+      "bases:Создать новую базу": false
+    }
+  },
+  "active": "bf8cb852e611ccf7",
+  "lastOpenFiles": [
+    "otik/q7/empty",
+    "otik/q7/maccyrillic.txt",
+    "otik/q7/Lab.ipynb",
+    "otik/q7/koi8r.txt",
+    "otik/q7/iso.txt",
+    "otik/q7/image.png",
+    "otik/q7/dos.txt",
+    "otik/q7/7res.txt",
+    "otik/q7/7.txt",
+    "otik/q7/windows.txt",
+    "otik/q7/utf32.txt",
+    "otik/q7/utf16.txt",
+    "Pasted image 20251003000538.png",
+    "Pasted image 20251003000439.png",
+    "Pasted image 20251003000331.png",
+    "Pasted image 20251003000153.png",
+    "Pasted image 20251002234316.png",
+    "Pasted image 20251002234156.png",
+    "Pasted image 20251002234145.png",
+    "Pasted image 20251002230640.png",
+    "Pasted image 20251002230432.png",
+    "lab_1.md"
+  ]
+}
