@@ -1,0 +1,2 @@
+bash -lc "chmod +x /home/smartkettle/Documents/otik/otik_labs/lab3/n2/n2.py && cd /home/smartkettle/Documents/otik/otik_labs/lab3/n2 && rm -rf demo src dst; 
+mkdir -p demo/docs && printf 'abc' > demo/a.txt && printf 'hello' > demo/docs/b.txt && ./n2.py pack demo demo.otik && mkdir -p unpacked && ./n2.py unpack demo.otik unpacked && diff -r -q demo unpacked | cat"
