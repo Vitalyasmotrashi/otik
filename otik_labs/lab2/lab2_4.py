@@ -11,21 +11,21 @@ def analyze_markov_file(filename):
         print("Файл слишком короткий для анализа (нужно ≥2 байта).")
         return
 
-    # --- Подсчёт пар символов (a_j a_k) ---
+    # пар символов (a_j a_k) 
     pair_counts = Counter((data[i], data[i + 1]) for i in range(n - 1))
 
-    # --- Подсчёт count(a_j *) ---
+    # count(a_j *) 
     first_counts = defaultdict(int)
     for (a, b), cnt in pair_counts.items():
         first_counts[a] += cnt
 
-    # --- Условные вероятности p(a_k | a_j) ---
+    # условные вероятности p(a_k | a_j) 
     conditional_probs = {
         (a, b): pair_counts[(a, b)] / first_counts[a]
         for (a, b) in pair_counts
     }
 
-    # --- Количество информации (в битах) ---
+    # количество информации (в битах) 
     I_bits = sum(
         pair_counts[(a, b)] * (-math.log2(conditional_probs[(a, b)]))
         for (a, b) in pair_counts
@@ -41,7 +41,6 @@ def analyze_markov_file(filename):
     print("-" * 60)
     print(f"Суммарное количество информации I_CM1(Q) = {I_bits:.2f} бит ({I_bytes:.2f} байт)")
 
-    # --- Пример таблицы ---
     print("\nТаблица условных вероятностей (фрагмент):")
     print(f"{'a_j':>6} {'a_k':>6} {'count':>10} {'p(a_k|a_j)':>12}")
     print("-" * 40)

@@ -2,29 +2,14 @@
 """
 Л3.№2 — Codec для формата OTIK v2 с иерархией папок.
 
-Важно: здесь реализован «нулевой профиль» алгоритмов (comp_ctx=0, comp_nctx=0,
-protection=0), то есть БЕЗ СЖАТИЯ и БЕЗ ЗАЩИТЫ ОТ ПОМЕХ. Это полностью
-соответствует заданию Л3.№2: в заголовке и в TOC есть коды алгоритмов, места
-для служебных данных, смещения/длины — но сами алгоритмы можно включать в
-Л3.№3. В этом профиле «сырые» данные файлов пишутся как есть.
-
-CLI (намеренно минимальный, без баннеров помощи):
+CLI 
     pack <root_dir> <archive>   — собрать архив из каталога (с иерархией)
     unpack <archive> <out_dir>  — восстановить каталог из архива
 
-Гарантии и инварианты формата:
 - Все целые — little-endian.
 - Выравнивание границ важных блоков — до 8 байт нулями.
-- Сигнатура архива: b"OTIK01V2" (первые 6 байт совпадают с Л3.№1 — OTIK01).
-- Версия формата — 1.0 (ненулевая, как требует Л3.№2).
-
-Сжатие/защита (как это будет выглядеть в Л3.№3):
-- Сжатие «с учётом контекста» (comp_ctx) применяется ПЕРВЫМ (внутренний слой).
-- Сжатие «без учёта контекста» (comp_nctx) — поверх первого (внешний слой).
-- Защита (protection) — поверх всего (самый внешний слой, например CRC).
-В этом файле пока реализована только «пустая» композиция: все коды = 0,
-данные записываются/читаются без изменений. Точки расширения помечены
-в коде комментариями "HERE: compression/protection hook".
+- Сигнатура архива: b"SOBSTV02" (первые 6 байт совпадают с Л3.№1 — OTIK01).
+- Версия формата — 2
 """
 from __future__ import annotations
 
@@ -37,23 +22,20 @@ import time
 from pathlib import Path
 from typing import BinaryIO, List, Tuple
 
-# --- Константы формата ---
-SIG = b"OTIK01V2"  # 8 байт сигнатуры, префикс OTIK01 сохранён ради требования Л3.№2
-VER_MAJOR = 1
+# константы формата
+SIG = b"SOBSTV02"  # 8 байт сигнатуры
+VER_MAJOR = 2
 VER_MINOR = 0
 COMP_CTX = 0       # по умолчанию: нет
 COMP_NCTX = 0      # по умолчанию: нет
 PROTECT = 0        # по умолчанию: нет
 
-# Заголовок архива (фиксированная часть, 56 байт)
-# Поля строго соответствуют описанию в spec_l3v2.md:
+# фиксированная часть, 56 байт
 #  8s signature; H major; H minor; B comp_ctx; B comp_nctx; B protection; B reserved;
 #  I toc_entries; Q global_meta_offset; I global_meta_length; Q toc_offset; Q data_offset; Q total_original_size
 HDR_FMT = "<8sHHBBBBI Q I Q Q Q"
 HDR_SIZE = struct.calcsize(HDR_FMT)
 
-# Запись TOC (фиксированная часть, 56 байт)
-# Поля соответствуют spec_l3v2.md:
 #  H path_len; H flags; I mode; Q mtime; B comp_ctx; B comp_nctx; B protection; B reserved;
 #  Q original_size; Q stored_size; Q data_offset; I extra_len; Q entry_id
 ENTRY_FMT = "<HHI Q BBBB Q Q Q I Q"
@@ -68,16 +50,10 @@ def _align(n: int, k: int = ALIGN) -> int:
     r = n % k
     return n if r == 0 else n + (k - r)
 
-# --- Сканирование каталога и сбор TOC ---
+# --- сканирование каталога и сбор TOC ---
 
 def _collect_entries(root: Path) -> List[dict]:
-    """Сканирование дерева root с формированием списка записей TOC.
-
-    Почему сначала каталоги?
-    - Так удобнее развернуть дерево при распаковке: сначала создаём
-      каталоги, затем записываем файлы.
-
-    Что кладём в каждую запись (словарь):
+    """
     - 'path'    : относительный путь UTF‑8 (разделитель '/')
     - 'is_dir'  : True для каталогов, False для файлов
     - 'mode'    : POSIX-права (нижние 12 бит st_mode)
@@ -90,7 +66,7 @@ def _collect_entries(root: Path) -> List[dict]:
     entries: List[dict] = []
     root = root.resolve()
 
-    # Каталоги: отдельные записи с путём вида "dir/" (обязательный хвостовой '/')
+    # каталоги: отдельные записи с путём вида "dir/" (обязательный хвостовой '/')
     for dirpath, dirnames, _ in os.walk(root):
         rel = Path(dirpath).resolve().relative_to(root)
         if str(rel) != '.':
@@ -118,7 +94,7 @@ def _collect_entries(root: Path) -> List[dict]:
                 'size': st.st_size,
             })
 
-    # Включаем запись для корневого каталога (пустой путь ''): это удобный маркер,
+    # включаем запись для корневого каталога (пустой путь ''): это удобный маркер,
     # чтобы при распаковке однозначно создать out_dir и применить к нему метаданные.
     st_root = os.stat(root)
     entries.insert(0, {
@@ -131,21 +107,15 @@ def _collect_entries(root: Path) -> List[dict]:
 
     return entries
 
-# --- Запись архива ---
 
 def pack(root_dir: str, archive: str) -> None:
-    """Собрать архив из каталога root_dir и сохранить как archive.
-
-    Высокоуровневая схема записи:
+    """
       1) Сканируем дерево и формируем TOC (без смещений на данные).
       2) Подсчитываем размеры TOC и вычисляем: toc_offset, data_offset.
       3) Назначаем каждому файлу data_offset в области данных (с выравниванием).
       4) Пишем заголовок, затем TOC + пути, делаем выравнивание на 8.
       5) Потоково записываем данные файлов по рассчитанным смещениям.
 
-    Профиль алгоритмов: 0/0/0 (нет сжатия, нет защиты), поэтому stored_size == size,
-    а сами байты файла записываются как есть. Места в формате заложены —
-    в Л3.№3 сюда можно вставить обработку.
     """
     root = Path(root_dir)
     if not root.exists():
@@ -155,7 +125,7 @@ def pack(root_dir: str, archive: str) -> None:
     toc_entries = len(entries)
     total_orig = sum(e['size'] for e in entries if not e['is_dir'])
 
-    # Подсчитаем общий размер TOC: сумма фиксированных записей и строк путей.
+    # подсчитаем общий размер TOC: сумма фиксированных записей и строк путей.
     toc_size = 0
     paths_bytes: List[bytes] = []
     for e in entries:
@@ -167,8 +137,8 @@ def pack(root_dir: str, archive: str) -> None:
     toc_offset = HDR_SIZE
     data_offset = HDR_SIZE + toc_size_aligned
 
-    # Проставим каждому файлу своё смещение в области данных.
-    # Выравнивание по 8 — чтобы оставаться совместимыми с возможными блоковыми алгоритмами/ДМА.
+    # проставим каждому файлу своё смещение в области данных.
+    # выравнивание по 8 — чтобы оставаться совместимыми с возможными блоковыми алгоритмами/ДМА.
     cursor = data_offset
     for i, e in enumerate(entries):
         if e['is_dir']:
@@ -177,8 +147,6 @@ def pack(root_dir: str, archive: str) -> None:
         else:
             cursor = _align(cursor)
             e['data_offset'] = cursor
-            # Профиль 0: без сжатия — сохраняем размер как есть.
-            # HERE: compression/protection hook (при наличии алгоритмов stored_size мог бы отличаться)
             e['stored_size'] = e['size']
             cursor += e['stored_size']
 
@@ -227,18 +195,18 @@ def pack(root_dir: str, archive: str) -> None:
                 original_size, stored_size, data_off, extra_len, entry_id
             ))
             out.write(p_bytes)
-        # Выравнивание после TOC — до ближайшей границы 8 байт нулями
+        # выравнивание после TOC — до ближайшей границы 8 байт нулями
         pad = _align(out.tell()) - out.tell()
         if pad:
             out.write(b"\x00" * pad)
 
-        # Данные файлов (пул payload):
-        # Для профиля 0/0/0 просто копируем «как есть». При включении алгоритмов
+        # данные файлов (пул payload):
+        # для профиля 0/0/0 просто копируем «как есть». При включении алгоритмов
         # здесь должен происходить пайплайн: encode_ctx -> encode_nctx -> protect.
         for e in entries:
             if e['is_dir'] or e['stored_size'] == 0:
                 continue
-            # Переход к заранее посчитанному смещению (на случай, если будущие версии пишут не последовательно)
+            # переход к заранее посчитанному смещению (на случай, если будущие версии пишут не последовательно)
             cur = out.tell()
             if cur < e['data_offset']:
                 out.write(b"\x00" * (e['data_offset'] - cur))
@@ -251,20 +219,14 @@ def pack(root_dir: str, archive: str) -> None:
                     chunk = f.read(1024 * 1024)
                     if not chunk:
                         break
-                    # HERE: compression/protection hook — в Л3.№3 можно
-                    # оборачивать поток chunk'ов в кодеры и писать уже
-                    # преобразованные данные. Сейчас — сырые байты.
                     out.write(chunk)
 
 # --- Чтение архива ---
 
 def _safe_join(base: Path, rel: str) -> Path:
-    """Безопасное формирование пути назначения.
-
-    Запрещаем:
+    """
       - абсолютные пути внутри архива ("/etc/passwd");
       - выход за пределы каталога назначения через "..".
-    Это защита от атак вида Path Traversal при распаковке.
     """
     rel_path = Path(rel)
     if rel_path.is_absolute():
@@ -276,19 +238,13 @@ def _safe_join(base: Path, rel: str) -> Path:
 
 
 def unpack(archive: str, out_dir: str) -> None:
-    """Распаковать архив в каталог out_dir.
+    """распаковать архив в каталог out_dir.
 
     Схема чтения:
       1) Проверяем сигнатуру/версию и читаем общие коды алгоритмов.
       2) Переходим на TOC и читаем его записи + пути.
       3) Создаём каталоги (включая пустой путь для корня), проставляем права/mtime.
       4) Для каждого файла читаем данные по data_offset длиной stored_size и пишем.
-
-    Профиль 0/0/0: данные читаются/пишутся без изменений. Если в архиве
-    встретятся ненулевые коды алгоритмов, текущая реализация их не применяет —
-    для безопасности такие архивы лучше отвергать, но здесь мы наследуем коды
-    и продолжаем писать «как есть». Места, где должен быть пайплайн
-    decode/protection, помечены комментариями.
     """
     out_root = Path(out_dir)
     out_root.mkdir(parents=True, exist_ok=True)
@@ -318,7 +274,7 @@ def unpack(archive: str, out_dir: str) -> None:
         if vmaj < 1:
             raise ValueError("unsupported version")
 
-        # Читаем TOC: фиксированная часть записи + путь UTF‑8
+        # читаем TOC: фиксированная часть записи + путь UTF‑8
         f.seek(toc_off)
         entries = []
         for i in range(toc_entries):
@@ -348,8 +304,8 @@ def unpack(archive: str, out_dir: str) -> None:
                 'protection': protection if e_prot == 0xFF else e_prot,
             })
         
-        # Восстановление каталогов и файлов
-        # Сначала каталоги (включая корень с пустым путём)
+        # восстановление каталогов и файлов
+        # сначала каталоги (включая корень с пустым путём)
         for e in entries:
             if not e['is_dir']:
                 continue
@@ -365,7 +321,7 @@ def unpack(archive: str, out_dir: str) -> None:
             except Exception:
                 pass
 
-        # Затем файлы: для профиля 0/0/0 читаем порциями и пишем как есть.
+        # затем файлы: для профиля 0/0/0 читаем порциями и пишем как есть.
         for e in entries:
             if e['is_dir']:
                 continue
@@ -378,9 +334,6 @@ def unpack(archive: str, out_dir: str) -> None:
                     chunk = f.read(min(1024 * 1024, remaining))
                     if not chunk:
                         raise ValueError("unexpected EOF in data")
-                    # HERE: decompression/deprotection hook — если бы были
-                    # включены алгоритмы, здесь надо было бы прогонять chunk
-                    # через декодер(ы). Сейчас — прямой вывод.
                     out.write(chunk)
                     remaining -= len(chunk)
             try:
@@ -392,7 +345,6 @@ def unpack(archive: str, out_dir: str) -> None:
             except Exception:
                 pass
 
-# --- Минимальный CLI ---
 
 def main(argv: list[str]) -> int:
     if len(argv) == 0:

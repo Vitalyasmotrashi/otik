@@ -7,29 +7,29 @@ def guess_encoding(counts):
     if total == 0:
         return "Не удалось определить (файл пуст)"
 
-    # Доли не-ASCII байтов
+    # доли не-ASCII байтов
     non_ascii_ratio = sum(c for b, c in counts.items() if b > 127) / total
 
-    # Если почти все байты <128 — ASCII
+    # если почти все байты <128 — ASCII
     if non_ascii_ratio < 0.05:
         return "ASCII / не русскоязычный текст"
 
-    # Частоты характерных байтов
+    # частоты характерных байтов
     freq = lambda b: counts.get(b, 0) / total
 
-    # Признаки UTF-8
+    # UTF-8
     if freq(0xD0) + freq(0xD1) > 0.15:
         return "UTF-8"
 
-    # Признаки CP1251
+    # CP1251
     if max(freq(b) for b in range(0xE0, 0xF0)) > 0.03:
         return "Windows-1251 (CP1251)"
 
-    # Признаки KOI8-R
+    # KOI8-R
     if max(freq(b) for b in range(0xC0, 0xE0)) > 0.03 and max(freq(b) for b in range(0xE0, 0xF0)) > 0.02:
         return "KOI8-R"
 
-    # Признаки ISO-8859-5
+    # ISO-8859-5
     if max(freq(b) for b in range(0xB0, 0xC0)) > 0.03:
         return "ISO-8859-5"
 
@@ -48,10 +48,10 @@ def analyze_encoding(filename):
 
     counts = Counter(data)
 
-    # --- Топ-4 наиболее частых байта ---
+    # Топ-4 наиболее частых байта 
     top4_all = sorted(counts.items(), key=lambda x: -x[1])[:4]
 
-    # --- Топ-4 не-ASCII байта ---
+    # Топ-4 не-ASCII байта 
     non_ascii = [(b, c) for b, c in counts.items() if b > 127]
     top4_non_ascii = sorted(non_ascii, key=lambda x: -x[1])[:4]
 
@@ -71,7 +71,6 @@ def analyze_encoding(filename):
 
     print("-" * 60)
 
-    # --- Определение кодировки ---
     encoding_guess = guess_encoding(counts)
     print(f"\n➡ Предполагаемая кодировка: {encoding_guess}")
     print("-" * 60)

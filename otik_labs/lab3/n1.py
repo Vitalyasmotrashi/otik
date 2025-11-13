@@ -4,10 +4,10 @@
 
 Заголовок (ровно 16 байт), little-endian:
   0..5  : сигнатура формата (6 байт)          -> b"OTIK01"
-  6..7  : версия формата (uint16)             -> 0
+  6-7  : версия формата (uint16)             -> 0
   8..15 : исходная длина n (uint64)           -> размер файла Q в байтах
 
-далее идут "сырые" данные исходного файла Q длиной n байт.
+"сырые" данные исходного файла Q длиной n байт.
 
 CLI:
   encode <path_to_Q> <path_to_R>
@@ -17,7 +17,6 @@ Linux:
   ./n1.py encode ./q.txt ./r.otik
   ./n1.py decode ./r.otik ./q_out.txt
 
-Код ниже снабжён подробными комментариями к каждому действию.
 """
 
 from __future__ import annotations
@@ -27,15 +26,11 @@ import struct
 import sys
 from typing import BinaryIO
 
-# --- Константы формата ---
+SIGNATURE: bytes = b"SOBSTV"
 
-# Выбранная сигнатура формата (строго 6 байт)
-SIGNATURE: bytes = b"OTIK01"
-
-# Номер версии формата для задания Л3.1 (uint16 = 0)
 VERSION: int = 0
 
-# Описание заголовка для struct: < = little-endian, 6s (6 байт), H (uint16), Q (uint64)
+# struct: < = little-endian, 6s (6 байт), H (uint16), Q (uint64)
 HEADER_FMT: str = "<6sHQ"
 HEADER_SIZE: int = struct.calcsize(HEADER_FMT)  # 16 байт
 
@@ -78,9 +73,8 @@ def read_header(f: BinaryIO) -> tuple[int]:
 
 
 def encode(input_path: str, archive_path: str, *, chunk: int = 1024 * 1024) -> None:
-    """Создать архив R по файлу Q.
+    """архив R по файлу Q.
 
-    Алгоритм:
       1) получить длину Q (n);
       2) записать заголовок (16 байт);
       3) скопировать тело файла блоками (по умолчанию 1 МБ).
@@ -88,11 +82,11 @@ def encode(input_path: str, archive_path: str, *, chunk: int = 1024 * 1024) -> N
 
     n = os.stat(input_path).st_size  # исходная длина n
 
-    # Открываем выходной архив и исходный файл. Используем двоичный режим.
+    # выходной архив и исходный файл. двоичный режим.
     with open(archive_path, "wb") as out_f, open(input_path, "rb") as in_f:
         write_header(out_f, n)
 
-        # Потоковая копия: читаем исходные данные блоками и сразу пишем в архив.
+        # потоковая копия: 
         while True:
             buf = in_f.read(chunk)
             if not buf:
@@ -109,7 +103,7 @@ def decode(archive_path: str, output_path: str, *, chunk: int = 1024 * 1024) -> 
     with open(archive_path, "rb") as in_f:
         (n,) = read_header(in_f)
 
-        # Быстрая проверка целостности архива: общий размер должен быть 16 + n.
+        # быстрая проверка целостности архива: общий размер должен быть 16 + n.
         try:
             total_size = os.fstat(in_f.fileno()).st_size
             expected = HEADER_SIZE + n
@@ -118,7 +112,6 @@ def decode(archive_path: str, output_path: str, *, chunk: int = 1024 * 1024) -> 
                     f"archive size mismatch: got {total_size}, expected {expected}"
                 )
         except Exception:
-            # Если по каким-то причинам fstat недоступен (редко), пропускаем эту проверку.
             pass
 
         remaining = n
@@ -127,19 +120,18 @@ def decode(archive_path: str, output_path: str, *, chunk: int = 1024 * 1024) -> 
                 to_read = min(chunk, remaining)
                 buf = in_f.read(to_read)
                 if not buf:
-                    # Данные закончились раньше n байт -> битый/обрезанный архив.
+                    # данные закончились раньше n байт -> битый/обрезанный архив.
                     raise ValueError("unexpected EOF in archive data")
                 out_f.write(buf)
                 remaining -= len(buf)
 
 
 def main(argv: list[str]) -> int:
-    """Простейший парсер без справки.
+    """парсер без справки.
 
-    Допустимые вызовы:
+    вызовы:
       - encode <Q> <R>
       - decode <R> <Q_out>
-    Любой другой набор аргументов приводит к короткому сообщению об использовании.
     """
 
     if len(argv) == 0:
@@ -162,5 +154,4 @@ def main(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
-    # передаём только позиционные аргументы без имени скрипта
     raise SystemExit(main(sys.argv[1:]))

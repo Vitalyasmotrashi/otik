@@ -3,7 +3,7 @@ import math
 from collections import Counter, defaultdict
 
 def analyze_markov_unicode(filename):
-    # --- Чтение файла как текста в UTF-8 ---
+    # UTF-8 
     with open(filename, "r", encoding="utf-8") as f:
         text = f.read()
 
@@ -12,21 +12,21 @@ def analyze_markov_unicode(filename):
         print("Файл слишком короткий (меньше 2 символов).")
         return
 
-    # --- Подсчёт пар символов ---
+    # подсчёт пар символов 
     pair_counts = Counter((text[i], text[i + 1]) for i in range(n - 1))
 
-    # --- Подсчёт count(a_j *) ---
+    # count(a_j *) 
     first_counts = defaultdict(int)
     for (a, b), cnt in pair_counts.items():
         first_counts[a] += cnt
 
-    # --- Условные вероятности ---
+    # условные вероятности 
     conditional_probs = {
         (a, b): pair_counts[(a, b)] / first_counts[a]
         for (a, b) in pair_counts
     }
 
-    # --- Суммарное количество информации ---
+    # суммарное количество информации 
     I_bits = sum(
         pair_counts[(a, b)] * (-math.log2(conditional_probs[(a, b)]))
         for (a, b) in pair_counts

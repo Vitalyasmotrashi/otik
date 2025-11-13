@@ -3,7 +3,7 @@ import sys
 from collections import Counter
 
 def analyze_unicode_file(filename):
-    # --- Чтение файла как текста UTF-8 ---
+    # UTF-8 
     with open(filename, "r", encoding="utf-8") as f:
         text = f.read()
 
@@ -12,23 +12,22 @@ def analyze_unicode_file(filename):
         print("Файл пустой.")
         return
 
-    # --- Подсчёт количества вхождений каждого Unicode-символа ---
+    # количества вхождений 
     counts = Counter(text)
 
-    # --- Вероятности и количество информации ---
+    # вероятности и количество информации 
     probs = {ch: counts[ch] / n for ch in counts}
     infos = {ch: -math.log2(probs[ch]) for ch in counts}
 
     total_info_bits = sum(counts[ch] * infos[ch] for ch in counts)
     total_info_bytes = total_info_bits / 8
 
-    # --- Размер алфавита ---
     A1 = len(counts)
 
-    # --- Минимальный размер архива (без таблицы) ---
+    # минимальный размер архива (без таблицы) 
     E = math.ceil(total_info_bytes)
 
-    # --- Длины таблиц ---
+    # длины таблиц 
     # длина алфавита в битах (64-битное число)
     L_A1_bits = 64
 
@@ -38,10 +37,9 @@ def analyze_unicode_file(filename):
     G_table_bits = A1 * (32 + 64)
     G_table_bytes = G_table_bits / 8
 
-    # --- Общая длина архива ---
+    # общая длина архива 
     G_total = E + math.ceil(L_A1_bits / 8 + G_table_bytes)
 
-    # --- Вывод ---
     print(f"\nАнализ Unicode-файла: {filename}")
     print(f"Количество символов: n = {n}")
     print(f"Размер алфавита |A1| = {A1}")
@@ -62,7 +60,6 @@ def analyze_unicode_file(filename):
     print("\nДробная часть IΣ(Q):", format(fract_part, ".5e"))
 
 
-# --- Запуск из консоли ---
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Использование: python lab2_2.py <имя_файла>")
